@@ -21,6 +21,7 @@
     "prepare": "node scripts/install-git-hooks.mjs",
     "preview": "vite preview",
     "sync": "node scripts/patch-codec-wrappers.mjs",
+    "social-card": "node scripts/generate-social-card.mjs",
     "test": "npm run check && npm run test:unit && PLAYWRIGHT_SKIP_BUILD=1 npm run test:e2e",
     "test:unit": "svelte-kit sync && vitest run",
     "test:e2e": "playwright test",
