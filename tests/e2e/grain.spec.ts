@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import { expect, test, type Page } from '@playwright/test';
 
-// Guards the film-grain processor's two contracts (docs/specs/
+// Guards the film-grain processor's two contracts (docs/project/specs/
 // 2026-07-12-film-grain.md):
 //
 //  1. Enabling grain genuinely re-encodes — a new blob URL with different

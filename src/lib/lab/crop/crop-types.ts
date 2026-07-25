@@ -1,6 +1,6 @@
 // Shared types for the porcelain-lab crop tool. Pure declarations — no DOM,
 // no Svelte. The coordinate model these types live in is specified in
-// docs/specs/2026-07-07-porcelain-crop-tool.md and is FIXED: world space is
+// docs/project/specs/2026-07-07-porcelain-crop-tool.md and is FIXED: world space is
 // y-down, image center at the origin, `world = R(θ)·F·(p − center)` with
 // θ = orientation + angleDeg (degrees, clockwise-positive) and flips applied
 // BEFORE rotation. The crop rect is always axis-aligned in world space.

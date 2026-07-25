@@ -1,6 +1,6 @@
 // Pure geometry for the porcelain-lab crop tool. No DOM, no Svelte — every
 // function is a value-in/value-out transform over the coordinate model fixed
-// in docs/specs/2026-07-07-porcelain-crop-tool.md:
+// in docs/project/specs/2026-07-07-porcelain-crop-tool.md:
 //
 //   world = R(θ) · F · (p − imageCenter)     θ = orientation + angleDeg (CW, y-down)
 //

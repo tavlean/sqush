@@ -1,6 +1,6 @@
 <script lang="ts">
   // Amount is the whole story for the film look — the calibrated model pins
-  // the grain's character (docs/specs/2026-07-12-film-grain.md). Size hides
+  // the grain's character (docs/project/specs/2026-07-12-film-grain.md). Size hides
   // under Advanced because it serves a different job: 2px grain survives
   // lossy encoding at a fraction of the byte cost, which is what you want for
   // debanding rather than aesthetics. Mutates the grain processor options in

@@ -5,7 +5,7 @@ import { grainIsReal } from '../../src/client/lazy-app/feature-meta/shared';
 // The numeric assertions test the CALIBRATED model, not implementation
 // details: σ ≈ 0.44·amount at mid-gray, a 4L(1−L) midtone parabola, and
 // monochrome deltas. Tolerances are statistical (128×128 = 16k samples).
-// Calibration data: docs/specs/2026-07-12-film-grain.md.
+// Calibration data: docs/project/specs/2026-07-12-film-grain.md.
 
 const SIZE = 128;
 

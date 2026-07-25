@@ -19,4 +19,4 @@ the rule entirely (it does the redirecting itself).
 ## Decommission
 
 Keep deployed for ~a year after the 2026-07-05 rename, then delete the Worker
-and the zone. Context: `docs/presk-rename-runbook.md`.
+and the zone. Context: `docs/rename-record.md`.

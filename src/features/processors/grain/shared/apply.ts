@@ -1,7 +1,7 @@
 import type { Options } from './meta';
 
 // Film grain, calibrated against Luminar Neo's default look — the measured
-// model and its calibration data live in docs/specs/2026-07-12-film-grain.md.
+// model and its calibration data live in docs/project/specs/2026-07-12-film-grain.md.
 // In short: monochrome white noise, amplitude following a midtone parabola of
 // the pixel's own luma, samples drawn flatter-than-gaussian.
 //

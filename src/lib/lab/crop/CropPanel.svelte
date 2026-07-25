@@ -6,7 +6,7 @@
   // the stage directly — every action calls a `tool` method or sets a `tool`
   // field, and every readout reflects a `tool` `$state`/`$derived`. Styling is
   // pure porcelain (--pc-* tokens); no studio-dark colors, correct in light and
-  // dark. Contract: docs/specs/2026-07-07-porcelain-crop-tool.md ("Panel").
+  // dark. Contract: docs/project/specs/2026-07-07-porcelain-crop-tool.md ("Panel").
   import { CropTool } from './crop-tool.svelte';
   import type { OverlayKind, OverlayShowMode } from './crop-types';
   import { lightDismiss } from '$lib/editor/light-dismiss';

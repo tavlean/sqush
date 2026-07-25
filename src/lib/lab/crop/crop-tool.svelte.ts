@@ -3,7 +3,7 @@
 // this instance; neither talks to the other directly. The geometry itself is
 // pure (crop-geometry.ts); this class owns reactivity, constraints, and the
 // decode/apply lifecycle. API contract:
-// docs/specs/2026-07-07-porcelain-crop-tool.md.
+// docs/project/specs/2026-07-07-porcelain-crop-tool.md.
 
 import type {
   ConstrainMode,
