@@ -12,6 +12,53 @@
       rel="apple-touch-icon"
       href="%sveltekit.assets%/apple-touch-icon.png"
     />
+
+    <!-- Search and link-preview metadata. This HAS to live here rather than in a
+         `<svelte:head>`: the app runs with `ssr = false`, so component head
+         content is added by JS after hydration and never appears in the
+         prerendered HTML. Search engines mostly execute JS now, but social
+         crawlers (Slack, iMessage, WhatsApp, Facebook, X, LinkedIn) do not, so
+         anything they must read has to be in this static shell.
+
+         Consequence for a rebrand: the name and URL below are the ONE place
+         outside `src/shared/brand.ts` where the brand is written in code, because
+         a static HTML template cannot import it. `docs/project-identity.md` lists
+         this file as a rename touch-point. Copy rationale: `docs/seo.md`.
+
+         The title here is the crawler-visible page identity and is deliberately
+         richer than the runtime tab title, which `+page.svelte` replaces with
+         progress and the open filename ("⏳ photo.jpg - Frisp - Compress
+         images"). Both are correct for their own job. -->
+    <title>Frisp - Compress and convert images in your browser</title>
+    <meta
+      name="description"
+      content="Compress and convert images to WebP, AVIF, JPEG XL, JPEG, or PNG right in your browser. Resize, compare before and after, and export. Nothing is uploaded."
+    />
+    <link rel="canonical" href="https://frisp.app/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Frisp" />
+    <!-- Short on purpose: the card image already carries the tagline, so a full
+         sentence here would repeat itself in the preview. -->
+    <meta property="og:title" content="Frisp" />
+    <meta
+      property="og:description"
+      content="Compress and convert images to WebP, AVIF, JPEG XL, JPEG, or PNG right in your browser. Resize, compare before and after, and export. Nothing is uploaded."
+    />
+    <meta property="og:url" content="https://frisp.app/" />
+    <!-- Absolute URL required: crawlers do not resolve relative image paths.
+         Regenerate with `npm run social-card` after any brand change. -->
+    <meta property="og:image" content="https://frisp.app/social-card.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="The Frisp logomark and wordmark above the line: compress and convert images in your browser."
+    />
+    <!-- X and several other consumers fall back to the og:* tags above for
+         title, description, and image, so only the card type needs declaring. -->
+    <meta name="twitter:card" content="summary_large_image" />
+
     %sveltekit.head%
   </head>
   <body data-sveltekit-preload-data="hover">

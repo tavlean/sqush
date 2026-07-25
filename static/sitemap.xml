@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  One entry, because the app is one page: the editor, bulk mode, and the intro
+  are all states of "/" rather than routes. /diagnostics is deliberately absent
+  (see robots.txt), and the /lab and /bench-svg trees do not exist in a
+  production build at all, since app-strip-dev-only-routes replaces them.
+
+  No <lastmod>: it would need updating on every deploy to stay honest, and a
+  stale date is worse than none. No <changefreq> or <priority>: Google ignores
+  both.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://frisp.app/</loc>
+  </url>
+</urlset>
