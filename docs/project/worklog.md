@@ -30,10 +30,19 @@ the wrong deal, so `app.html` is now a documented rename touch-point in
 
 Social card: `static/social-card.png` from the new
 `scripts/generate-social-card.mjs` (`npm run social-card`), so it is reproducible
-from the canonical logomark, the intro's light palette, and the shipped Satoshi
-face via Playwright. Light surface to match the landing. A real editor screenshot
-would sell the product harder but the re-style direction is still open, so it
-would go stale.
+from the canonical logomark, the intro's token values, and the shipped Satoshi face
+via Playwright. The composition mirrors the production landing: dark surface,
+dotted viewfinder, brand as small HUD micro-copy top-left, the statement headline
+as the hero. A real editor screenshot would sell the product harder but the
+re-style direction is still open, so it would go stale.
+
+Two things the first attempt got wrong, both worth remembering. The card was
+built light with a big centered logo lockup, which buried the message under the
+mark; the landing's own hierarchy (tiny brand in the HUD, headline as hero) was
+the right reference all along. And a CSS `2px dashed` border reads as a flat
+hairline once a card is scaled to a thumbnail, so the dots use round caps on a
+near-zero dash length instead. Checking the card at 300px and 180px wide is now
+part of the routine, since that is the size a preview actually renders at.
 
 Verified beyond the build artifact: fetched the served HTML in the preview and
 confirmed the raw bytes a non-JS crawler receives carry every tag, that
