@@ -3,7 +3,7 @@
 Last updated: 2026-05-26.
 
 > Historical prototype record. The SvelteKit app has since been promoted to the
-> repo root on the `svelte` branch. Use [STATUS.md](../STATUS.md) and
+> repo root on the `svelte` branch. Use [the project brief](../project/brief.md) and
 > [MIGRATION-PLAN.md](MIGRATION-PLAN.md) for live instructions.
 
 ## Purpose

@@ -28,7 +28,7 @@ rename now touches ONLY:
    `src/lib/brand/logomark.svg` (+ the `static/favicon.png` /
    `static/apple-touch-icon.png` rasters if restyled).
 4. Prose docs / README — a grep-replace of the old name (attribution excluded).
-5. Domain + repo + deployment plumbing (see `docs/presk-rename-runbook.md` for
+5. Domain + repo + deployment plumbing (see `docs/rename-record.md` for
    the full external checklist: GitHub rename, DNS, old-domain sunset Worker —
    reuse `infra/sqush-sunset/` as the template for freeing PWA users pinned to
    the old origin).
@@ -45,7 +45,7 @@ storage schema (see the HARD RULE in `src/lib/editor/settings-storage.ts`).
 - **Presk** (`tavlean/presk`, presk.app) — historical, renamed 2026-07-05 and
   dropped the same day for Plesk confusion.
 - **Frisp** (`tavlean/frisp`, frisp.app) — current, renamed 2026-07-05
-  (`docs/presk-rename-runbook.md` is the migration record).
+  (`docs/rename-record.md` is the migration record).
 
 ## Historical identity
 

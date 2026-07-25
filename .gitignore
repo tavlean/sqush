@@ -14,6 +14,9 @@ blob-report
 .last-run.json
 benchmarks/results
 
+# Local design reference images: dropped in by hand, never committed.
+docs/project/references/
+
 # Regenerable benchmark outputs (rerun bench:svg / run-imageoptim.sh).
 # nano* outputs ARE tracked: a hosted tool is not reproducible.
 benchmarks/svg/external/frisp-safe/

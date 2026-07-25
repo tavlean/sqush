@@ -188,4 +188,4 @@ Markdown and interrupted commits), but the current hook deliberately excludes
 
 `*.md` is intentionally excluded from every Prettier path — the hook, `format`,
 and `format:check`. Prettier's Markdown formatter reflows prose and mangles
-hand-written docs, so format Markdown by hand. See [STATUS.md](STATUS.md).
+hand-written docs, so format Markdown by hand. See [the project brief](project/brief.md).

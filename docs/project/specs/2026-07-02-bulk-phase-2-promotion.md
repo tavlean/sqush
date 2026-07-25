@@ -5,9 +5,9 @@ Status: **executed 2026-07-03**.
 
 *Historical record — paths/scripts named here reflect the repo at the time; see docs/build-and-runtime.md for the current build.*
 e2e/docs sweep; all 10 acceptance criteria verified).
-Decision record: [bulk-ui-design-options.md](../bulk-ui-design-options.md)
+Decision record: [bulk-ui-design-options.md](../../bulk-ui-design-options.md)
 (design phase complete 2026-07-02 — every open question is decided there).
-Engine reference: [bulk-image-architecture.md](../bulk-image-architecture.md).
+Engine reference: [bulk-image-architecture.md](../../bulk-image-architecture.md).
 
 This spec is written to be executed by a model with no access to the design
 conversation. Every judgment call is resolved here; where the spec says
@@ -80,7 +80,7 @@ things); if any fails, stop and report rather than improvising:
 10. `npm run check` = format check + sync + svelte-check + build +
     static-output audit, and is green on `main` before you start.
 
-Also read, before writing any code: `docs/STATUS.md`, `docs/README.md`
+Also read, before writing any code: `docs/project/brief.md`, `docs/README.md`
 (registry), `docs/bulk-ui-design-options.md` (the header + §3–§6 minimum),
 and `AGENTS.md`. AGENTS.md line ~28 gates production bulk UI on
 "maintainer/design discussion" — that gate is **satisfied** by the 2026-07-02
@@ -630,10 +630,10 @@ auto-format `.md`):
 
 | Doc | Change |
 |---|---|
-| `docs/STATUS.md` | New Current State entry: bulk Phase 2 landed (what shipped, commits); update the bulk design-phase entry's "Save-all ZIP remains stubbed" line. |
+| `docs/project/brief.md` | New Current State entry: bulk Phase 2 landed (what shipped, commits); update the bulk design-phase entry's "Save-all ZIP remains stubbed" line. |
 | `docs/README.md` | Priority table: bulk row → Phase 2 ✅ done / next phase pointer. (This spec's registry row already exists — update its wording to "done".) |
 | `docs/bulk-ui-design-options.md` | Header: promotion executed, date, pointer here; roadmap table Phase 2 → done. |
-| `docs/road-map.md` | Bulk milestone status update. |
+| `docs/project/roadmap.md` | Bulk milestone status update. |
 | `docs/parity-audit.md` | New §A entry: bulk mode is a deliberate addition; within bulk, the two-up divider follows the image (`orientationOverride`), single-image editor unchanged. |
 | `docs/test-plan.md` | §4: note the new engine tests (restoreJob, export option, relativePath) + the bulk e2e smoke list. |
 | `AGENTS.md` | The "do not implement production bulk UI without discussion" line → rewritten to reflect that bulk IS production now, pointing at the design record. |
@@ -736,7 +736,7 @@ Also append the journey notes ONLY if something notably hard happened
 8. `package.json` devDependencies include `client-zip`; `package-lock.json`
    updated by npm (never hand-edited).
 9. Every doc row in the H2 table shows a 2026 "Last updated" bump in the same
-   PR-window of commits, and `docs/specs/2026-07-02-bulk-phase-2-promotion.md`
+   PR-window of commits, and `docs/project/specs/2026-07-02-bulk-phase-2-promotion.md`
    has `Status: done`.
 10. Commit series matches the stage plan (≥ 8 commits; code and docs
     separated).

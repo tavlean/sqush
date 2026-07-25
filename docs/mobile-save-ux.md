@@ -1,9 +1,10 @@
 # Mobile save/download behavior + the Share button
 
-Research summary (2026-07-17, web-verified against WebKit/Chromium sources)
-for how Frisp's save buttons behave on phones, and the Share button built on
-it (SHIPPED 2026-07-17 — see the last section). Read when touching the
-download/share affordances; update when platform behavior changes.
+Last updated: 2026-07-17.
+
+How Frisp's save buttons behave on phones, verified against WebKit and Chromium
+sources, and the Share button built on that research (shipped 2026-07-17; see the
+last section).
 
 ## Where a saved image lands today
 

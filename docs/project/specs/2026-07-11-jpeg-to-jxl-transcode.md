@@ -3,7 +3,7 @@
 Last updated: 2026-07-11. Status: **not started — BLOCKED on
 [2026-07-11-libjxl-0-12-upgrade.md](2026-07-11-libjxl-0-12-upgrade.md).**
 Origin: maintainer decision 2026-07-11. Supersedes the "SKIP" verdict in
-[new-codec-investigation.md](../new-codec-investigation.md) §4 — its blockers
+[new-codec-investigation.md](../../new-codec-investigation.md) §4 — its blockers
 are gone: the recompile toolchain exists (2026-06 sweep), the public-API
 encoder rewrite is now specced anyway, and JXL browser reach flipped (Safari
 ships it; Chrome 145 ships the decoder behind a flag, default-on expected
@@ -270,7 +270,7 @@ JPEG source + neutral preprocessing, with snackbar fallback to pixel encode;
 toggle UI in the JXL panel that hides irrelevant controls. Verified by e2e +
 a one-off `djxl --reconstruct_jpeg`/`cmp` round-trip.
 
-Spec: `docs/specs/2026-07-11-jpeg-to-jxl-transcode.md`
+Spec: `docs/project/specs/2026-07-11-jpeg-to-jxl-transcode.md`
 
 Handoff (after the 0.12 upgrade lands):
-`codex exec -C /Users/tav/Development/Tavlean/Frisp -s workspace-write -m gpt-5.6-sol -c model_reasoning_effort="low" "Implement docs/specs/2026-07-11-jpeg-to-jxl-transcode.md exactly. Verify its BLOCKED-on prerequisite first; stop if unmet. Follow the guardrails. Do not commit or push. Report PASS or FAIL against each acceptance criterion."`
+`codex exec -C /Users/tav/Development/Tavlean/Frisp -s workspace-write -m gpt-5.6-sol -c model_reasoning_effort="low" "Implement docs/project/specs/2026-07-11-jpeg-to-jxl-transcode.md exactly. Verify its BLOCKED-on prerequisite first; stop if unmet. Follow the guardrails. Do not commit or push. Report PASS or FAIL against each acceptance criterion."`

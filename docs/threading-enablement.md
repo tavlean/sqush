@@ -10,7 +10,7 @@ e2e-test-protected. Owner: solo. Priority: **done.** All of this is **merged int
 `main`** (the former `codec-rebuilds` / `codec-cleanup-and-threading` branches are
 merged and deleted).
 
-Read [STATUS.md](STATUS.md) for live state. This finished a **parked migration
+Read [the project brief](project/brief.md) for live state. This finished a **parked migration
 item**, it is not new greenfield work.
 
 > **ALL LANDED & VERIFIED (now on `main`).** Cross-origin isolation activates
@@ -41,7 +41,7 @@ thread support — AVIF, JPEG XL, and OxiPNG each call
 later removed in the codegen retirement — `initThreadPool` now lives in
 `src/worker/codec-worker.ts`). (WebP 2 also shipped a `_mt`
 build but was removed from the codec surface — see
-[codec-surface-cleanup.md](codec-surface-cleanup.md).)
+[codec-surface-cleanup.md](history/codec-surface-cleanup.md).)
 
 WASM threads require `SharedArrayBuffer`, which requires the page to be
 **cross-origin isolated** via two response headers:
@@ -71,7 +71,7 @@ seams audits. This plan closes it out.
   machine's many cores to work. (Native-tier performance would require a
   Tauri/native wrapper — a separate product, not this plan.)
 - **Prerequisite for the "encode to every format at once, compare sizes"
-  feature** (see [road-map.md](road-map.md) → Multi-Format Compare).
+  feature** (see [road-map.md](project/roadmap.md) → Multi-Format Compare).
 
 ## Plan
 
@@ -307,7 +307,7 @@ dev (raw-serve middleware) and prod (raw hashed emit).
 
 ## Related
 
-- [codec-upgrade-audit.md](codec-upgrade-audit.md) — WASM framing; threading note.
-- [road-map.md](road-map.md) — Multi-Format Compare feature (depends on this).
+- [codec-upgrade-audit.md](project/reports/2026-06-02-codec-upgrade-audit.md) — WASM framing; threading note.
+- [road-map.md](project/roadmap.md) — Multi-Format Compare feature (depends on this).
 - Archived context: `history/sveltekit-migration-seams-exit-audit.md`,
   `history/dashboard.html`.

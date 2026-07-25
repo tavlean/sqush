@@ -6,7 +6,7 @@
 > (or the last file dropped anywhere in the lab) instead of showing a drop
 > screen. A design unification + shared Nucleo icon pass ran across all
 > three skins the same day: see
-> [specs/2026-07-18-lab-design-unification.md](specs/2026-07-18-lab-design-unification.md)
+> [specs/2026-07-18-lab-design-unification.md](project/specs/2026-07-18-lab-design-unification.md)
 > for the audit verdicts and per-skin worklists. Details below that
 > describe per-skin theme pills, the old card index, or hand-drawn icons
 > predate that pass.
@@ -137,7 +137,7 @@ raised/inset depth. Its own signatures beyond the parents:
 
 - 2026-07-07 round 3 (maintainer request): PORCELAIN gained a full
   Pixelmator-style **crop tool** (`46cc7e27` + `3c7c97b9`; spec + model:
-  [specs/2026-07-07-porcelain-crop-tool.md](specs/2026-07-07-porcelain-crop-tool.md)).
+  [specs/2026-07-07-porcelain-crop-tool.md](project/specs/2026-07-07-porcelain-crop-tool.md)).
   It lives in `src/lib/lab/crop/` and is deliberately CHROME-AGNOSTIC (a
   CropTool state class + stage + panel over the `--pc-*` tokens) — if the
   decision below lands on hybrid, the crop tool ports with a restyle of

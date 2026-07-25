@@ -2,7 +2,7 @@
 
 Last updated: 2026-07-07.
 
-Read [STATUS.md](STATUS.md) first for live state. The SvelteKit 2 / Svelte 5
+Read [the project brief](project/brief.md) first for live state. The SvelteKit 2 / Svelte 5
 migration is **concluded** — `main` is the production app and the retired
 Preact/Rollup app lives on the `preact` branch (tag `preact-final`). This
 document is the next track: **clean up, simplify, and make the codebase fully
@@ -241,7 +241,7 @@ Highest leverage — one change at the primitives ripples through every panel.
 ## Wave 7 — First-principles Svelte idiom polish
 
 > **Done 2026-07-07** (WS-F in
-> [specs/2026-07-07-first-principles-execution.md](specs/2026-07-07-first-principles-execution.md)).
+> [specs/2026-07-07-first-principles-execution.md](project/specs/2026-07-07-first-principles-execution.md)).
 > Gate green: `npm run check`, `npm run test:unit`, and full `npm run test:e2e`
 > (61 passed / 1 known WebKit offline skip). Svelte MCP/autofixer was requested
 > by the spec but no Svelte-specific MCP/autofixer tool was available in this
@@ -287,12 +287,12 @@ Highest leverage — one change at the primitives ripples through every panel.
   handlers (only `registerServiceWorkerUrl` survives), and the Squoosh
   entry-data modeling in `src/sw/cache-plan.ts` was replaced by the
   variant-aware precache selection. Verified by `npm run check` + the full
-  Playwright e2e incl. offline reload. See [STATUS.md](STATUS.md) and
+  Playwright e2e incl. offline reload. See [the project brief](project/brief.md) and
   [build-and-runtime.md](build-and-runtime.md).
 
 ## Explicitly not in scope
 
-- Production bulk UI (roadmap; needs design — see [road-map.md](road-map.md)).
+- Production bulk UI (roadmap; needs design — see [road-map.md](project/roadmap.md)).
 - Codec pruning / visibility changes (separate engineering decision; follow
   [codec-provenance.md](codec-provenance.md)).
 - Server-side processing or upload paths.

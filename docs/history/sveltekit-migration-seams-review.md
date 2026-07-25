@@ -4,7 +4,7 @@ Last updated: 2026-05-26.
 
 > Historical review inventory. The reusable seams from this branch have been
 > carried into the root SvelteKit app on the `svelte` branch. Use
-> [STATUS.md](../STATUS.md) and [MIGRATION-PLAN.md](MIGRATION-PLAN.md) for current
+> [the project brief](../project/brief.md) and [MIGRATION-PLAN.md](MIGRATION-PLAN.md) for current
 > migration instructions.
 
 This file packages the `code/sveltekit-migration-seams` branch for review. It

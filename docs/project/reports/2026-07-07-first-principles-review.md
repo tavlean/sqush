@@ -120,7 +120,7 @@ parent-owned `$state` props in place (documented Preact-era pattern,
 `WebpOptions.svelte:2`; AVIF/JXL keep `getDerivedStateFromProps`-style local
 mirrors, `AvifOptions.svelte:18`) — current Svelte docs say props should be
 `$bindable` or updated via callbacks. Both are exactly what
-[codec-options-model.md](codec-options-model.md) proposes to fix. **This
+[codec-options-model.md](../../codec-options-model.md) proposes to fix. **This
 review's data strengthens the existing sequencing call: do the options-model
 minimal slice before bulk Phase 3 overrides.**
 
@@ -145,7 +145,7 @@ From the legacy sweep (verified against the generated worker's real imports):
   (only `isSafari` is used; `preventDefault()` has no caller; `konami()` is a
   documented deliberate keep). Verify `canvasEncode`/`canvasEncodeTest` in
   `util/canvas.ts` — canvas encoders were removed 2026-06-27
-  ([codec-surface-cleanup.md](codec-surface-cleanup.md)), so these may be
+  ([codec-surface-cleanup.md](../../history/codec-surface-cleanup.md)), so these may be
   orphans too (its Edge `toDataURL` fallback is dead regardless).
 - **Repo artifacts: RESOLVED (2026-07-15).** `.DS_Store` is now gitignored
   (`.gitignore`) and guarded by the static-output audit
@@ -191,7 +191,7 @@ From the legacy sweep (verified against the generated worker's real imports):
   any typecheck today.
 - Dev-middleware nit: `decodeURIComponent` outside try in `vite.config.ts:69`.
 
-## P8 — Svelte idioms (fold into [svelte-hardening-plan.md](svelte-hardening-plan.md))
+## P8 — Svelte idioms (fold into [svelte-hardening-plan.md](../../svelte-hardening-plan.md))
 
 **Landed 2026-07-07** (see execution spec).
 
@@ -250,7 +250,7 @@ zero behavior; big greppability win.
 2. **P1 decoded-source cache** — small diff, immediately felt on large images.
 3. **P3 codegen retirement** — mechanical, guarded by the static-output audit.
 4. **Options model** (already sequenced first in
-   [codec-options-model.md](codec-options-model.md)) → bulk Phase 3 (+ P9).
+   [codec-options-model.md](../../codec-options-model.md)) → bulk Phase 3 (+ P9).
 5. **P2 worker-boundary rework** — the big engineering item; benchmark
    before/after with `npm run bench`, land in stages (transfer → composite op
    → worker-side decode).

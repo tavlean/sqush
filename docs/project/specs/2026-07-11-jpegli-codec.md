@@ -2,7 +2,7 @@
 
 Last updated: 2026-07-11. Status: **not started.**
 Origin: maintainer decision 2026-07-11. Supersedes the "SKIP now" verdict in
-[new-codec-investigation.md](../new-codec-investigation.md) §3 — both of that
+[new-codec-investigation.md](../../new-codec-investigation.md) §3 — both of that
 verdict's blockers are gone: the emsdk toolchain has been installed and proven
 by the 2026-06 sweep (all 7 codecs built natively), and jpegli now lives as a
 standalone project at <https://github.com/google/jpegli> (extracted from
@@ -39,7 +39,7 @@ later product decision driven by benchmark results, not this spec.
   int height, MozJpegOptions opts)` on the public libjpeg API, artifacts
   `enc/mozjpeg_enc.{js,wasm,d.ts}`.
 - Toolchain: emcc 3.1.0 arm64-native for complex C++ codecs
-  ([codec-build-notes.md](../codec-build-notes.md) — read §mozjpeg and the
+  ([codec-build-notes.md](../../codec-build-notes.md) — read §mozjpeg and the
   `thread_local val::global` bug before building).
 - The full add-a-codec touch-list below was verified against the tree on
   2026-07-11; `git log` any file that has moved.
@@ -229,7 +229,7 @@ down libjpeg-API wrapper (3 options: quality/progressive/chromaSubsample),
 wired through the standard 20-file add-a-codec touch-list as "JPEG (jpegli)",
 gated on e2e + bench with zero movement in existing codecs.
 
-Spec: `docs/specs/2026-07-11-jpegli-codec.md`
+Spec: `docs/project/specs/2026-07-11-jpegli-codec.md`
 
 Handoff:
-`codex exec -C /Users/tav/Development/Tavlean/Frisp -s workspace-write -m gpt-5.6-sol -c model_reasoning_effort="low" "Implement docs/specs/2026-07-11-jpegli-codec.md exactly. Read docs/codec-build-notes.md first. Follow the guardrails. Do not commit or push. Report PASS or FAIL against each acceptance criterion."`
+`codex exec -C /Users/tav/Development/Tavlean/Frisp -s workspace-write -m gpt-5.6-sol -c model_reasoning_effort="low" "Implement docs/project/specs/2026-07-11-jpegli-codec.md exactly. Read docs/codec-build-notes.md first. Follow the guardrails. Do not commit or push. Report PASS or FAIL against each acceptance criterion."`

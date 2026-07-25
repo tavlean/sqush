@@ -3,7 +3,7 @@
 Last updated: 2026-07-03.
 Status: **executed 2026-07-03**.
 plus a mobile fix — the Compare-as popover anchors above its trigger).
-Decision record: [bulk-ui-design-options.md](../bulk-ui-design-options.md) §4
+Decision record: [bulk-ui-design-options.md](../../bulk-ui-design-options.md) §4
 ("Decision C — what the left side becomes", maintainer, 2026-07-02) and the
 roadmap row "2b — Contextual left panel v1" (§8).
 Prerequisite: [2026-07-02-bulk-phase-2-promotion.md](2026-07-02-bulk-phase-2-promotion.md)
@@ -248,7 +248,7 @@ commit from code):
 
 | Doc | Change |
 |---|---|
-| `docs/STATUS.md` | Current State entry: Phase 2b landed (what/why/commits). |
+| `docs/project/brief.md` | Current State entry: Phase 2b landed (what/why/commits). |
 | `docs/README.md` | This spec's registry row → done; priority table note if bulk row references 2b. |
 | `docs/bulk-ui-design-options.md` | §4 + roadmap row 2b → implemented, date, pointer here. |
 | `docs/parity-audit.md` | New §A deviation entry: the left side defaults to an image-info panel; the always-on second encoder panel became the opt-in "Compare as…" (Squoosh shows two encoder panels always). |

@@ -40,7 +40,7 @@ Product priority:
 - WebP is the safest first-class output. MDN lists WebP as supported in Chrome, Edge, Firefox, Opera, and Safari.
 - AVIF is first-class, but should be tested carefully because encoding can be slower and browser history is shorter. MDN lists AVIF support in Chrome, Edge, Firefox, Opera, and Safari, with version floors including Chrome 85, Edge 121, Firefox 93, and Safari 16.1.
 - JPEG XL should stay advanced or experimental until default browser support and preview behavior are proven. Frisp can keep its bundled WASM codec path for local conversion, but public delivery guidance should still prefer AVIF/WebP fallbacks.
-- WebP 2 was removed entirely on 2026-06-02 (no browser can decode it; see [codec-surface-cleanup.md](codec-surface-cleanup.md)).
+- WebP 2 was removed entirely on 2026-06-02 (no browser can decode it; see [codec-surface-cleanup.md](history/codec-surface-cleanup.md)).
 
 MDN also lists BMP as broadly browser-supported and TIFF as Safari-only, which is why extension acceptance and actual decode success must remain separate.
 

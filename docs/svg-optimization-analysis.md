@@ -118,7 +118,7 @@ there and match this doc.
 ### Phase 2 — "Auto" candidate search (the differentiator; beats nano on most files)
 
 The vector twin of the already-specced raster auto-quality mode
-([specs/2026-07-11-auto-quality-mode.md](specs/2026-07-11-auto-quality-mode.md)):
+([specs/2026-07-11-auto-quality-mode.md](project/specs/2026-07-11-auto-quality-mode.md)):
 
 - Generate candidates: precision grid (3/5 → 2/4 → 1/3, optional 0/2) ×
   {single-pass, multipass} × isolated risky plugins (`reusePaths`,
@@ -204,14 +204,14 @@ instead of a hope.
    → auto-quality). The maintainer optimizes SVGs daily; the codec batch
    waits.
 5. Executable spec:
-   [specs/2026-07-12-svg-optimization.md](specs/2026-07-12-svg-optimization.md)
+   [specs/2026-07-12-svg-optimization.md](project/specs/2026-07-12-svg-optimization.md)
    — execution state lives THERE.
 
 ## Related
 
 - [new-codec-investigation.md](new-codec-investigation.md) — the original SVGO
   candidate entry (this doc supersedes its "still open" verdict analysis-wise).
-- [specs/2026-07-11-auto-quality-mode.md](specs/2026-07-11-auto-quality-mode.md)
+- [specs/2026-07-11-auto-quality-mode.md](project/specs/2026-07-11-auto-quality-mode.md)
   — raster sibling of the Phase-2 candidate-search concept.
 - Agent reports (session scratchpad, 2026-07-12): nano published-technique
   analysis, optimizer landscape, techniques, integration audit — cited sources

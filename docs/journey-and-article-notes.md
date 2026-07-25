@@ -13,7 +13,7 @@ Each section is structured the way an article wants it: **what we set out to do 
 the problem we hit → how we actually solved it → the result / the lesson.** Keep
 this honest — the dead ends and the misdiagnoses are the most interesting parts.
 
-Cross-references for facts: [STATUS.md](STATUS.md) (live state),
+Cross-references for facts: [the project brief](project/brief.md) (live state),
 [codec-build-notes.md](codec-build-notes.md) (per-codec build engineering),
 [codec-provenance.md](codec-provenance.md) (exact versions),
 [threading-enablement.md](threading-enablement.md) (the threading subsystem).
@@ -48,7 +48,7 @@ is on the `preact` branch).
   the threading thread in Article 2.
 - **Dead weight removed:** WebP2 (`codecs/wp2/`) and dead codec dirs
   (`codecs/png/`, `codecs/visdif/`) — see
-  [codec-surface-cleanup.md](codec-surface-cleanup.md).
+  [codec-surface-cleanup.md](history/codec-surface-cleanup.md).
 - **A narrowed conditional, found a month later (2026-06-28).** Porting Squoosh's
   `getOutputPreviewImageState` to Svelte, the two-up output box was pinned to the
   source dims only for the `contain` fit method — but the original pinned it

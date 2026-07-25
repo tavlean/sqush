@@ -11,8 +11,8 @@ replies. Maintainer ruled out `@tavlean/frisp`; fallback if npm declines:
 `frisp-cli` (verified unclaimed 2026-07-11).
 Origin: maintainer question 2026-07-11 ("is there value in a single CLI that
 humans and AI agents use to pick the best format/settings for a task?").
-Related: [specs/2026-07-11-auto-quality-mode.md](specs/2026-07-11-auto-quality-mode.md)
-(the engine that would power it), [road-map.md](road-map.md).
+Related: [specs/2026-07-11-auto-quality-mode.md](project/specs/2026-07-11-auto-quality-mode.md)
+(the engine that would power it), [road-map.md](project/roadmap.md).
 
 ## The question
 

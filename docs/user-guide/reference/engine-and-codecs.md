@@ -72,7 +72,7 @@ Applied by `grain/shared/apply.ts` — pure JS over RGBA bytes, no WASM/codec.
 - **Baked into pixels, not codec-native** — identical for every output format
   (JPEG/WebP/PNG have no native grain; AVIF FGS and JXL photon-noise were rejected
   for v1). Model calibrated against reference exports; rationale in
-  `docs/specs/2026-07-12-film-grain.md`.
+  `docs/project/specs/2026-07-12-film-grain.md`.
 - **Deterministic**: fixed-seed xorshift32, one PRNG step per pixel, writes skipped
   where alpha = 0 — same input + amount ⇒ identical bytes, so the result cache,
   undo/redo, and bulk staleness contracts stay exact.
@@ -160,7 +160,7 @@ JS/WASM artifacts). Each codec is wired through `src/features/{encoders,decoders
   `codecs/visdif/` butteraugli visual-diff utility were deleted in the
   codec-cleanup pass; active PNG optimization uses OxiPNG.)
 - The canvas/browser encoders (Browser JPEG/PNG/GIF) were removed entirely on
-  2026-06-27 — see `docs/codec-surface-cleanup.md` §3.
+  2026-06-27 — see `docs/history/codec-surface-cleanup.md` §3.
 
 ### Product direction (per provenance doc)
 

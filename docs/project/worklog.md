@@ -2,7 +2,53 @@
 
 Short session-by-session build log: what changed, why, and the gotchas a future
 session must know. Newest first. (Live project state stays in
-[STATUS.md](STATUS.md); this is the narrative trail.)
+[the project brief](brief.md); this is the narrative trail.)
+
+## 2026-07-25 (Opus) - Adopted the house project standard
+
+Docs-only restructure, no app code touched. The repo now follows
+`~/.agents/standard.md`, so any session or model can pick it up cold.
+
+**Layout.** Everything about managing the project moved under `docs/project/`:
+`WORKLOG.md` to `worklog.md`, `road-map.md` to `roadmap.md`, `issue-list.md`,
+`specs/` wholesale, plus new `brief.md` and `ledger.md`. Completed audits became
+dated reports (`reports/2026-06-02-codec-upgrade-audit.md`,
+`reports/2026-07-07-first-principles-review.md`) and the finished
+`codec-surface-cleanup.md` moved to `history/`. `presk-rename-runbook.md` was
+renamed `rename-record.md` because a public repo should not carry a dead brand in
+a filename. `docs/` root now holds only topic docs.
+
+**STATUS.md was dissolved.** It and this worklog both claimed to be the record of
+what happened, and the same events were written twice in two voices. Current state
+now lives in `docs/project/brief.md` (which the standard already defines as
+holding it) and the narrative stays here. The old file is in git history.
+
+**New files.** `docs/project/brief.md` (promoted from the untracked
+`.claude/PROJECT_BRIEF.md`, which is now a pointer stub, and refreshed to
+2026-07-25), `docs/gotchas.md` (the silent traps harvested out of this worklog and
+the old STATUS entries, so they stop being buried in prose), `docs/lab.md` (the lab
+registry, which hygiene audits must read before flagging anything under
+`src/lib/lab/`), `docs/design.md` (a labeled placeholder recording the conventions
+that exist; the two token vocabularies are the thing a design session has to
+resolve), `docs/project/ledger.md` (when each heavy audit last ran, so nothing
+expensive gets re-run without cause), and a one-line `CLAUDE.md` importing
+`AGENTS.md`.
+
+**AGENTS.md went lean**, from 82 lines to navigation plus hard rules. It rides
+along with every message of every session, so standing content unrelated to the
+current task was costing context on every turn. The engineering advice it carried
+moved into the docs that own it; what stayed is what prevents silent or
+irreversible damage when no topic doc was loaded.
+
+**Link integrity.** A one-shot script re-relativized every moved link. The check
+found 39 links that were **already** dangling at `daa064cb`, all inside
+`docs/history/`, left over from an earlier archive move that never relinked; those
+are fixed too. The tree is now at zero dangling relative markdown links, verified
+by a checker over every tracked `.md`.
+
+Gotchas worth keeping: `docs/history/` is frozen by policy but its links were
+never audited, so "frozen" had quietly come to mean "rotting"; a link checker is
+cheap and should run before any doc reorganization is called done.
 
 ## 2026-07-18 (Fable) — Lab restructure + design unification + Nucleo icons
 
@@ -37,7 +83,7 @@ branches while `vite dev` runs, the open page can hold STALE HMR modules
 diagnosing; worktree agents need `ln -s <main>/node_modules` AND a widened
 `server.fs.allow` to run the dev server (the symlink resolves outside it).
 
-Built the Share action designed in [mobile-save-ux.md](mobile-save-ux.md)
+Built the Share action designed in [mobile-save-ux.md](../mobile-save-ux.md)
 (`6f82067a`): `src/lib/share-file.ts` (canShareFile + share; AbortError is a
 dismissed sheet, not an error) and a quiet circular Share button beside Save
 in `Results.svelte` — rendered only when the OS share sheet accepts the exact
@@ -202,7 +248,7 @@ Maintainer asked whether Frisp can import/export SVGs at nano/ImageOptim
 quality. Four parallel Codex research agents (nano published-technique
 analysis — public blog/docs sources only, 2026 optimizer landscape,
 beat-SVGO techniques, repo integration audit) → distilled into
-[svg-optimization-analysis.md](svg-optimization-analysis.md); **direction
+[svg-optimization-analysis.md](../svg-optimization-analysis.md); **direction
 approved same day**. Headlines: ImageOptim's SVG engine IS SVGO (parity by
 construction); nano's 22% claim is 2018-era vs SVGO 1.x; the winning design
 is a vector lane (SVG text → SVGO v4.0.1 in a lazy worker) plus a Phase-2
@@ -260,7 +306,7 @@ JXL/AVIF's native grain synthesis or bake uniform grain?") was resolved by
 research + measurement: **baked pixels won** (native paths can't author
 aesthetic grain on AVIF, only decode in Safari for JXL, and don't exist at all
 for JPEG/WebP/PNG; baked is WYSIWYG everywhere). Full rationale in
-`docs/specs/2026-07-12-film-grain.md`.
+`docs/project/specs/2026-07-12-film-grain.md`.
 
 The grain model was **measured, not invented**: the maintainer exported 20
 calibration images from Luminar Neo + Pixelmator Pro onto known synthetic
@@ -326,13 +372,13 @@ Guidance session on the codec landscape: Frisp is current on WebP and AVIF,
 but behind on JPEG XL (libjxl v0.8.5 versus v0.12.0). The maintainer approved
 four features, each now captured in a Codex-executable spec:
 
-- `docs/specs/2026-07-11-libjxl-0-12-upgrade.md` — libjxl v0.12.0 upgrade
+- `docs/project/specs/2026-07-11-libjxl-0-12-upgrade.md` — libjxl v0.12.0 upgrade
   with a public-API encoder rewrite, isolated on its own branch;
-- `docs/specs/2026-07-11-jpegli-codec.md` — new encode-only jpegli codec from
+- `docs/project/specs/2026-07-11-jpegli-codec.md` — new encode-only jpegli codec from
   google/jpegli;
-- `docs/specs/2026-07-11-jpeg-to-jxl-transcode.md` — lossless JPEG→JXL
+- `docs/project/specs/2026-07-11-jpeg-to-jxl-transcode.md` — lossless JPEG→JXL
   transcode, blocked on the libjxl upgrade;
-- `docs/specs/2026-07-11-auto-quality-mode.md` — SSIMULACRA2-targeted
+- `docs/project/specs/2026-07-11-auto-quality-mode.md` — SSIMULACRA2-targeted
   auto-quality search plus a new `codecs/ssimulacra2` metric module.
 
 Also written: `docs/frisp-cli-analysis.md`, decision material for a possible
@@ -471,7 +517,7 @@ not a project. Also fixed the zombie-service-worker trap on the old domain.
 ## 2026-07-05 (later) — Presk → frisp rename + Pages→Workers move
 
 Full cutover executed in one session (naming decision + infra). See the
-Postscript in `docs/presk-rename-runbook.md` for the complete record.
+Postscript in `docs/rename-record.md` for the complete record.
 Key state: app lives at **frisp.app** on Cloudflare **Worker `frisp`**
 (static assets, root `wrangler.jsonc`); both sqush.app and presk.app 301 to
 it via the shared sunset Worker; old Pages project dormant. Brand casing:
@@ -513,7 +559,7 @@ Maintainer asked for a from-scratch re-examination of every inherited decision
 (Squoosh-era and migration-era). One deep manual pass over the runtime core +
 four independent read-only sweeps (legacy/dead code, Svelte idioms vs current
 docs, build/tooling, runtime inventory — automated read-only sweeps). Output:
-`docs/first-principles-review.md` (registered in the README registry), ranked
+`docs/project/reports/2026-07-07-first-principles-review.md` (registered in the README registry), ranked
 P1–P10 with a suggested sequence. Headlines: every encode pass re-decodes the
 source on the main thread (P1); the Comlink boundary structured-clones
 full-res pixels up to ~5×/pass, no transferables (P2); the 2,006-line
@@ -525,7 +571,7 @@ tests don't run in CI (P7). No code changed — review only.
 ## 2026-07-07 — First-principles execution day (orchestrated)
 
 The P1–P10 review became specs (WS-A…H in
-docs/specs/2026-07-07-first-principles-execution.md) and 7 of 8 day-one
+docs/project/specs/2026-07-07-first-principles-execution.md) and 7 of 8 day-one
 workstreams landed same-day, delegated implementation, orchestrator-reviewed, every one
 gated by check + unit + full e2e (Chromium+WebKit):
 dead code `85944296` · dedup `67b99863` · tooling/CI `5eca4145` ·
@@ -606,7 +652,7 @@ settling before trusting a dark-background audit.
 
 Maintainer-requested crop tool, built in `/lab/porcelain` (dev-only; zero
 production changes). Spec + coordinate model + API contract:
-`docs/specs/2026-07-07-porcelain-crop-tool.md` (registry row added). Commits
+`docs/project/specs/2026-07-07-porcelain-crop-tool.md` (registry row added). Commits
 `46cc7e27` (core) + `3c7c97b9` (panel + wiring). What shipped: crop rect
 with 8 handles; rotate by dragging OUTSIDE the corners (custom cursor, 0.25°
 snap, shift=15°, sticky 0); straighten slider ±45° that folds into 90°

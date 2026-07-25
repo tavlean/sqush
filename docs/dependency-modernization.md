@@ -42,7 +42,7 @@ and no longer describe this branch.
   format across contributors) didn't apply, and its auto-`prettier --write`
   reflowed Markdown and mangled docs. Deleted `.husky/`, the `husky`/`lint-staged`
   devDeps, the `prepare` script, and the `lint-staged` config; also dropped `md`
-  from the Prettier globs. See [STATUS.md](STATUS.md).
+  from the Prettier globs. See [the project brief](project/brief.md).
 - Git hooks: **re-added a code-only pre-commit hook on 2026-07-01.**
   `package.json` now uses `simple-git-hooks` (`pre-commit: npx lint-staged`) with
   a `lint-staged` config that formats code globs only

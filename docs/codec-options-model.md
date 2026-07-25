@@ -53,7 +53,7 @@ means editing the mirror + `apply()` + the template.
   bespoke variants.
 - **Testable** mappings — the field↔control translation can be unit-tested,
   which is impossible while it lives inside `.svelte` markup.
-- **Pre-pays the bulk UI** ([road-map.md](road-map.md)): bulk needs "global
+- **Pre-pays the bulk UI** ([road-map.md](project/roadmap.md)): bulk needs "global
   settings + per-image overrides," which is exactly a clean options model applied
   N times. Doing this first makes bulk far smaller.
 
@@ -139,7 +139,7 @@ Do a minimal middle slice, then Phase 3, and defer the full refactor.**
   format and parity are safe.
 - ~~Maintainer decisions needed before the slice~~ **RESOLVED 2026-07-07**
   (decided during the first-principles execution session; maintainer may veto —
-  rationale in [specs/2026-07-07-first-principles-execution.md](specs/2026-07-07-first-principles-execution.md)
+  rationale in [specs/2026-07-07-first-principles-execution.md](project/specs/2026-07-07-first-principles-execution.md)
   §WS-G): dots/resets cover **all visible controls**, and an override path is
   a **human control id**. The slice's engine/registry/UI spec lives in that
   WS-G section; this doc remains the design rationale.

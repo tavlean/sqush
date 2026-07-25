@@ -2,8 +2,8 @@
 
 Last updated: 2026-07-11. Status: **not started.**
 Origin: maintainer decision 2026-07-11 (codec guidance session). Related:
-[2026-07-11-frisp-cli-analysis](../frisp-cli-analysis.md) (the same engine is
-the planned core of a future CLI), [codec-options-model.md](../codec-options-model.md)
+[2026-07-11-frisp-cli-analysis](../../frisp-cli-analysis.md) (the same engine is
+the planned core of a future CLI), [codec-options-model.md](../../codec-options-model.md)
 (the control-registry seam this feature slots into).
 
 ## Objective
@@ -380,8 +380,8 @@ bisects quality (≤8 encodes, decoded-source-cached probes) to the lowest
 quality meeting a SSIMULACRA2 target (90/80/70), committing it to the normal
 options state. No persistent mode, no bulk, no signature/cache changes.
 
-Spec: `docs/specs/2026-07-11-auto-quality-mode.md`
+Spec: `docs/project/specs/2026-07-11-auto-quality-mode.md`
 
 Handoff (build/metric half is mechanical; the C++ wrapper + search loop are
 given verbatim):
-`codex exec -C /Users/tav/Development/Tavlean/Frisp -s workspace-write -m gpt-5.6-sol -c model_reasoning_effort="low" "Implement docs/specs/2026-07-11-auto-quality-mode.md exactly. Follow its guardrails. Do not commit or push. Report PASS or FAIL against each acceptance criterion."`
+`codex exec -C /Users/tav/Development/Tavlean/Frisp -s workspace-write -m gpt-5.6-sol -c model_reasoning_effort="low" "Implement docs/project/specs/2026-07-11-auto-quality-mode.md exactly. Follow its guardrails. Do not commit or push. Report PASS or FAIL against each acceptance criterion."`

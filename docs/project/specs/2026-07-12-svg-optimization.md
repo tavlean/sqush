@@ -1,7 +1,7 @@
 # Spec — SVG Optimization: vector lane + auto candidate search + benchmark
 
 Last updated: 2026-07-12. Status: **in progress** (stage states below).
-Decision record: [../svg-optimization-analysis.md](../svg-optimization-analysis.md).
+Decision record: [../svg-optimization-analysis.md](../../svg-optimization-analysis.md).
 Maintainer priority: above the codec batch. Phases 1+2 of the analysis ship
 together here; bulk SVG preservation and font subsetting are OUT of scope.
 
@@ -278,7 +278,7 @@ SVG optimization, reload offline → SVG optimization still works.
 | [src/service-worker.ts](../../src/service-worker.ts) | Precache exclusion (contract §8) |
 | [src/lib/editor/output/Output.svelte](../../src/lib/editor/output/Output.svelte) + two-up | Vector preview (contract §7) |
 | e2e | New spec: drop SVG → default 'svg' side → assert output bytes parse as SVG + smaller; toggle manual precision; offline-after-first-use is manual QA |
-| Docs | user-guide (formats + new svg page), parity-audit (new capability), STATUS, WORKLOG |
+| Docs | user-guide (formats + new svg page), parity-audit (new capability), project brief, worklog |
 
 ## Stages & state
 
@@ -365,9 +365,9 @@ died, just rerun it — it is deterministic and self-contained.
    NO visual verification in this protocol — note that asymmetry. Report the
    `p3!` (gate-failed, unverified) count. State plainly where Frisp wins,
    ties, and loses; the goal is a true picture, not a marketing number.
-6. Flip S7/S8 stage states above, add the RESULTS.md headline to STATUS.md +
-   WORKLOG, and update the user guide's svg page only if claims there need
-   correcting.
+6. Flip S7/S8 stage states above, add the RESULTS.md headline to the project
+   brief and the worklog, and update the user guide's svg page only if claims
+   there need correcting.
 
 ## Gotchas (read before implementing)
 

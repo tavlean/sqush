@@ -8,8 +8,8 @@ Last updated: 2026-06-01.
 > is now post-migration cleanup — see
 > [svelte-hardening-plan.md](../svelte-hardening-plan.md).
 
-Read [STATUS.md](../STATUS.md) first. This document is only the migration track.
-New product features, including bulk UI, live in [road-map.md](../road-map.md).
+Read [the project brief](../project/brief.md) first. This document is only the migration track.
+New product features, including bulk UI, live in [road-map.md](../project/roadmap.md).
 
 ## Decision
 
@@ -103,7 +103,7 @@ large photos and any edge formats they care about.
 
 None — the migration is closed. Post-migration cleanup is tracked in
 [svelte-hardening-plan.md](../svelte-hardening-plan.md); product work is in
-[road-map.md](../road-map.md).
+[road-map.md](../project/roadmap.md).
 
 ## Notes For Future Agents
 

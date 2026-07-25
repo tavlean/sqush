@@ -15,7 +15,7 @@ Last updated: 2026-07-03.
 > Satoshi as the app typeface (shipped to production); the engine carries
 > the normalized no-wasted-work recipe contract (63 unit tests). The
 > **Phase-2 promotion spec is WRITTEN (2026-07-02):**
-> [specs/2026-07-02-bulk-phase-2-promotion.md](specs/2026-07-02-bulk-phase-2-promotion.md)
+> [specs/2026-07-02-bulk-phase-2-promotion.md](project/specs/2026-07-02-bulk-phase-2-promotion.md)
 > — EXECUTED 2026-07-03. It shipped ZIP export, app-boundary multi-file entry,
 > folder import, and the
 > lab→app migration with the cleanup list (blank state + Stack toggle
@@ -146,7 +146,7 @@ bulk focus view alike):
 - room for more (megapixels, has-alpha, EXIF orientation…) as needs appear.
 
 **Implemented 2026-07-03:** the single-image version is now live via
-[specs/2026-07-02-phase-2b-contextual-left-panel.md](specs/2026-07-02-phase-2b-contextual-left-panel.md).
+[specs/2026-07-02-phase-2b-contextual-left-panel.md](project/specs/2026-07-02-phase-2b-contextual-left-panel.md).
 It uses the shared `ImageInfoRows` component extracted from bulk; **Compare
 as…** flips the left side into the existing encoder `OptionsPanel`, and
 returning to **Original Image** or closing compare restores the info panel.
@@ -233,7 +233,7 @@ toggle (default on). "Never ship a bigger file."
 | **0 — Engine safety net** | Vitest + `npm run test:unit`; top-8 engine tests, then the rest of test-plan §4; fix the stale ":covered with tests" claim in bulk-image-architecture.md | No design decisions; cheap-model executable; **can start now** |
 | **1 — Layout LAB (active)** | One consolidated dev-only route: grid as a picker mode, L/M/S focus-strip modes, shared engine wiring, no-wasted-work reprocessing, multi-select and overrides (§3). Promotion decision still belongs to Phase 2 | Maintainer eyes on the lab |
 | **2 — Minimum Useful Bulk — DONE 2026-07-03** | Multi-file entry (input `multiple` + boundary routing) **+ folder import** (webkitdirectory picker + dropped-folder traversal — §11), reactive bulk store wrapping the engine, worker-bridge pool (2, per-side-bridge pattern), batch home per lab winner, global WebP panel (reuse existing panels), statuses/sizes/cancel/retry, totals bar, **Save All (ZIP)**, size-increase guard; bulk e2e smoke | Shipped on `main` |
-| **2b — Contextual left panel v1 — DONE 2026-07-03** | Image-info panel (name, original format, dimensions, size, inferred ≈aspect — §4) + "Compare as…" button. Implemented via [specs/2026-07-02-phase-2b-contextual-left-panel.md](specs/2026-07-02-phase-2b-contextual-left-panel.md), reusing the bulk panel's components (maintainer directive: shared, not recreated). | Shipped on `main` |
+| **2b — Contextual left panel v1 — DONE 2026-07-03** | Image-info panel (name, original format, dimensions, size, inferred ≈aspect — §4) + "Compare as…" button. Implemented via [specs/2026-07-02-phase-2b-contextual-left-panel.md](project/specs/2026-07-02-phase-2b-contextual-left-panel.md), reusing the bulk panel's components (maintainer directive: shared, not recreated). | Shipped on `main` |
 | **3 — Overrides & focus** | Focus mode reusing two-up + mini-strip nav, per-image scope panel, per-control override dots (§5: ring = selection, no count badges), corner-dot card marker, reset (control/image), per-image format override, shallow-routing back-button. Start with the options-model minimal slice first. | Phase 2 + 2b |
 | **4 — Scale & polish** | Lazy thumbnails + decode LRU, mixed-size resize UX, AVIF as second bulk format, naming templates, presets, report, density toggle; **Settings panel** (§11; save destinations only if save-back is revived) | Phase 3 + usage feedback |
 | **5 — Crop** | Crop as a `ProcessorState` stage (aspect + normalized focal point — §12): single-image crop UI, bulk global crop + per-image reposition via the override machinery | Phase 3 (override UI) |

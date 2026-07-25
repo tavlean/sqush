@@ -5,7 +5,7 @@ vector lane is live, stages S1–S6; only the S8 benchmark remains open); jpegli
 and JPEG→JXL transcode superseded → build; HEIC still open.**
 
 This doc records a research pass on four candidate new codecs/processors that
-came out of the codec audit ([codec-upgrade-audit.md](codec-upgrade-audit.md)
+came out of the codec audit ([codec-upgrade-audit.md](project/reports/2026-06-02-codec-upgrade-audit.md)
 §4–5). **SVGO has since shipped — the vector lane is live in the editor (stages
 S1–S6); only its S8 benchmark remains open.** The other three are not wired in.
 This is decision material, not a plan to execute — each entry says what it would
@@ -21,8 +21,8 @@ as-is.
 |-----------|--------------|----------------|
 | **SVGO v4** (SVG/vector optimizer) | Optimizes SVG/vector files the raster pipeline can't touch | **SHIPPED.** The vector lane is live (stages S1–S6); only the S8 benchmark remains. Pure JS, official browser bundle, no WASM/toolchain. |
 | **libheif decode-only HEIC input** | Opens iPhone `.heic` (browsers can't decode it), convert out | **LATER.** Strong, but defer for LGPL + WASM weight; do SVGO first. |
-| **jpegli WASM encoder** | Better quality-per-byte standard `.jpg` than MozJPEG | **SUPERSEDED 2026-07-11 → BUILD**: [specs/2026-07-11-jpegli-codec.md](specs/2026-07-11-jpegli-codec.md) |
-| **Lossless JPEG→JXL transcode** | Recompress `.jpg` to `.jxl` ~20% smaller, reversible | **SUPERSEDED 2026-07-11 → BUILD** (after the jxl 0.12 upgrade): [specs/2026-07-11-jpeg-to-jxl-transcode.md](specs/2026-07-11-jpeg-to-jxl-transcode.md) |
+| **jpegli WASM encoder** | Better quality-per-byte standard `.jpg` than MozJPEG | **SUPERSEDED 2026-07-11 → BUILD**: [specs/2026-07-11-jpegli-codec.md](project/specs/2026-07-11-jpegli-codec.md) |
+| **Lossless JPEG→JXL transcode** | Recompress `.jpg` to `.jxl` ~20% smaller, reversible | **SUPERSEDED 2026-07-11 → BUILD** (after the jxl 0.12 upgrade): [specs/2026-07-11-jpeg-to-jxl-transcode.md](project/specs/2026-07-11-jpeg-to-jxl-transcode.md) |
 
 **SVGO shipped first.** It was the only candidate that added a format the app
 could not handle before, and it needed no codec toolchain. The vector lane is
@@ -92,7 +92,7 @@ now live (stages S1–S6); the S8 benchmark is the only open piece.
 > was installed and proven by the 2026-06 codec sweep, and jpegli is now a
 > standalone project (google/jpegli, extracted from libjxl in v0.12.0). Decided
 > → build:
-> [specs/2026-07-11-jpegli-codec.md](specs/2026-07-11-jpegli-codec.md). The
+> [specs/2026-07-11-jpegli-codec.md](project/specs/2026-07-11-jpegli-codec.md). The
 > analysis below is kept as the historical record.
 
 - **What it adds:** Better quality-per-byte JPEG than MozJPEG, producing normal
@@ -119,7 +119,7 @@ now live (stages S1–S6); the S8 benchmark is the only open piece.
 > the encoder rewrite is specced anyway) and JXL browser reach flipped (Safari
 > ships it; Chrome 145 ships the decoder behind a flag, default-on expected H2
 > 2026). Decided → build after the jxl upgrade:
-> [specs/2026-07-11-jpeg-to-jxl-transcode.md](specs/2026-07-11-jpeg-to-jxl-transcode.md).
+> [specs/2026-07-11-jpeg-to-jxl-transcode.md](project/specs/2026-07-11-jpeg-to-jxl-transcode.md).
 > The analysis below is kept as the historical record.
 
 - **What it adds:** Recompresses a `.jpg` into a `.jxl` ~20% smaller,
@@ -143,8 +143,8 @@ now live (stages S1–S6); the S8 benchmark is the only open piece.
 
 ## Related
 
-- [codec-upgrade-audit.md](codec-upgrade-audit.md) — the audit that raised these
+- [codec-upgrade-audit.md](project/reports/2026-06-02-codec-upgrade-audit.md) — the audit that raised these
   candidates (§4–5).
 - [codec-upgrade-runbooks.md](codec-upgrade-runbooks.md) — turnkey upgrade steps
   for the *existing* codecs (a separate, executable track).
-- [road-map.md](road-map.md) — product direction.
+- [road-map.md](project/roadmap.md) — product direction.

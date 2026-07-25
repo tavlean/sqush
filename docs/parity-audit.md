@@ -358,7 +358,7 @@ Resolved 2026-05-31 (user: "restore them; for the rest, make the best call"):
   WASM codecs for the same formats (MozJPEG for JPEG, OxiPNG for PNG) and made
   larger files, so they were never useful in a compression tool. The
   feature-detection (`getSupportedFormatIds`) went with them. See
-  [codec-surface-cleanup.md](codec-surface-cleanup.md) §3.
+  [codec-surface-cleanup.md](history/codec-surface-cleanup.md) §3.
 - **DONE — `contain` resize fitMethod** letterboxes inside the original footprint
   (canvas `object-fit: contain`), aligned at the two-up split. **Correction
   (2026-06-28):** the commit that added this over-narrowed the box-pinning to the
@@ -377,9 +377,9 @@ Deliberate deviations (my call — re-open if you disagree):
 2. **`wp2` (WebP v2, "unstable") was experimental parity — now RESOLVED by
    removal (2026-06-02).** It was restored in the SvelteKit surface for migration
    parity, but the maintainer testing that decision called for was done (see
-   [codec-upgrade-audit.md](codec-upgrade-audit.md) §3) and concluded WebP 2 is a
+   [codec-upgrade-audit.md](project/reports/2026-06-02-codec-upgrade-audit.md) §3) and concluded WebP 2 is a
    permanently-experimental format no browser can decode, so it was removed
-   entirely — see [codec-surface-cleanup.md](codec-surface-cleanup.md). This
+   entirely — see [codec-surface-cleanup.md](history/codec-surface-cleanup.md). This
    parity item is closed.
 
 Deferred to the post-migration roadmap (infra/product work, not migration

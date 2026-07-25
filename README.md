@@ -30,7 +30,7 @@ There is no upload and no server doing the work. Every step happens in the page,
 
 ## Status
 
-Maintained and ready for everyday single-image and bulk optimization work. Bulk Phase 2 and 2b shipped on 2026-07-03; next bulk work is Phase 3 overrides polish, with multi-format compare after that ([roadmap](docs/road-map.md), [live status](docs/STATUS.md)).
+Maintained and ready for everyday single-image and bulk optimization work. Bulk Phase 2 and 2b shipped on 2026-07-03; next bulk work is Phase 3 overrides polish, with multi-format compare after that ([roadmap](docs/project/roadmap.md), [current state](docs/project/brief.md)).
 
 ## Browser support
 

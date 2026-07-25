@@ -4,8 +4,8 @@ Last updated: 2026-05-26.
 
 > Historical record. This file predates the root SvelteKit cutover and keeps the
 > old cleanup/prototype log for archaeology. For current state, use
-> [STATUS.md](../STATUS.md), [MIGRATION-PLAN.md](MIGRATION-PLAN.md), and
-> [road-map.md](../road-map.md).
+> [the project brief](../project/brief.md), [MIGRATION-PLAN.md](MIGRATION-PLAN.md), and
+> [road-map.md](../project/roadmap.md).
 
 ## Resume handoff
 
@@ -857,7 +857,7 @@ Latest verification run:
 
 Next recommended tasks when work resumes:
 
-1. Start the next Codex session from the real project folder `/Users/tav/Development/Tavlean/Presk` if possible. Use this document, [Progress dashboard](progress-dashboard.md), [visual dashboard](progress-dashboard.html), [Todo](todo.md), and [Svelte migration context](svelte-migration-context.md) as handoff context.
+1. Start the next Codex session from the real project folder `/Users/tav/Development/Tavlean/Presk` if possible. Use this document, the progress dashboard and its visual counterpart (both since deleted), [Todo](todo.md), and [Svelte migration context](svelte-migration-context.md) as handoff context.
 2. Continue extracting/tested framework-neutral logic from Preact components where it clearly reduces future Svelte migration risk.
 3. Use [Svelte migration context](svelte-migration-context.md) before Svelte-adjacent refactors so new helpers stay aligned with Svelte 5/SvelteKit best practices.
 4. Add browser smoke tests before significant UI or codec-surface changes.

@@ -11,7 +11,7 @@ Last updated: 2026-06-02.
 Deep technical record of **building the WASM codecs from source** — what works,
 what breaks, and why. Distinct from the other codec docs:
 
-- [codec-upgrade-audit.md](codec-upgrade-audit.md) — *what* to upgrade and *why*.
+- [codec-upgrade-audit.md](project/reports/2026-06-02-codec-upgrade-audit.md) — *what* to upgrade and *why*.
 - [codec-upgrade-runbooks.md](codec-upgrade-runbooks.md) — per-codec version
   targets + wrapper diffs.
 - [codec-upgrade-runbooks.md](codec-upgrade-runbooks.md) — the operational

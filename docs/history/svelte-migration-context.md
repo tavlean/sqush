@@ -5,10 +5,10 @@ Svelte MCP documentation passes on 2026-05-24 and 2026-05-25.
 
 Use this as Svelte/SvelteKit guidance, not as the live scope tracker. The
 migration is now **concluded** (`main` is the production app); live state is in
-[STATUS.md](../STATUS.md), the concluded migration record is in
+[the project brief](../project/brief.md), the concluded migration record is in
 [MIGRATION-PLAN.md](MIGRATION-PLAN.md), the active cleanup track is in
 [svelte-hardening-plan.md](../svelte-hardening-plan.md), and product work is in
-[road-map.md](../road-map.md).
+[road-map.md](../project/roadmap.md).
 
 ## Main principle
 
@@ -164,8 +164,8 @@ When Svelte components are added, use Svelte's recommended testing path: Vitest 
 
 This section records the migration evidence that led to the root SvelteKit app.
 It is not the live task list. The live task list is in
-[STATUS.md](../STATUS.md), [MIGRATION-PLAN.md](MIGRATION-PLAN.md), and
-[road-map.md](../road-map.md).
+[the project brief](../project/brief.md), [MIGRATION-PLAN.md](MIGRATION-PLAN.md), and
+[road-map.md](../project/roadmap.md).
 
 - SvelteKit static output remains the migration target. The prototype has been
   promoted to the repo root on the `svelte` branch.

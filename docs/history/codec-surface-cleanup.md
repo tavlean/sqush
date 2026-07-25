@@ -7,10 +7,10 @@ and the dead `codecs/png` dir (2026-06-02, branch `codec-cleanup-and-threading`)
 then the browser canvas encoders + QOI-as-output (2026-06-27, branch
 `chore/trim-encoder-surface`). Kept as the record of what was removed and why.
 
-Read [codec-provenance.md](codec-provenance.md) before touching `codecs/`, and
+Read [codec-provenance.md](../codec-provenance.md) before touching `codecs/`, and
 follow its build / generated-metadata / service-worker / browser verification
 rules. Evidence behind both removals is in
-[codec-upgrade-audit.md](codec-upgrade-audit.md).
+[codec-upgrade-audit.md](../project/reports/2026-06-02-codec-upgrade-audit.md).
 
 ## 1. Remove WebP 2 (wp2) — DONE
 
@@ -116,6 +116,6 @@ see the user-guide registry row in `docs/README.md`.
 
 - QOI (spec frozen — bump the pinned SHA only if rebuilding for another reason),
   `hqx` (already latest, upstream abandoned). Tracked in
-  [codec-upgrade-audit.md](codec-upgrade-audit.md) as skip/opportunistic.
+  [codec-upgrade-audit.md](../project/reports/2026-06-02-codec-upgrade-audit.md) as skip/opportunistic.
 - Other codec visibility/grouping decisions — product call, see
-  [road-map.md](road-map.md).
+  [road-map.md](../project/roadmap.md).

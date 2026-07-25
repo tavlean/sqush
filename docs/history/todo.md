@@ -304,7 +304,7 @@ This list is ordered by priority. Do the high-priority items before building new
     - Re-check before public release or before changing codec visibility, because browser support can change quickly.
 
 20. Completed: create an issue list from this todo.
-    - Initial backlog seed lives in [Issue list](../issue-list.md).
+    - Initial backlog seed lives in [Issue list](../project/issue-list.md).
     - Convert items to GitHub issues when the project workflow is ready.
 
 ## Current product-design hold

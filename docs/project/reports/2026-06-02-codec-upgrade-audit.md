@@ -32,17 +32,17 @@ before acting, since web research can drift.
 > authoritative** — the analysis below is kept verbatim as historical context.
 > Verified by the 17-test Playwright e2e suite + the benchmark with no
 > regressions. Build details (toolchains, gotchas, bugs):
-> [codec-build-notes.md](codec-build-notes.md). Still deferred: wiring the
-> multi-threaded (`_mt`) runtime — see [threading-enablement.md](threading-enablement.md).
+> [codec-build-notes.md](../../codec-build-notes.md). Still deferred: wiring the
+> multi-threaded (`_mt`) runtime — see [threading-enablement.md](../../threading-enablement.md).
 
 A decision-oriented review of every codec Frisp ships, plus new-codec, WebP2, and SVG questions. Written for a solo dev: every row tells you whether to act now, later, investigate, or skip — and why. Where a gain is marginal, it says so.
 
-> **Spun-off plans from this audit:** [threading-enablement.md](threading-enablement.md) (enable the already-built multithreading) and [codec-surface-cleanup.md](codec-surface-cleanup.md) (remove WebP 2; the dead `codecs/png/` deletion is already done). Docs map: [README.md](README.md).
+> **Spun-off plans from this audit:** [threading-enablement.md](../../threading-enablement.md) (enable the already-built multithreading) and [codec-surface-cleanup.md](../../history/codec-surface-cleanup.md) (remove WebP 2; the dead `codecs/png/` deletion is already done). Docs map: [README.md](../../README.md).
 
 The single most important framing fact: **Frisp runs as WASM in the browser.** Two consequences shape every recommendation below:
 
 1. **Native CPU assembly doesn't apply.** WASM uses portable 128-bit SIMD (which the browser maps to NEON on Apple Silicon / AVX on x86 automatically) — it cannot run a library's hand-written AVX2/AVX-512/NEON assembly. So "X% faster on AVX2/NEON" desktop benchmarks usually mean **nothing** for your build. The real wins here are CVE fixes, compression-ratio improvements, and WASM-specific speedups.
-2. **Threading is ON (done 2026-06-03).** *(This item originally said threading was OFF — that highest-leverage perf change has since landed and is merged into `main`.)* The app ships multithreaded codec variants — AVIF, JXL and OxiPNG (WP2 was removed) each detect thread support and load `_mt` / `pkg-parallel` builds. WASM threads require `SharedArrayBuffer` (and so a **cross-origin-isolated** page via COOP + COEP), which is now set in dev/preview (Vite plugin) and prod (`static/_headers`); all three codecs engage multi-core, verified Chromium + WebKit. SVT-AV1's multithreading still wouldn't apply (its asm can't compile to WASM), but libaom/JXL/OxiPNG threading is now live. Full record: [threading-enablement.md](threading-enablement.md).
+2. **Threading is ON (done 2026-06-03).** *(This item originally said threading was OFF — that highest-leverage perf change has since landed and is merged into `main`.)* The app ships multithreaded codec variants — AVIF, JXL and OxiPNG (WP2 was removed) each detect thread support and load `_mt` / `pkg-parallel` builds. WASM threads require `SharedArrayBuffer` (and so a **cross-origin-isolated** page via COOP + COEP), which is now set in dev/preview (Vite plugin) and prod (`static/_headers`); all three codecs engage multi-core, verified Chromium + WebKit. SVT-AV1's multithreading still wouldn't apply (its asm can't compile to WASM), but libaom/JXL/OxiPNG threading is now live. Full record: [threading-enablement.md](../../threading-enablement.md).
 
 ---
 
@@ -141,7 +141,7 @@ Three "do now" items (libwebp, AVIF, JXL) are driven by genuine security exposur
 - **Why your build crashes specifically:** your pin predates years of fuzzer/overflow fixes, and there's a known Squoosh bug ([#854](https://github.com/GoogleChromeLabs/squoosh/issues/854)) where **lossless + palette reduction → `WP2_STATUS_BITSTREAM_ERROR`**, which you inherit at an even older commit. A rebuild to HEAD *would* patch some crashes (e.g. the Dec 2025 `GetMaxTileSize` uint32 overflow) — but the bitstream stays non-final, so it doesn't make WebP2 *safe to ship to users*.
 - **The build wall:** HEAD bumped to **C++20** (Apr 2025), so upgrading isn't even a free rebuild — it needs a C++20-capable emsdk.
 
-**Recommendation: ✅ RESOLVED — WebP 2 was removed entirely (encoder and decoder) on 2026-06-02.** The original staged plan (harden label → hide → delete) was superseded by a clean full removal, since the only real-world producer of `.wp2` files was this app's own encoder and no browser can decode them. See [codec-surface-cleanup.md](codec-surface-cleanup.md) for the removal record. There is nothing left to upgrade or maintain here.
+**Recommendation: ✅ RESOLVED — WebP 2 was removed entirely (encoder and decoder) on 2026-06-02.** The original staged plan (harden label → hide → delete) was superseded by a clean full removal, since the only real-world producer of `.wp2` files was this app's own encoder and no browser can decode them. See [codec-surface-cleanup.md](../../history/codec-surface-cleanup.md) for the removal record. There is nothing left to upgrade or maintain here.
 
 ---
 
@@ -224,10 +224,10 @@ When in doubt, match **jSquash** first — it's actively maintained (last commit
 12. **libimagequant 4.x (Rust)** — better quant + drops OpenMP, but a full toolchain switch. Standalone project.
 
 ### Skip
-13. **wp2** — ✅ **DONE: removed entirely** (encoder + decoder) on 2026-06-02. No browser decodes it; bitstream non-final. See [codec-surface-cleanup.md](codec-surface-cleanup.md).
+13. **wp2** — ✅ **DONE: removed entirely** (encoder + decoder) on 2026-06-02. No browser decodes it; bitstream non-final. See [codec-surface-cleanup.md](../../history/codec-surface-cleanup.md).
 14. **QOI** — spec is **frozen**; only one real two-line commit (~1.4% encode). Bump the SHA opportunistically if you rebuild for another reason. (Also: QOI files are *larger* than optimised PNG — no compression rationale.)
 15. **hqx** — already on the latest tag; upstream abandoned; fixed-math filter.
 16. **png (image-png crate)** — **dead directory** (DELETED), never imported (OxiPNG encode + native browser PNG decode own all PNG paths). `codecs/png/` was deleted in the codec-cleanup pass.
 17. **SVT-AV1 / HEIC encoder / ECT / zopflipng / JPEG XS** — not viable or not worth it in single-threaded WASM (see §4).
 
-**Suggested sequencing:** the codec-surface cleanup (WebP 2 removed, `codecs/png/` + `codecs/visdif/` deleted) and the multithreading headers are **already DONE** on the `codec-cleanup-and-threading` branch. The remaining codec work is the upgrades: do the four security-driven rebuilds (items 1–4) as one batch since they share the Emscripten/Docker pipeline and the libwebp↔AVIF libsharpyuv coupling means testing them together is cleaner — see [codec-upgrade-runbooks.md](codec-upgrade-runbooks.md) for turnkey steps. Defer mozjpeg's CMake rewrite, the resize crate edits, and the jpegli build to their own focused sessions.
+**Suggested sequencing:** the codec-surface cleanup (WebP 2 removed, `codecs/png/` + `codecs/visdif/` deleted) and the multithreading headers are **already DONE** on the `codec-cleanup-and-threading` branch. The remaining codec work is the upgrades: do the four security-driven rebuilds (items 1–4) as one batch since they share the Emscripten/Docker pipeline and the libwebp↔AVIF libsharpyuv coupling means testing them together is cleaner — see [codec-upgrade-runbooks.md](../../codec-upgrade-runbooks.md) for turnkey steps. Defer mozjpeg's CMake rewrite, the resize crate edits, and the jpegli build to their own focused sessions.

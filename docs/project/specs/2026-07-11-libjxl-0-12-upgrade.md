@@ -2,7 +2,7 @@
 
 Last updated: 2026-07-11. Status: **not started.**
 Origin: maintainer decision 2026-07-11. Supersedes the "Path A stops at 0.8.5"
-outcome in [codec-upgrade-runbooks.md](../codec-upgrade-runbooks.md) §jxl —
+outcome in [codec-upgrade-runbooks.md](../../codec-upgrade-runbooks.md) §jxl —
 this IS that runbook's "Path B", now decided. Prerequisite for
 [2026-07-11-jpeg-to-jxl-transcode.md](2026-07-11-jpeg-to-jxl-transcode.md).
 
@@ -41,9 +41,9 @@ v0.9.0, which is the entire reason the 2026-06 sweep stopped at 0.8.5. The
   size_t decodingSpeedTier; float photonNoiseIso; bool lossyModular;`.
 - `codecs/jxl/dec/jxl_dec.cpp` uses the public decoder API plus ONE internal
   header (`lib/jxl/color_encoding_internal.h`) and skcms.
-- Build docs: [codec-build-notes.md](../codec-build-notes.md) (§libjxl gotchas
+- Build docs: [codec-build-notes.md](../../codec-build-notes.md) (§libjxl gotchas
   1–6 and the `thread_local val::global` bug), toolchain = **emcc 3.1.0
-  arm64-native** for jxl, and [codec-upgrade-runbooks.md](../codec-upgrade-runbooks.md)
+  arm64-native** for jxl, and [codec-upgrade-runbooks.md](../../codec-upgrade-runbooks.md)
   §jxl Path B. Read BOTH before the first build.
 - Verify loop: `npm run check` → `npm run test:e2e` → `npm run bench` +
   `npm run bench:compare` (a green build can still ship a broken codec).
@@ -260,9 +260,9 @@ edits; app contract and artifact set frozen; gate on e2e + bench-compare.
 Work in an isolated branch — this is the one codec both upstreams failed to
 upgrade.
 
-Spec: `docs/specs/2026-07-11-libjxl-0-12-upgrade.md`
+Spec: `docs/project/specs/2026-07-11-libjxl-0-12-upgrade.md`
 
 Handoff:
-`codex exec -C /Users/tav/Development/Tavlean/Frisp -s workspace-write -m gpt-5.6-sol -c model_reasoning_effort="medium" "Implement docs/specs/2026-07-11-libjxl-0-12-upgrade.md exactly. Read docs/codec-build-notes.md and docs/codec-upgrade-runbooks.md (jxl section) first. Follow the guardrails. Do not commit or push. Report PASS or FAIL against each acceptance criterion."`
+`codex exec -C /Users/tav/Development/Tavlean/Frisp -s workspace-write -m gpt-5.6-sol -c model_reasoning_effort="medium" "Implement docs/project/specs/2026-07-11-libjxl-0-12-upgrade.md exactly. Read docs/codec-build-notes.md and docs/codec-upgrade-runbooks.md (jxl section) first. Follow the guardrails. Do not commit or push. Report PASS or FAIL against each acceptance criterion."`
 (medium effort: this one carries real build ambiguity; every other codec spec
 runs at low.)

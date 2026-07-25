@@ -1,176 +1,132 @@
-# Frisp Docs — map, registry & work order
+# Frisp docs
 
-Last updated: 2026-07-12.
+Last updated: 2026-07-25.
 
-The single hub for all project docs: the **work priority order** plus the
-**registry** of every doc with explicit "read when" / "update when" triggers.
-**New here? Read [STATUS.md](STATUS.md) first** (live state), then this file.
-End-user docs live separately in [user-guide/](user-guide/index.md).
+The index of every doc, and the discipline that keeps them worth reading. Start
+with [project/brief.md](project/brief.md): what Frisp is, where it stands, and
+what is still undecided. End-user documentation is separate, in
+[user-guide/](user-guide/index.md).
 
-> **Maintaining docs?** The [registry](#doc-registry) below is canonical. Per
-> [AGENTS.md](../AGENTS.md), consult it at **both ends of a task**: *before* — scan
-> "Read when" and read what's relevant (the docs tell the whole story; don't redo
-> decided work); *after* — update every doc whose "Update when" trigger your work
-> matched (versions, `Status:` / `Last updated:`, gotchas, completion marks) before
-> calling it done. **New doc** → add a registry row here. Read only what you need —
-> context is finite; this is the cheap lookup.
+## How to use these docs
 
----
+**Read before, update after.** Scan this index at the start of a task and read
+the docs that cover what you are about to touch; they hold decisions you would
+otherwise redo or undo. When you are done, update every doc your work
+invalidated. A task is not complete while a doc it touched is stale.
 
-## What to do next (priority order)
+**Writing rules.**
 
-The order to work things, highest priority first. "Urgency" flags genuine
-time-pressure (security); everything else is value/effort.
+- **One doc, one topic.** Split rather than grow a grab-bag. A doc pushing past
+  100 lines is usually two topics.
+- **One source of truth per topic.** A superseded doc becomes a one-line pointer
+  or is deleted; git history keeps the rest.
+- **Only the non-obvious, with the reason.** "X because Y". Anything a capable
+  reader already knows is left out, because docs exist for what cannot be
+  guessed.
+- **Absolute dates**, never "last week". Every doc opens with
+  `Last updated: YYYY-MM-DD`; plans and specs also carry a `Status:` line.
+- **Fresh eyes.** State the current way as if it had always been the way. Name a
+  wrong alternative only when it is a live temptation or a mistake that gets
+  repeated, and say why. When a practice changes, rewrite the doc so no trace of
+  the old way remains.
+- **Nothing conversational.** Every doc has to work for someone arriving cold.
+- **Add a new doc to this index in the same change.**
+- Doc edits are drafts for review. `Status: ACCEPTED by Tavlean on YYYY-MM-DD` is
+  the only marker that makes something ratified.
 
-> **Merged into `main`:** **all 7 WASM codecs rebuilt natively (no Docker)** —
-> imagequant 2.18.0, libwebp v1.6.0, libavif v1.4.2 + libaom v3.12.1, libjxl
-> v0.8.5, oxipng 10.1.1, mozjpeg v4.1.5, resize 0.8.9 — every CVE in scope fixed;
-> cross-origin isolation, WebP 2 removal, dead-code deletion; **and the full MT
-> threading runtime (oxipng/AVIF/JXL multi-core, verified Chromium + WebKit).**
-> Verified by the Playwright e2e suite (incl. a WebKit/Safari project) + the
-> benchmark, no regressions. The former `codec-rebuilds` /
-> `codec-cleanup-and-threading` branches are merged and deleted. See
-> [STATUS.md](STATUS.md) and the journey log below.
+## Orientation
 
-| # | Track | Plan | Status | Why |
-|---|-------|------|--------|-----|
-| ✓ | **Wire threaded MT runtime** | [threading-enablement.md](threading-enablement.md) | **✅ DONE** | **oxipng, AVIF, JXL all thread multi-core** — full worker pool in Chromium, no fallback in WebKit, verified, ST fallback intact. oxipng needed a shared-memory build fix; AVIF/JXL needed the `?url`/`mainScriptUrlOrBlob` wiring **+ a `PTHREAD_POOL_SIZE` rebuild** (the `_mt` builds deadlocked spawning pthreads on-demand). |
-| 1 | **SVG optimization (in build)** | [svg-optimization-analysis.md](svg-optimization-analysis.md) · [spec](specs/2026-07-12-svg-optimization.md) | 🔨 **IN BUILD** | **Maintainer priority 2026-07-12 — jumps the codec batch.** Vector lane (SVGO v4 worker) + auto candidate search + benchmark vs nano/ImageOptim. Daily-use feature for the maintainer. |
-| 2 | **Investigate new codecs** | [new-codec-investigation.md](new-codec-investigation.md) | 🟡 Partly decided | HEIC still undecided; **jpegli and JPEG→JXL transcode were DECIDED 2026-07-11** (specs below); SVG graduated to its own track (row above). |
-| 3 | **Bulk optimization** | [specs/2026-07-02-bulk-phase-2-promotion.md](specs/2026-07-02-bulk-phase-2-promotion.md) | ✅ Phase 2 + 2b done (2026-07-03) | **Top product priority (maintainer, 2026-07-02).** Design phase COMPLETE (all questions decided — [bulk-ui-design-options.md](bulk-ui-design-options.md)); Phase 2 production bulk shipped on the main route with ZIP export, folder import, remove+Undo, and bulk e2e coverage. Phase 2b left panel also shipped: shared image info by default, **Compare as…** for opt-in A/B. Next: Phase 3 overrides polish, starting with the options-model minimal slice first (see [codec-options-model.md](codec-options-model.md) sequencing analysis). Multi-Format Compare follows bulk ([road-map.md](road-map.md)). |
-| 4 | **Codec batch 2026-07** | [jxl 0.12](specs/2026-07-11-libjxl-0-12-upgrade.md) · [jpegli](specs/2026-07-11-jpegli-codec.md) · [JPEG→JXL](specs/2026-07-11-jpeg-to-jxl-transcode.md) · [auto-quality](specs/2026-07-11-auto-quality-mode.md) | ⚪ Specced | Maintainer-approved 2026-07-11. Order: jxl upgrade (isolated branch) → jpegli → transcode (blocked on jxl) → auto-quality. Queues behind SVG optimization (row 1) and bulk Phase 3; each spec is Codex-executable. CLI decision pending ([frisp-cli-analysis.md](frisp-cli-analysis.md)). |
-| ✓ | **Codec security rebuilds** | [codec-build-notes.md](codec-build-notes.md) · [codec-upgrade-audit.md](codec-upgrade-audit.md) | **✅ DONE** | All 7 codecs upgraded natively, merged into `main` (CVEs fixed; some faster). The engineering record is `codec-build-notes.md`; the runbooks/audit are now reference records. |
-| ✓ | **Codec surface cleanup** | [codec-surface-cleanup.md](codec-surface-cleanup.md) | **Done** | WebP 2 removed; dead `codecs/png/` + `codecs/visdif/` + `storage.ts` deleted; browser canvas encoders removed + QOI dropped from the output picker (2026-06-27). Kept as the removal record. User-guide reconciled 2026-06-27 (`d29c5dce`, `38de8df0`, `c01bde77`). |
-| — | **Svelte cleanup remnants** | [svelte-hardening-plan.md](svelte-hardening-plan.md) | ⚪ Ongoing | Waves mostly done; Wave 2b + deferred items + the [codec-options-model.md](codec-options-model.md) project remain. Pick up between the above. |
+| Doc | What it holds |
+|---|---|
+| [project/brief.md](project/brief.md) | Intent, current state, hard open questions, pointers. Read first. |
+| [overview.md](overview.md) | The architecture in one page: what runs where. |
+| [gotchas.md](gotchas.md) | Traps that fail silently. Read before debugging anything strange. |
+| [design.md](design.md) | Design tokens and visual conventions. A placeholder; the system is not designed yet. |
 
-> **Writing the articles?** [journey-and-article-notes.md](journey-and-article-notes.md)
-> is the source material — every task, problem, and solution for both planned
-> write-ups (the SvelteKit migration + the codec sweep).
+## Architecture and runtime
 
----
+| Doc | What it holds |
+|---|---|
+| [build-and-runtime.md](build-and-runtime.md) | The build and runtime map: SvelteKit and Vite, codec-asset sync, threaded-worker wiring in dev and prod. |
+| [bulk-image-architecture.md](bulk-image-architecture.md) | The bulk engine's design: model, helpers, snapshots, queue and export behavior. |
+| [threading-enablement.md](threading-enablement.md) | The multi-threading subsystem: COOP/COEP and the three threaded codecs. Read before any worker-pool or SharedArrayBuffer work. |
+| [browser-support.md](browser-support.md) | The support policy and the version floors. |
+| [project-identity.md](project-identity.md) | The name and identity, and the procedure for a future rename. |
+| [rename-record.md](rename-record.md) | The 2026-07-05 Sqush to Frisp cutover record and what it left open. |
 
-## Doc registry
+## Codecs
 
-Every project doc: what it holds, when to **read** it, when to **update** it.
+| Doc | What it holds |
+|---|---|
+| [codec-build-notes.md](codec-build-notes.md) | The engineering record of building each WASM codec from source: toolchains, bugs, fixes, and the dead ends not to retry. Read before rebuilding any codec. |
+| [codec-provenance.md](codec-provenance.md) | The exact vendored version and source pin of every codec. Must never show a stale version. (`codec-source-references.md` is a pointer here, kept for older handoffs.) |
+| [codec-upgrade-runbooks.md](codec-upgrade-runbooks.md) | The per-codec upgrade how-to: the build, verify, and commit loop with exact edits. |
+| [codec-options-model.md](codec-options-model.md) | The proposed unified codec-options model, plus the sequencing analysis that puts a minimal slice before bulk Phase 3. |
+| [new-codec-investigation.md](new-codec-investigation.md) | Candidates researched but not added. HEIC is the one still undecided. |
+| [svg-optimization-analysis.md](svg-optimization-analysis.md) | The SVG vector-lane analysis and the competitive findings against nano and ImageOptim. |
+| [frisp-cli-analysis.md](frisp-cli-analysis.md) | Strategic analysis for a possible CLI reusing the codecs and engines. Decision pending. |
 
-### Start here / live state
+## Product and design
 
-| Doc | Contains | Read when | Update when |
-|---|---|---|---|
-| [STATUS.md](STATUS.md) | Live project state, current branch, what's done/in-flight, gotchas. The single source of truth for "where things are now." | **First, every session.** | **Almost any task** that changes project state: a feature/track lands or starts, a branch's state changes, a build/verify status flips, a blocker is hit or cleared. |
-| [README.md](README.md) (this file) | The docs hub: the work-priority order, the full doc registry (read/update triggers), and the conventions. | To find which doc covers a topic, the priority order of work, or which docs to update after a task. | A doc is created / finished / archived / repurposed; a track's priority or status changes; an "update when" trigger is wrong. |
+| Doc | What it holds |
+|---|---|
+| [lab.md](lab.md) | The lab registry: every experiment, its route, its verdict, and what must not be deleted. Hygiene audits read this first. |
+| [lab-editor-restyle.md](lab-editor-restyle.md) | The editor re-style design record for the three skins. |
+| [lab-intro-page.md](lab-intro-page.md) | The intro-page design record and the promotion of `frame`. |
+| [bulk-ui-design-options.md](bulk-ui-design-options.md) | The bulk UI design session: layout options, override signaling, and the phased plan. |
+| [keyboard-control.md](keyboard-control.md) | The proposal for app-wide single-key control. Five decisions open. |
+| [mobile-save-ux.md](mobile-save-ux.md) | Where saved images land on iOS and Android, and the Web Share button's platform constraints. |
+| [parity-audit.md](parity-audit.md) | Feature parity against the original Squoosh, and the deviation log. |
 
-### Codecs (build, versions, upgrades)
+## Quality
 
-| Doc | Contains | Read when | Update when |
-|---|---|---|---|
-| [codec-build-notes.md](codec-build-notes.md) | The engineering record of building each WASM codec from source: toolchains, the gotchas, the bugs, the fixes (incl. the dead-ends not to retry). | Before building/rebuilding ANY codec. | After any codec build/rebuild work — a new gotcha, a new fix, a new codec, a toolchain finding. |
-| [codec-provenance.md](codec-provenance.md) | The exact vendored version of every codec + its source pin (a factual record). | To know what version ships. | **Whenever a codec's version/source changes** (must never show a stale version). |
-| [codec-source-references.md](codec-source-references.md) | Where each codec's source comes from. | Sourcing/checking a codec's upstream. | A codec's upstream source/repo/pin changes. |
-| [codec-upgrade-audit.md](codec-upgrade-audit.md) | The version + CVE + landscape audit (the "why upgrade"). Now ✅ done. | Planning codec currency/CVE work. | A new audit runs, a new CVE appears, or upgrade outcomes change. |
-| [codec-upgrade-runbooks.md](codec-upgrade-runbooks.md) | The per-codec upgrade how-to (build+verify+commit loop, exact edits). ✅ 2026-06-02 sweep done; now reference. | Doing a future codec upgrade. | The upgrade *process* changes, or a codec is upgraded (mark it). |
-| [codec-surface-cleanup.md](codec-surface-cleanup.md) | Record of removed codecs (WebP2, dead dirs, browser canvas encoders, QOI-as-output). Done. | Adding/removing a codec from the surface. | The codec surface changes (a codec added or removed). |
-| [codec-options-model.md](codec-options-model.md) | Design proposal for a unified codec-options model. Minimal slice started; includes the 2026-07-02 Phase-3 sequencing analysis (minimal slice first). | Working the options-model project or bulk Phase 3. | Progress on that project, or the codec option surface changes. |
-| [keyboard-control.md](keyboard-control.md) | Design proposal for Figma-style app-wide keyboard control (single-key actions, digit value entry, shortcut overlay). Proposed 2026-07-02; build after bulk Phase 2 + 2b. | Designing or building keyboard shortcuts. | Keymap decisions are made, or any keyboard handler is added/changed. |
-| [new-codec-investigation.md](new-codec-investigation.md) | Researched-but-not-added candidates (SVGO, HEIC, jpegli…). | Investigating or adding a new codec. | A candidate is investigated, decided on, or added. |
-| [svg-optimization-analysis.md](svg-optimization-analysis.md) | The 2026-07-12 SVG import/export analysis: SVGO v4 vector-lane design, nano/ImageOptim competitive findings, phased plan (lane → auto candidate search → fonts), open decisions. **Decision PENDING.** | Considering or building SVG support; comparing against nano/ImageOptim. | The maintainer decides, a phase lands, or the optimizer landscape shifts (oxvg/SVGM WASM). |
-| `benchmarks/README.md` · `tests/fixtures/README.md` | The benchmark harness + the test/bench fixture corpus (incl. the 9 fixtures + provenance). | Adding fixtures, changing the bench, reading benchmark methodology. | A fixture is added/changed, the bench harness/baseline changes. |
+| Doc | What it holds |
+|---|---|
+| [test-plan.md](test-plan.md) | The test strategy: static gate, unit layer, e2e, and the remaining coverage gaps. |
+| [manual-qa.md](manual-qa.md) | The manual checklist for what still needs human eyes before a release. |
+| [svelte-hardening-plan.md](svelte-hardening-plan.md) | The post-migration cleanup and Svelte 5 hardening backlog. |
+| [dependency-modernization.md](dependency-modernization.md) | The state of the dependency graph. |
+| [upstream-signals.md](upstream-signals.md) | Triage of high-signal upstream Squoosh issues and PRs against local decisions. |
 
-### Threading
+## Notes
 
-| Doc | Contains | Read when | Update when |
-|---|---|---|---|
-| [threading-enablement.md](threading-enablement.md) | The MT-threading subsystem: COOP/COEP + all three threaded codecs (oxipng/AVIF/JXL) multi-core — **done & verified, merged to `main`**; incl. the build fixes and the `vite dev` raw-worker fix. | Before ANY threading/SharedArrayBuffer/worker-pool work. | After any threading change — a build/runtime fix, a regression, or a new dev/prod gotcha. |
+| Doc | What it holds |
+|---|---|
+| [journey-and-article-notes.md](journey-and-article-notes.md) | Task, problem, and solution material for two planned articles. |
 
-### Architecture & runtime
+Two more live next to the code they describe rather than here:
+[`benchmarks/README.md`](../benchmarks/README.md) for the benchmark harness and
+methodology, and [`tests/fixtures/README.md`](../tests/fixtures/README.md) for the
+fixture corpus and its provenance.
 
-| Doc | Contains | Read when | Update when |
-|---|---|---|---|
-| [overview.md](overview.md) | The architecture in one page (what runs where). | Onboarding / orienting. | The architecture changes (pipeline, workers, what-runs-where). |
-| [build-and-runtime.md](build-and-runtime.md) | The build + runtime map (SvelteKit/Vite, the codec-asset sync, the threaded-worker dev/prod wiring). | Touching the build pipeline or asset wiring. | The build/sync/asset pipeline changes. |
-| [bulk-image-architecture.md](bulk-image-architecture.md) | The bulk-optimization feature design (roadmap). | Working the bulk feature. | Bulk design/implementation changes. |
-| [browser-support.md](browser-support.md) | The browser support policy + what must work per browser. | Changing engine-specific behavior, adding a cross-browser test. | Support targets change, or a browser-specific finding lands (e.g. the WebKit/Safari work). |
-| [project-identity.md](project-identity.md) | The project name/identity. | Rarely. | A rename or identity change. |
+## Management
 
-### Plans, status, backlog
+**[project/](project/)** is the management set: [brief.md](project/brief.md)
+(intent and state), [roadmap.md](project/roadmap.md) (the phased plan and its
+status), [worklog.md](project/worklog.md) (the session narrative, newest first),
+[issue-list.md](project/issue-list.md) (small fixes with no plan of their own),
+[ledger.md](project/ledger.md) (when each heavy audit last ran),
+[specs/](project/specs/) (executable implementation specs, dated),
+`decisions/` (dated decision records; none written yet),
+[reports/](project/reports/) (audits and studies, dated), and `references/`
+(local design reference images, gitignored).
 
-| Doc | Contains | Read when | Update when |
-|---|---|---|---|
-| [road-map.md](road-map.md) | Product direction (codec strategy, performance, Multi-Format Compare, bulk, PWA). | Planning product work / priorities. | A roadmap item lands or its priority/feasibility changes (e.g. codecs done unblocks Multi-Format Compare). |
-| [specs/2026-07-11-libjxl-0-12-upgrade.md](specs/2026-07-11-libjxl-0-12-upgrade.md) | The libjxl v0.12.0 upgrade spec: public-API encoder rewrite (runbook Path B), frozen app contract, build gotchas, bench gate. | Executing the jxl upgrade; any codecs/jxl work. | The upgrade lands, re-scopes, or fails (flip Status). |
-| [specs/2026-07-11-jpegli-codec.md](specs/2026-07-11-jpegli-codec.md) | The jpegli new-codec spec: mozjpeg-templated build from google/jpegli + the full add-a-codec touch-list. | Adding jpegli or any new encoder (the touch-list is reusable). | The codec lands or the touch-list drifts. |
-| [specs/2026-07-11-jpeg-to-jxl-transcode.md](specs/2026-07-11-jpeg-to-jxl-transcode.md) | The lossless JPEG→JXL transcode spec (JxlEncoderAddJPEGFrame path, options-field routing, UI toggle). BLOCKED on the jxl upgrade. | Building transcode; touching the jxl wrapper post-0.12. | The feature lands or the prerequisite changes. |
-| [specs/2026-07-11-auto-quality-mode.md](specs/2026-07-11-auto-quality-mode.md) | The auto-quality spec: codecs/ssimulacra2 WASM metric module + one-shot quality bisection to a perceptual target on the four lossy panels. | Building auto-quality or the ssimulacra2 module. | The feature lands, targets change, or the search design changes. |
-| [specs/2026-07-12-film-grain.md](specs/2026-07-12-film-grain.md) | The SHIPPED film-grain processor: the measured Luminar-calibrated grain model (white noise, midtone parabola, σ=0.44·amount), the baked-vs-codec-native decision record, and the full touch-list. | Changing grain behavior/UI, adding grain controls, or reusing the calibration method for another look-matched feature. | Grain behavior, calibration, or controls change. |
-| [frisp-cli-analysis.md](frisp-cli-analysis.md) | Strategic analysis for a possible Frisp CLI (target-driven, metric-verified, agent-first; reuse map, prior art, v1 surface). Decision PENDING. | Considering the CLI, or anything Node-side reusing the engine. | The maintainer decides, or the reuse map/priors change. |
-| [bulk-ui-design-options.md](bulk-ui-design-options.md) | The bulk-UI design session (2026-07-02): gap inventory, layout options (grid vs filmstrip), left-panel rethink, override/reset signaling, ZIP-in-v1 export revision, phased roadmap, the 5 questions that close the design. | Choosing/refining the bulk UI direction; starting any bulk phase. | A design question is answered, a phase lands or re-scopes, or a lab variant changes the direction. |
-| [specs/2026-07-18-lab-design-unification.md](specs/2026-07-18-lab-design-unification.md) | The lab main-UI design unification + shared Nucleo icon pass: audit verdicts (bar systems, docked zoom, panel layouts), shared conventions (LabIcon + `src/lib/lab/icons/` set), and per-skin worklists. Also records the 2026-07-18 lab navigation restructure (two-door `/lab`, tab bar, auto-loaded sample). | Restyling any lab skin; adding lab icons; changing lab navigation. | A skin's chrome/icon conventions change, or the pass re-scopes. |
-| [lab-editor-restyle.md](lab-editor-restyle.md) | The 2026-07-07 editor re-style lab: three dev-only experiments behind the `/lab` card index (`/lab/porcelain` light-airy-squircle, `/lab/darkroom` rail+inspector+filmstrip, `/lab/hybrid` = darkroom IA in porcelain skin, RECOMMENDED), the reference→feature mappings, the `light-dark()` theming mechanism + squircle convention, harvested feature ideas, and the pending pick-a-direction decision. | Evaluating/continuing the editor re-style; adding app-wide theming; designing the bulk filmstrip. | The maintainer picks a direction, a lab is promoted/deleted, or a harvested idea ships. |
-| [lab-intro-page.md](lab-intro-page.md) | The 2026-07-10 intro-page lab: six dev-only landing variants behind `/lab/intro` (billboard / frame / split / ledger / prism / showcase — minimal full-viewport drop section, light+dark, real drop handling, Nucleo icon set), shared mechanics, and the promotion record. DECIDED 2026-07-15: `frame` was promoted to the live intro (`src/lib/editor/intro/Intro.svelte`); the retired blob landing is preserved as the dev-only `aurora` exhibit (`/lab/intro/aurora`); every `/lab` and `/bench-svg` route is now stripped from production builds by the `app-strip-dev-only-routes` Vite plugin. | Evaluating/continuing the landing re-design; understanding how the shipped intro or the `aurora` reference works. | The intro design changes again, a kept lab variant is reworked/deleted, or the dev-only route stripping changes. |
-| [test-plan.md](test-plan.md) | The current test strategy: static gate, Vitest unit layer, full Playwright e2e on every push/PR, plus the bulk-engine unit-test backlog. | Before adding/changing tests, or building bulk/crop/compare (write the feature's test with it). | A test layer/tool lands, a gap is closed, the CI cadence changes, or a planned phase completes. |
-| [svelte-hardening-plan.md](svelte-hardening-plan.md) | The post-migration cleanup / Svelte-5 hardening backlog. | Doing cleanup/hardening work. | A hardening wave/item is done or added. |
-| [first-principles-review.md](first-principles-review.md) | The 2026-07-07 whole-app first-principles review: ranked findings P1–P10 (per-pass source re-decode, worker-boundary pixel copies, codegen retirement, WebP-shaped bulk options seam, dead code, tooling/CI gaps, Svelte idioms, bulk scheduling, layout naming) + suggested sequencing. | Planning performance/cleanup/simplification work; deciding what to tackle next. | A P-item lands, is re-scoped, or is disproven (mark it in place). |
-| [specs/2026-07-07-first-principles-execution.md](specs/2026-07-07-first-principles-execution.md) | The execution plan for the review: workstreams WS-A…H with fixed designs (decoded-source cache, worker transfer staging, codegen retirement target shape, bulk drain loops, options-slice decisions) + per-WS status lines. **Execution state lives HERE.** Appendices: [WS-G control inventory](specs/2026-07-07-ws-g-control-inventory.md) (per-encoder control→field tables + binding directives) · [WS-H rename inventory](specs/2026-07-07-ws-h-rename-inventory.md) (git-mv list, sed patterns, doc refs). | Executing or resuming ANY review workstream. | A workstream lands, re-scopes, or its status changes (flip the Status line). |
-| [history/review-hardening-plan.md](history/review-hardening-plan.md) | Archived 2026-07-02 code-review execution plan: persistent worker bridges, in-flight encode dedup, canonical recipe signature, input clamps, SW pass-through, settings storage, and SideRuntime grouping. | Historical context for the landed hardening batch. | Generally frozen; update only to correct archival metadata. |
-| [specs/2026-07-07-porcelain-crop-tool.md](specs/2026-07-07-porcelain-crop-tool.md) | The porcelain-lab crop tool (Pixelmator-Pro-style): the FIXED coordinate model (image-anchored world, axis-aligned rect, rotation/flip remap identities), the CropTool API both UI halves consume, the stage interaction spec (handles, outside-corner rotate, out-of-canvas crop, background fill), scope decisions (perspective / auto-crop / auto-straighten deferred), and if-things-break notes. | Working on the crop tool, promoting it out of the lab, or adding a deferred crop feature. | Crop behavior/API changes, a deferred feature ships, or the tool is promoted/deleted. |
-| [specs/2026-07-02-bulk-phase-2-promotion.md](specs/2026-07-02-bulk-phase-2-promotion.md) | The executed bulk Phase-2 promotion spec: stage-by-stage lab→production migration (engine additions, entry routing, Stack-only cleanup, ZIP + size guard, folder import, remove-Undo, e2e, docs sweep) with acceptance criteria and guardrails. | Auditing the shipped bulk Phase 2 work. | The orchestrator flips the spec Status line; update only if the plan record changes. |
-| [specs/2026-07-02-phase-2b-contextual-left-panel.md](specs/2026-07-02-phase-2b-contextual-left-panel.md) | The executed Phase-2b spec: the single editor's left column became the shared image-info panel (extracted from the bulk panel — one component, both editors) + the "Compare as…" opt-in second side. Done 2026-07-03. | Auditing Phase 2b. | The orchestrator flips the spec Status line; update only if the plan record changes. |
-| [presk-rename-runbook.md](presk-rename-runbook.md) | The Sqush→Frisp rename record + what remains: Phase B codec-crate rebuild (deferred to the next codec upgrade), Phase F sqush.app sunset Worker (`infra/sqush-sunset/`), Phase E rename-proofing outcome (brand lives ONLY in `src/shared/brand.ts`). | Renaming anything brand-related; touching the sunset Worker; planning the next codec upgrade (fold Phase B in). | A rename phase lands, the sunset Worker is deployed/decommissioned, or identity plumbing changes. |
-| [issue-list.md](issue-list.md) | Small backlog seed (issues that don't warrant their own plan). | Picking up small fixes. | A small issue is found, fixed, or promoted to a plan. |
-| [upstream-signals.md](upstream-signals.md) | Triage ledger for high-signal issues/PRs from GoogleChromeLabs/squoosh, classified against Frisp's docs and boundaries. | Mining upstream Squoosh, classifying external requests/bugs/PR ideas, or checking whether a signal is already handled locally. | An upstream issue/PR is reviewed, dismissed, promoted to local backlog, implemented, or changes a local assumption. |
-| [dependency-modernization.md](dependency-modernization.md) | The dependency-graph modernization state. | Modernizing/bumping deps. | Dependencies are modernized/bumped meaningfully. |
-| [parity-audit.md](parity-audit.md) | Editor feature-parity vs the original Squoosh + the deviation log. | Changing editor features; verifying parity. | A feature changes, parity is verified, or a deviation is added/closed. |
-| [manual-qa.md](manual-qa.md) | The manual QA checklist (pre-release / after risky changes). | Before a release or after build/worker/codec changes. | A new feature/path needs a manual check, or a step changes. |
-| [mobile-save-ux.md](mobile-save-ux.md) | Where saved images land on iOS/Android + the Web Share button (shipped 2026-07-17) and its platform constraints. | Touching the download/share affordances. | Platform download/share behavior changes, or the ZIP save-picker idea ships. |
+## Archive and end-user docs
 
-### Reference / notes
+| Path | What it holds |
+|---|---|
+| [history/](history/) | The SvelteKit-migration archive and frozen completed plans. **Do not update**; it is a point-in-time record and new state belongs in the live docs above. |
+| [user-guide/](user-guide/index.md) | End-user documentation, written for users rather than developers. Includes per-format guides and an exhaustive code-derived reference inventory. Update whenever a user-facing feature, option, codec, or default changes. |
 
-| Doc | Contains | Read when | Update when |
-|---|---|---|---|
-| [journey-and-article-notes.md](journey-and-article-notes.md) | Task/problem/solution notes for two planned articles (migration + codec sweep). | Writing the articles; recalling how a past problem was solved. | A task produced a notable problem/solution worth recording. |
-| [WORKLOG.md](WORKLOG.md) | Session-by-session build log (what/why/gotchas), newest first. | Resuming after a gap; tracing why a recent change was made. | After any build session — append an entry. |
+## Testing commands
 
-### Archive & end-user (special handling)
-
-| Doc | Contains | Read when | Update when |
-|---|---|---|---|
-| [history/](history/) | The SvelteKit-migration archive plus frozen completed plans and status archives. | For migration context / the migration article. | **Generally frozen — do NOT update.** It's a point-in-time record; new state goes in the live docs above. |
-| [history/status-archive-pre-2026-07.md](history/status-archive-pre-2026-07.md) | Frozen archive of STATUS.md entries before 2026-07-02. | Tracing older project history that no longer belongs in live status. | Generally frozen; update only if the archive split missed an old entry. |
-| [user-guide/](user-guide/index.md) | End-user documentation (features, formats, options, codecs, bulk optimization) — written for users, not devs. Includes per-format guides + an exhaustive code-derived [reference inventory](user-guide/reference/features.md). | Changing any user-facing feature/option/codec/UI. | **A user-facing feature, option, codec, or default changes.** |
-
----
-
-## Testing
-
-- **Unit tests:** `npm run test:unit` (Vitest, `tests/unit/`) — pure
-  bulk-engine/helper coverage; does not build or boot the browser app.
-- **Static gate:** `npm run check` (`typecheck` = wrapper patch sync + SvelteKit sync + svelte-check, then build + static audit).
-- **Browser regression:** `npm run test:e2e` (Playwright, `tests/e2e/`) — boots
-  the production preview cross-origin-isolated and encodes through every codec,
-  asserting valid output bytes; plus offline reload. **Run after any codec/build
-  change.** `npm test` runs check, unit, and e2e.
-- **Codec benchmark:** `npm run bench` + `npm run bench:compare` (`benchmarks/`) —
-  measures each WASM codec's output size + encode time + reliability and diffs
-  before/after a codec upgrade (regression gate + article numbers). See
-  `benchmarks/README.md`.
-- **Manual / release QA:** [manual-qa.md](manual-qa.md) for what still needs eyes
-  (visual quality, Safari/Firefox, mobile layout).
-
----
-
-## Conventions
-
-Lightweight rules so docs stay trustworthy:
-
-1. **Every doc starts with `Last updated: YYYY-MM-DD`.** Plans also get
-   `Status:` (not started / in progress / done).
-2. **[STATUS.md](STATUS.md) is the live state**; this file is the docs hub
-   (registry + work order); [road-map.md](road-map.md) is product direction.
-   Update STATUS when reality changes.
-3. **Executed specs remain in docs/specs/ as records; superseded PLANS move to history/.** Mark finished work done in the priority table / registry above and archive plans once nothing active links to them.
-4. **When this session's findings contradict a doc, fix the doc** — don't leave
-   two truths. (Done 2026-06-02 for the threading "single-threaded" error and
-   the WebP 2 "keep for parity" stance; 2026-06-03 for the "branches not yet on
-   main" / "threading deferred" staleness.)
-5. **Add new docs to the registry above** in the right section. If the root gets
-   crowded again, that's the signal to archive completed work, not to add folders.
+- `npm run check`: typecheck, production build, static-output audit. The gate for
+  any app, build, runtime, service-worker, or tooling change.
+- `npm run test:unit`: Vitest over `tests/unit/`. Fast; does not boot a browser.
+- `npm run test:e2e`: Playwright over `tests/e2e/`. Boots the production preview
+  cross-origin-isolated and encodes through every codec. Required after any
+  codec, build, worker, or service-worker change.
+- `npm test`: check, unit, then e2e.
+- `npm run bench` and `npm run bench:compare`: codec size and time regression
+  gate. Read the benchmark caveat in [gotchas.md](gotchas.md) before trusting a
+  warm number.

@@ -4,8 +4,8 @@ Last updated: 2026-05-25.
 
 > Historical audit. Phase 1 cleanup is no longer the active track, and the
 > SvelteKit app has since moved to the repo root on the `svelte` branch. Use
-> [STATUS.md](../STATUS.md), [MIGRATION-PLAN.md](MIGRATION-PLAN.md), and
-> [road-map.md](../road-map.md) for current instructions.
+> [the project brief](../project/brief.md), [MIGRATION-PLAN.md](MIGRATION-PLAN.md), and
+> [road-map.md](../project/roadmap.md) for current instructions.
 
 ## Verdict
 

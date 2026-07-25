@@ -1,7 +1,7 @@
 # First-Principles Review — Execution Plan & Specs
 
 Status: **IN PROGRESS** (orchestrated session started 2026-07-07). Source
-findings: [first-principles-review.md](../first-principles-review.md) (P1–P10).
+findings: [first-principles-review.md](../reports/2026-07-07-first-principles-review.md) (P1–P10).
 This document is the **single source of truth for execution state** — each
 workstream has a Status line; flip it as work lands. The review doc stays the
 record of *why*; this is the *how*.
@@ -317,7 +317,7 @@ offline skip). An earlier Chromium OxiPNG encode run hit a transient
 `RuntimeError: memory access out of bounds`, but the final full e2e run passed.
 
 The two pending maintainer decisions in
-[codec-options-model.md](../codec-options-model.md) §Sequencing are resolved
+[codec-options-model.md](../../codec-options-model.md) §Sequencing are resolved
 as follows (maintainer may veto; rationale recorded):
 
 1. **Dots/resets cover ALL visible controls.** Partial coverage makes the

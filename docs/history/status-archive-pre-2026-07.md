@@ -13,7 +13,7 @@
   stays visible while the popover is closed) plus light-dismiss (outside-
   `pointerdown` + Escape, focus returned to the trigger), each row reflecting state
   via `aria-pressed`. `Output.svelte` only; commit `cadfaa16`; deviation logged in
-  [parity-audit.md](parity-audit.md) §A.15; user-guide + reference reconciled. `npm
+  [parity-audit.md](../parity-audit.md) §A.15; user-guide + reference reconciled. `npm
   run check` 0/0; browser-verified desktop + mobile (toggles apply to both
   canvases, click-outside + Escape dismiss, no clipping at 375px, no console
   errors).
@@ -32,7 +32,7 @@
   single-slot `encodedSig`/`lastUrls` are subsumed; the cache owns object-URL
   lifecycle). UI: Undo/Redo glass buttons beside Back + `⌘/Ctrl+Z` and
   `⇧⌘Z`/`Ctrl+Y`, suppressed in typeable fields. History is per-image (reset on
-  load). Deviation logged in [parity-audit.md](parity-audit.md) §A.14; user-guide
+  load). Deviation logged in [parity-audit.md](../parity-audit.md) §A.14; user-guide
   + reference reconciled. Svelte MCP docs consulted + autofixer clean. `npm run
   check` 0/0; browser-verified (≈470ms encode vs ≈20ms cached return; undo/redo +
   cross-side copy instant; no console errors).
@@ -45,7 +45,7 @@
   than the worker filters, inconsistent across machines); Catmull-Rom and Triangle
   are no longer offered but stay in the worker code path (`catrom` finishes an hqx
   pass). Commits `d07aed17` (UI) + `5404d783` (types/code); deviation logged in
-  [parity-audit.md](parity-audit.md) §A.13; user-guide + reference reconciled.
+  [parity-audit.md](../parity-audit.md) §A.13; user-guide + reference reconciled.
   `svelte-check` 0/0; browser-verified (dropdown shows exactly four options;
   Premultiply/Linear RGB show for Lanczos3, hide for Browser pixelated; a
   browser-pixelated resize re-encodes cleanly, no console errors).
@@ -59,7 +59,7 @@
   folds Method + Premultiply + Linear RGB; OxiPNG leads with Effort. Ported from
   the "Modern UI redesign 2" branch idea but made consistent (the branch left AVIF
   out) and kept integer-only Quality. Commit `abebdfaf`; deviation logged in
-  [parity-audit.md](parity-audit.md) §A.12; user-guide reconciled. `svelte-check`
+  [parity-audit.md](../parity-audit.md) §A.12; user-guide reconciled. `svelte-check`
   0/0; all panels browser-verified (collapsed + expanded).
 
 - **Quality sliders integer + magnetic snapping (2026-06-28).** Landed on
@@ -70,7 +70,7 @@
   of 5/10 while dragging, auto-enabled on wide sliders (`max − min ≥ 50`); the
   warp is monotonic so neighbours stay reachable and the number field is the exact
   escape hatch — narrow knobs keep the plain native drag. Commits `391b45d5` +
-  `59781001`; deviation logged in [parity-audit.md](parity-audit.md) §A.11;
+  `59781001`; deviation logged in [parity-audit.md](../parity-audit.md) §A.11;
   user-guide reconciled. `npm run check` green; browser-verified (89.3→90,
   84.7→85, 83.0→83, no console errors).
 
@@ -84,7 +84,7 @@
   whole re-encode when the effective request is unchanged, so enabling Resize (or
   toggling Premultiply/Linear RGB, or switching method, Mitchell included) at 100%
   does nothing. Commits `6a50f8bb` / `3741fe2b` / `059251c5` / `4a2a4af6`;
-  deviation logged in [parity-audit.md](parity-audit.md) §A.10; user-guide +
+  deviation logged in [parity-audit.md](../parity-audit.md) §A.10; user-guide +
   reference reconciled. `svelte-check` green; browser-verified.
 
 - **Editor port re-audit + resize-compare fix (2026-06-28).** A user-reported
@@ -99,7 +99,7 @@
   **later removed** — see the resize-UX cleanup below), and the deliberate
   "in-place replace resets rotation + palette but keeps the encoder recipe"
   decision is pinned in a `pickFiles` comment (commit `984788b1`).
-  Deviation + audit logged in [parity-audit.md](parity-audit.md) (§A.9 + the
+  Deviation + audit logged in [parity-audit.md](../parity-audit.md) (§A.9 + the
   2026-06-28 re-run); user-guide reconciled. `svelte-check` green; resize e2e
   specs pass.
 
@@ -112,7 +112,7 @@
   re-skin: no feature/behavior changes; the per-side
   `--main-theme-color`/`--hot-theme-color` contract and the 12px-root rem
   sizing are preserved. Deviation logged in
-  [parity-audit.md](parity-audit.md) §A.8; user-guide visual references
+  [parity-audit.md](../parity-audit.md) §A.8; user-guide visual references
   updated. `npm run check` green; browser-verified desktop + mobile.
 
 - The SvelteKit 2 / Svelte 5 migration is **concluded**. `main` is the
@@ -124,9 +124,9 @@
 - The current track is **post-migration cleanup and Svelte hardening**: remove
   dead Preact-era code, make ported components fully idiomatic Svelte 5, and fix
   the defects found by the post-migration review. Prioritized backlog:
-  [svelte-hardening-plan.md](svelte-hardening-plan.md).
+  [svelte-hardening-plan.md](../svelte-hardening-plan.md).
 - Bulk UI is not part of this cleanup. Bulk and other product additions are
-  tracked in [road-map.md](road-map.md).
+  tracked in [road-map.md](../project/roadmap.md).
 - Repo hygiene (2026-06-01): the ambient Emscripten type declaration now lives
   at `src/emscripten-types.d.ts`, alongside the other `src/*.d.ts` ambient
   files, instead of sitting loose at the repo root (its `///` reference in
@@ -156,7 +156,7 @@
   stay green.
 
 - Codec audit (2026-06-02): a full codec version + landscape audit ran (see
-  [codec-upgrade-audit.md](codec-upgrade-audit.md)). Several outcomes have now
+  [codec-upgrade-audit.md](../project/reports/2026-06-02-codec-upgrade-audit.md)). Several outcomes have now
   **landed and are merged into `main`** (via the former
   `codec-cleanup-and-threading` / `codec-rebuilds` branches, now deleted):
   - **Cross-origin isolation DONE & verified (commits `27ae8b88`, `09f08f22`).**
@@ -166,7 +166,7 @@
     and the e2e suite now **asserts** it so it can't regress. (The threaded
     `_mt` runtime was still stubbed at the time of this entry; MT threading has
     since landed and been verified — see the 2026-06-03 threading entry and
-    [threading-enablement.md](threading-enablement.md).)
+    [threading-enablement.md](../threading-enablement.md).)
   - **WebP 2 removed completely (commit `962bdd0f`)** — encoder and decoder,
     `codecs/wp2/`, the features/options wiring, and all data-driven references.
     See [codec-surface-cleanup.md](codec-surface-cleanup.md).
@@ -203,10 +203,10 @@
   corpus was expanded 4 → 9 (added gradient, gradient-dithered, hard-edges,
   noise-synthetic, screenshot). The deep engineering record of HOW each codec was
   built (toolchains, gotchas, bugs) lives in
-  [codec-build-notes.md](codec-build-notes.md). The
-  [new-codec-investigation.md](new-codec-investigation.md) records a
+  [codec-build-notes.md](../codec-build-notes.md). The
+  [new-codec-investigation.md](../new-codec-investigation.md) records a
   researched-but-not-added shortlist (SVGO first, HEIC-decode later, jpegli /
-  JPEG→JXL skip). Full docs map: [README.md](README.md).
+  JPEG→JXL skip). Full docs map: [README.md](../README.md).
 
 - MT threading (2026-06-03): **ALL THREE threaded codecs now thread multi-core —
   oxipng, AVIF, JXL — LANDED, VERIFIED, and merged into `main`.**
@@ -224,8 +224,8 @@
     `tests/e2e/emscripten-threads.spec.ts`: **full worker pool in Chromium (11 on
     an 11-core machine for each codec), no fallback in WebKit**, single-thread
     fallback intact (full e2e green in both engines). Diagnosis + recipes:
-    [threading-enablement.md](threading-enablement.md),
-    [codec-build-notes.md](codec-build-notes.md).
+    [threading-enablement.md](../threading-enablement.md),
+    [codec-build-notes.md](../codec-build-notes.md).
 
 - Dev-env + editor UX (2026-06-03):
   - **Threaded codecs now work under `vite dev`.** They were ~50× slower / stalled
@@ -234,11 +234,11 @@
     (`*_mt.worker.js`), breaking the pool. Fixed with a dev-only
     `presk-raw-threaded-codec-workers` Vite plugin that serves those workers raw.
     NOT a commit regression (dev-vs-prod; the live version under `vite dev` would
-    behave the same). Detail: [threading-enablement.md](threading-enablement.md).
+    behave the same). Detail: [threading-enablement.md](../threading-enablement.md).
   - **Editor preview never goes blank + per-side "Optimising…/Re-optimising…"
     badge.** Restored the original source-fallback (a side shows the loaded image
     until it has its own result) and added a single consistent in-progress badge
-    (no blur). See [parity-audit.md](parity-audit.md) §A.
+    (no blur). See [parity-audit.md](../parity-audit.md) §A.
   - **WebP default → Quality 80 / Effort (method) 6** (from upstream 75/4); the
     persisted-settings key was bumped `v2 → v3` so stale saved side-settings are
     discarded and the fresh default (left = Original, right = WebP) loads.
@@ -251,7 +251,7 @@
     only the variants that browser runs. Unselected variants stay runtime-cached
     on first use. `src/sw/cache-plan.ts` was rewritten as the selection module
     (the dead Squoosh entry-data modeling is gone). Details in
-    [build-and-runtime.md](build-and-runtime.md).
+    [build-and-runtime.md](../build-and-runtime.md).
   - **Duplicate SW-build worker chunks eliminated** — the SW import graph had
     `?worker&url` imports that made the SW Vite build re-emit the 232 kB
     features-worker + probe workers as dead `assets/*.js` (precached, never
@@ -275,12 +275,12 @@
     (`share-ready`/`skip-waiting`/`cache-all`) and `sw-bridge/support.ts` had no
     callers and no SW message handlers; only `registerServiceWorkerUrl`
     survives. This closes the "Legacy service-worker / cache surfaces" deferred
-    item in [svelte-hardening-plan.md](svelte-hardening-plan.md).
+    item in [svelte-hardening-plan.md](../svelte-hardening-plan.md).
   - Verified end to end: `npm run check` green, full Playwright e2e (41 passed,
     1 pre-existing WebKit offline-harness skip), preview cache audit confirming
     the 6.82 MB selection in Chromium.
 - **Writing the articles** (migration + codec sweep): the task/problem/solution
-  source material is in [journey-and-article-notes.md](journey-and-article-notes.md).
+  source material is in [journey-and-article-notes.md](../journey-and-article-notes.md).
 
 ## Product Scope For Launch
 
@@ -375,15 +375,15 @@ Current local verification:
 A post-migration read-only review (two independent passes) confirmed the
 migration is idiomatic at the surface — no `createEventDispatcher`, `on:`
 directives, `export let`, `$:`, or `writable()` stores. The remaining work is
-hardening, captured in [svelte-hardening-plan.md](svelte-hardening-plan.md).
+hardening, captured in [svelte-hardening-plan.md](../svelte-hardening-plan.md).
 
 ## Next Actions
 
 The Svelte hardening waves are essentially **done** (Waves 0–2, 4–6 landed;
-Wave 3 promoted to the [codec-options-model.md](codec-options-model.md) project).
+Wave 3 promoted to the [codec-options-model.md](../codec-options-model.md) project).
 Only Wave 2b (explicit `options` ownership) and a few deferred items remain in
-[svelte-hardening-plan.md](svelte-hardening-plan.md). The active priority order
-is now the codec-audit fallout — see [README.md](README.md) for the one-screen
+[svelte-hardening-plan.md](../svelte-hardening-plan.md). The active priority order
+is now the codec-audit fallout — see [README.md](../README.md) for the one-screen
 priority view.
 
 **Merged into `main`** (from the former `codec-rebuilds` /
@@ -399,16 +399,16 @@ What's next, in short:
 
 1. ✅ **Multithreading — DONE.** All three threaded codecs (oxipng, AVIF, JXL)
    thread multi-core in Chromium + WebKit, verified, single-thread fallback intact.
-   [threading-enablement.md](threading-enablement.md).
+   [threading-enablement.md](../threading-enablement.md).
 2. ✅ **Codec security rebuilds + gradual upgrades — DONE** (all 7 codecs merged
    into `main`; see the Current State entry above). Build details:
-   [codec-build-notes.md](codec-build-notes.md). Audit/why:
-   [codec-upgrade-audit.md](codec-upgrade-audit.md).
+   [codec-build-notes.md](../codec-build-notes.md). Audit/why:
+   [codec-upgrade-audit.md](../project/reports/2026-06-02-codec-upgrade-audit.md).
 3. **Investigate new codecs** — researched, not added:
-   [new-codec-investigation.md](new-codec-investigation.md) (SVGO first,
+   [new-codec-investigation.md](../new-codec-investigation.md) (SVGO first,
    HEIC-decode later, jpegli / JPEG→JXL skip).
 4. **Product features** — Multi-Format Compare, then bulk — see
-   [road-map.md](road-map.md).
+   [road-map.md](../project/roadmap.md).
 
 ## Gotchas
 
@@ -421,12 +421,12 @@ What's next, in short:
   caveat: under `vite dev` the classic Emscripten pthread workers must be served
   raw, or they stall (~50× slower). The `presk-raw-threaded-codec-workers` plugin
   in `vite.config.ts` handles this; don't remove it. See
-  [threading-enablement.md](threading-enablement.md).
+  [threading-enablement.md](../threading-enablement.md).
 - Do not touch `codecs/**` without codec provenance, build, service-worker, and
   browser verification. The 2026-06-02 codec rebuilds were built **natively with
   emsdk 3.1.0 + rustup nightly (no Docker, no sudo)** and are now merged into
   `main` — the build record is in
-  [codec-build-notes.md](codec-build-notes.md); the per-codec runbooks
-  ([codec-upgrade-runbooks.md](codec-upgrade-runbooks.md)) are now historical.
+  [codec-build-notes.md](../codec-build-notes.md); the per-codec runbooks
+  ([codec-upgrade-runbooks.md](../codec-upgrade-runbooks.md)) are now historical.
 - Preview browsers can keep old service workers. If behavior looks stale, clear
   site data or use a fresh context.

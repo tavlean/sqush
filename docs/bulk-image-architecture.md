@@ -284,9 +284,9 @@ ship. The useful current references are:
 
 - [bulk-ui-design-options.md](bulk-ui-design-options.md) for shipped UI decisions
   and Phase 3+ follow-ups;
-- [specs/2026-07-02-bulk-phase-2-promotion.md](specs/2026-07-02-bulk-phase-2-promotion.md)
+- [specs/2026-07-02-bulk-phase-2-promotion.md](project/specs/2026-07-02-bulk-phase-2-promotion.md)
   for the executed lab-to-production promotion;
-- [specs/2026-07-02-phase-2b-contextual-left-panel.md](specs/2026-07-02-phase-2b-contextual-left-panel.md)
+- [specs/2026-07-02-phase-2b-contextual-left-panel.md](project/specs/2026-07-02-phase-2b-contextual-left-panel.md)
   for the contextual left-panel follow-up.
 
 ## Test plan
