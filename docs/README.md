@@ -53,6 +53,7 @@ invalidated. A task is not complete while a doc it touched is stale.
 | [browser-support.md](browser-support.md) | The support policy and the version floors. |
 | [project-identity.md](project-identity.md) | The name and identity, and the procedure for a future rename. |
 | [rename-record.md](rename-record.md) | The 2026-07-05 Sqush to Frisp cutover record and what it left open. |
+| [seo.md](seo.md) | Search and link-preview metadata: why it lives in `app.html` rather than a `<svelte:head>`, the copy decisions, the social card, robots and sitemap. |
 
 ## Codecs
 

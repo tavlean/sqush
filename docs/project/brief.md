@@ -63,6 +63,10 @@ the multi-threaded runtime is verified in Chromium and WebKit. Gates are green:
 
 Shipped since then, newest first:
 
+- **Search and link-preview metadata (2026-07-25).** The served HTML had no title,
+  description, or Open Graph tags, because `ssr = false` keeps `<svelte:head>` out
+  of the prerendered shell. Tags now live in `src/app.html`, with a generated
+  social card, robots.txt, and sitemap. Reasoning: [../seo.md](../seo.md).
 - **Lab restructure and design unification (2026-07-18).** `/lab` is a two-door
   index with a tab bar that flips skins in place, and all three editor skins got
   one bar system, docked zoom clusters, and a shared Nucleo icon set. The

@@ -155,6 +155,9 @@ this order.
 
 Newest first. The narrative, with the gotchas, is in [worklog.md](worklog.md).
 
+- [x] **Search and link-preview metadata** (2026-07-25): title, description,
+      Open Graph, social card, robots.txt, sitemap. The served HTML previously had
+      no title at all. [../seo.md](../seo.md).
 - [x] **Lab restructure, design unification, shared icon set** (2026-07-18).
 - [x] **Web Share for saved images** (2026-07-17).
 - [x] **Rebrand, new landing, dev-only route stripping** (2026-07-15).

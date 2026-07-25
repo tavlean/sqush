@@ -4,6 +4,46 @@ Short session-by-session build log: what changed, why, and the gotchas a future
 session must know. Newest first. (Live project state stays in
 [the project brief](brief.md); this is the narrative trail.)
 
+## 2026-07-25 (Opus, later) - Search and link-preview metadata
+
+The app had **no `<title>` in its served HTML at all**, plus no description and no
+Open Graph tags, so a link to frisp.app shared with no preview. Cause: `ssr =
+false` means `<svelte:head>` content is added by JS after hydration and never
+reaches the prerendered shell. `+page.svelte` has set a title all along; it just
+was not in `build/index.html`. Search engines run JS and were probably fine, but
+social crawlers do not.
+
+Fix: the tags live in `src/app.html`, the static shell. Added title, description,
+canonical, `og:*`, and `twitter:card`, plus `static/robots.txt` (disallows the
+`/diagnostics` probe page) and a one-entry `static/sitemap.xml`. Reasoning and the
+copy decisions are in the new [../seo.md](../seo.md).
+
+**The interesting problem was the brand rule.** A static template cannot import
+`APP_NAME` from `brand.ts`, so two substitution schemes were measured before
+accepting a hardcoded name: Vite's `transformIndexHtml` is **never applied to
+SvelteKit's app.html** (a `%app.probe%` placeholder survived a production build
+verbatim), and a post-adapter `closeBundle` hook does work but fires twice and
+depends on plugin ordering, so a reordering would ship the raw placeholder with
+the build still green. Trading a silent failure mode for one hardcoded word was
+the wrong deal, so `app.html` is now a documented rename touch-point in
+[../project-identity.md](../project-identity.md).
+
+Social card: `static/social-card.png` from the new
+`scripts/generate-social-card.mjs` (`npm run social-card`), so it is reproducible
+from the canonical logomark, the intro's light palette, and the shipped Satoshi
+face via Playwright. Light surface to match the landing. A real editor screenshot
+would sell the product harder but the re-style direction is still open, so it
+would go stale.
+
+Verified beyond the build artifact: fetched the served HTML in the preview and
+confirmed the raw bytes a non-JS crawler receives carry every tag, that
+robots.txt, sitemap.xml, and the card return 200 with the right content types,
+and that the runtime tab title still takes over after hydration. `npm run check`
+0 errors, 149 unit tests green.
+
+Gotcha for future head work: check the **served** HTML, never the hydrated DOM.
+The DOM shows the client-side values and hides the entire class of bug.
+
 ## 2026-07-25 (Opus) - Adopted the house project standard
 
 Docs-only restructure, no app code touched. The repo now follows

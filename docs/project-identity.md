@@ -1,6 +1,6 @@
 # Project identity
 
-Last updated: 2026-07-05.
+Last updated: 2026-07-25.
 
 Frisp is the current project name.
 
@@ -28,7 +28,14 @@ rename now touches ONLY:
    `src/lib/brand/logomark.svg` (+ the `static/favicon.png` /
    `static/apple-touch-icon.png` rasters if restyled).
 4. Prose docs / README — a grep-replace of the old name (attribution excluded).
-5. Domain + repo + deployment plumbing (see `docs/rename-record.md` for
+5. `src/app.html`: the name and the absolute URL in the search and
+   link-preview tags, plus `static/robots.txt` and `static/sitemap.xml`. This is
+   the ONE place outside `brand.ts` where the brand is written in code, because a
+   static HTML template cannot import a module and those tags have to be in the
+   prerendered shell for crawlers to see them (`docs/seo.md` has the reasoning
+   and the rejected alternatives). Re-run `npm run social-card` afterwards so the
+   card picks up the new wordmark.
+6. Domain + repo + deployment plumbing (see `docs/rename-record.md` for
    the full external checklist: GitHub rename, DNS, old-domain sunset Worker —
    reuse `infra/sqush-sunset/` as the template for freeing PWA users pinned to
    the old origin).
