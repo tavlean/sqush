@@ -30,6 +30,15 @@ const isProbeWorkerUrl = (url: string) => /probe\.worker[^/]*\.js$/.test(url);
 const isSvgOptimizerWorkerUrl = (url: string) =>
   url.includes('/workers/svg-optimizer.worker-');
 
+// Files that exist only for crawlers. The app never requests them, and the
+// social card alone is ~42 kB, so precaching them would put dead weight in every
+// visitor's install for the benefit of robots that bypass the service worker
+// entirely. Excluded from the shell only; they stay in `assets` so a direct hit
+// still resolves.
+const CRAWLER_FILES = ['/robots.txt', '/sitemap.xml', '/social-card.png'];
+const isCrawlerFileUrl = (url: string) =>
+  CRAWLER_FILES.some((name) => url.endsWith(name));
+
 // The app shell: everything needed to boot offline, minus the
 // variant-selected codec assets (`build` lists every emitted file, including
 // all mutually-exclusive codec variants). Tiny codec files not in the records
@@ -41,7 +50,7 @@ const appShellUrls = [
       !isProbeWorkerUrl(url) &&
       !isSvgOptimizerWorkerUrl(url),
   ),
-  ...files,
+  ...files.filter((url) => !isCrawlerFileUrl(url)),
   ...prerendered,
 ];
 

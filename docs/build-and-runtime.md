@@ -67,13 +67,18 @@ Behavior (variant-aware precache, 2026-06-10 — first-visit payload
 
 - install: feature-detect what this browser will actually run — WASM threads
   and SIMD via `wasm-feature-detect`, native AVIF/WebP decode via tiny
-  `createImageBitmap` probes — then precache the app shell (everything in
-  `build` minus codec variants and diagnostics probe workers, plus static
-  files and prerendered paths) and only the codec variants selected by
+  `createImageBitmap` probes — then precache the app shell and only the codec
+  variants selected by
   `selectCodecPrecacheUrls()` in `src/sw/cache-plan.ts` (e.g. threads+SIMD
   Chromium gets `avif_enc_mt` + `jxl_enc_mt_simd` + `webp_enc_simd` +
   oxipng-MT and skips the single-thread/baseline builds and the natively
   decodable AVIF/WebP WASM decoders);
+- the shell is everything in `build` except the codec variants, the diagnostics
+  probe workers, and the SVG optimizer worker (heavy SVGO + fflate, runtime-cached
+  on first SVG use), plus the prerendered paths and every static file except the
+  crawler-only ones (`robots.txt`, `sitemap.xml`, `social-card.png`: the app never
+  requests them and the card alone is ~42 kB). Everything excluded here stays in
+  `assets`, so it still resolves cache-first on demand;
 - activate: delete old Frisp caches and claim clients;
 - fetch: serve known assets cache-first (runtime-caching misses, so a
   non-precached variant still ends up cached after first use — a

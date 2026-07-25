@@ -103,6 +103,13 @@ The `/lab` and `/bench-svg` trees need no exclusion: `app-strip-dev-only-routes`
 means they do not exist in a production build, and `npm run audit:static-output`
 enforces that.
 
+All three files are kept **out of the service-worker install shell**
+(`isCrawlerFileUrl` in `src/service-worker.ts`). Everything in `static/` is
+precached by default, so adding them naively put about 43 kB of dead weight into
+every visitor's first load for the benefit of robots, which bypass the service
+worker entirely. They remain in `assets`, so a direct request still resolves.
+Watch for this when adding anything else to `static/`.
+
 ## No aeo.md
 
 Answer-engine optimization has nothing to work with here. Frisp has no API, no
