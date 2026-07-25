@@ -30,19 +30,36 @@ the wrong deal, so `app.html` is now a documented rename touch-point in
 
 Social card: `static/social-card.png` from the new
 `scripts/generate-social-card.mjs` (`npm run social-card`), so it is reproducible
-from the canonical logomark, the intro's token values, and the shipped Satoshi face
-via Playwright. The composition mirrors the production landing: dark surface,
-dotted viewfinder, brand as small HUD micro-copy top-left, the statement headline
-as the hero. A real editor screenshot would sell the product harder but the
+from the canonical logomark, the intro's token values, the format array the landing
+renders, and the shipped Satoshi face via Playwright. Dark surface and dashed
+viewfinder in the landing's language, brand centred and readable, and the benefit
+headline as the hero. A real editor screenshot would sell the product harder but the
 re-style direction is still open, so it would go stale.
 
-Two things the first attempt got wrong, both worth remembering. The card was
-built light with a big centered logo lockup, which buried the message under the
-mark; the landing's own hierarchy (tiny brand in the HUD, headline as hero) was
-the right reference all along. And a CSS `2px dashed` border reads as a flat
-hairline once a card is scaled to a thumbnail, so the dots use round caps on a
-near-zero dash length instead. Checking the card at 300px and 180px wide is now
-part of the routine, since that is the size a preview actually renders at.
+It took three rounds of maintainer review to get there, and each correction is
+worth keeping:
+
+- **Round 1 was light with a big centred logo lockup**, which buried the message
+  under the mark. The landing's hierarchy (small brand, headline as hero) was the
+  right reference all along.
+- **Round 2 copied the landing's layout too literally**, hanging the brand in the
+  top-left HUD. That works on a web page, where the viewport is understood to
+  continue, and reads as unbalanced on a fixed graphic. Borrow a page's language,
+  not its arrangement. It also left the name too small to read.
+- **Dashes, not dots, and not CSS `dashed`.** A `2px dashed` border reads as a flat
+  hairline at thumbnail size, and round dots on a near-zero dash length were too
+  thin and fussy. `13 15` at 3.5px reads as deliberate dashes at every size.
+- **The format list dropped SVG**, the app's daily-driver capability. The cause is
+  worth knowing: `README.md` lists the raster encoders in one sentence and SVG on a
+  separate bullet, so flattening that sentence loses it silently. The authority is
+  the `formats` array in `Intro.svelte`. The same omission had reached the meta
+  description, which is now fixed too.
+- **The copy said the same thing twice.** "Compress images in your browser" plus
+  "No uploads. Works offline." is one claim wearing two hats. The card now leads
+  with the benefit and states the mechanism once underneath.
+
+Checking the card at 300px and 180px wide is now part of the routine, since that is
+the size a preview actually renders at.
 
 Verified beyond the build artifact: fetched the served HTML in the preview and
 confirmed the raw bytes a non-JS crawler receives carry every tag, that

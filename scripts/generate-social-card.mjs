@@ -3,18 +3,19 @@
  *
  * Kept as a script rather than a hand-made binary so the card is reproducible
  * from source: the logomark comes from the one canonical file, the palette from
- * the same token values Intro.svelte uses, and the wordmark from the shipped
+ * the dark half of the same --i-* token contract Intro.svelte declares, the format
+ * list from the same array the landing renders, and the wordmark from the shipped
  * Satoshi face. Re-run after any brand change (`npm run social-card`).
  *
- * The composition deliberately mirrors the production landing
- * (src/lib/editor/intro/Intro.svelte), because a preview should look like the
- * page behind the link: dark viewfinder, brand reduced to small HUD micro-copy
- * top-left, the statement headline as the hero at weight 900, and the format list
- * along the bottom. Keep the two in step when the landing changes.
+ * It borrows the landing's LANGUAGE (dark viewfinder, dashed frame, Satoshi at
+ * weight 900, quiet uppercase format row) but not its LAYOUT. A web page can hang
+ * chrome off one corner because the viewport is understood to continue; a card is
+ * a fixed graphic, where an off-centre lockup just reads as unbalanced. So
+ * everything here sits on one centre axis.
  *
  * 1200x630 is the size Open Graph consumers crop from. Cards are often rendered
  * a fifth of that size in a chat sidebar, so the headline carries the message and
- * nothing load-bearing sits below 20px.
+ * nothing load-bearing sits below 20px. Check any change at 300px and 180px wide.
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -36,11 +37,20 @@ const TEXT_3 = 'rgba(245, 245, 247, 0.66)';
 const ACCENT = '#ff8a5e';
 // Same hue, dialled back so the frame reads as chrome and the headline keeps the
 // one full-strength accent moment.
-const ACCENT_DIM = 'rgba(255, 138, 94, 0.72)';
+const ACCENT_DIM = 'rgba(255, 138, 94, 0.78)';
 
-// Frame geometry follows the landing: 24px corner radius, inset from the edge.
+// Frame geometry follows the landing's 24px corner radius. The dash rhythm does
+// NOT: the landing's "7 9" is right at viewport scale but collapses into a solid
+// hairline once a card is scaled to a thumbnail. These are longer, heavier dashes
+// with a gap wide enough to stay legible as dashes when the card is small.
 const INSET = 30;
 const RADIUS = 24;
+const DASH = '13 15';
+const DASH_WIDTH = 3.5;
+
+// The same list, in the same order, that the landing shows. SVG belongs second:
+// the vector lane is a headline capability, not a footnote.
+const FORMATS = ['WebP', 'SVG', 'AVIF', 'JPEG XL', 'PNG', 'JPEG'];
 
 const logomark = read('src/lib/brand/logomark.svg').toString('utf8');
 const satoshi = read('static/fonts/Satoshi-Variable.woff2').toString('base64');
@@ -61,6 +71,12 @@ const html = `<!doctype html>
     font-family: 'Satoshi', system-ui, sans-serif;
     color: ${TEXT_1};
     -webkit-font-smoothing: antialiased;
+    /* One centred column: brand, message, formats. Three bands on one axis. */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: ${INSET + 46}px 96px ${INSET + 42}px;
     position: relative;
     overflow: hidden;
   }
@@ -71,10 +87,8 @@ const html = `<!doctype html>
      wide gradient defeats PNG's row filters. Shipping a needlessly heavy image
      from an image-optimizer would be a poor advertisement, and the flat surface
      reads cleaner anyway. */
-  /* The viewfinder. Round caps on a near-zero dash length give true dots: the
-     landing's "7 9" dashes are correct at viewport scale but read as a solid
-     hairline once shrunk to a preview thumbnail.
-     An SVG is a replaced element, so "inset: 0" alone would leave it at its
+
+  /* An SVG is a replaced element, so "inset: 0" alone would leave it at its
      intrinsic 300x150 and clip the rect (the same trap Intro.svelte documents).
      It needs an explicit box. */
   .frame {
@@ -85,49 +99,30 @@ const html = `<!doctype html>
     height: ${HEIGHT}px;
   }
 
-  .hud {
-    position: absolute;
-    display: flex;
-    align-items: center;
-  }
-  .hud-tl { top: ${INSET + 34}px; left: ${INSET + 38}px; gap: 13px; }
-  .hud-bc {
-    bottom: ${INSET + 36}px;
-    left: 0;
-    right: 0;
-    justify-content: center;
-  }
-
-  .mark { width: 31px; height: 34px; color: ${TEXT_1}; display: block; }
+  /* Brand lockup, centred. Big enough to READ the name, small enough that the
+     headline stays the subject. */
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .mark { width: 36px; height: 39px; color: ${TEXT_1}; display: block; }
   .mark svg { width: 100%; height: 100%; display: block; }
   .brand-name {
-    font-size: 27px;
+    font-size: 33px;
     font-weight: 700;
     letter-spacing: -0.02em;
     color: ${TEXT_1};
   }
 
-  .center {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 26px;
-    padding: 0 96px;
-    text-align: center;
-  }
-  /* Matches the landing's .headline: weight 900, -0.03em, 1.05 leading. */
+  .message { text-align: center; margin-bottom: 14px; }
+  /* The landing's .headline treatment: weight 900, tight tracking and leading. */
   .headline {
-    font-size: 96px;
+    font-size: 102px;
     font-weight: 900;
-    letter-spacing: -0.035em;
-    line-height: 1.04;
+    letter-spacing: -0.038em;
+    line-height: 1.02;
   }
   .headline .accent { color: ${ACCENT}; }
   .subline {
-    font-size: 34px;
+    margin-top: 26px;
+    font-size: 31px;
     font-weight: 500;
     letter-spacing: -0.01em;
     color: ${TEXT_2};
@@ -140,7 +135,7 @@ const html = `<!doctype html>
     letter-spacing: 0.14em;
     color: ${TEXT_3};
     display: flex;
-    gap: 26px;
+    gap: 24px;
   }
 </style>
 
@@ -151,27 +146,22 @@ const html = `<!doctype html>
     rx="${RADIUS}"
     fill="none"
     stroke="${ACCENT_DIM}"
-    stroke-width="4"
-    stroke-linecap="round"
-    stroke-dasharray="0.01 19"
+    stroke-width="${DASH_WIDTH}"
+    stroke-dasharray="${DASH}"
   />
 </svg>
 
-<div class="hud hud-tl">
+<div class="brand">
   <span class="mark">${logomark}</span>
   <span class="brand-name">Frisp</span>
 </div>
 
-<div class="center">
-  <h1 class="headline">Compress images<br /><span class="accent">in your browser.</span></h1>
-  <p class="subline">No uploads. Works offline.</p>
+<div class="message">
+  <h1 class="headline">Smaller images,<br /><span class="accent">same quality.</span></h1>
+  <p class="subline">In your browser. No uploads, works offline.</p>
 </div>
 
-<div class="hud hud-bc">
-  <p class="formats">
-    <span>WebP</span><span>AVIF</span><span>JPEG XL</span><span>JPEG</span><span>PNG</span>
-  </p>
-</div>`;
+<p class="formats">${FORMATS.map((f) => `<span>${f}</span>`).join('')}</p>`;
 
 const browser = await chromium.launch();
 try {

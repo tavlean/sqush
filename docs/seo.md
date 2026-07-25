@@ -61,10 +61,27 @@ The description leads with formats and actions rather than the privacy promise,
 because it has to match what people type into a search box ("convert png to
 webp"), and the no-upload line still closes it:
 
-> Compress and convert images to WebP, AVIF, JPEG XL, JPEG, or PNG right in your
-> browser. Resize, compare before and after, and export. Nothing is uploaded.
+> Compress images to WebP, AVIF, JPEG XL, PNG or JPEG and optimize SVGs, right in
+> your browser. Compare before and after, resize, and export. Nothing is uploaded.
 
-`og:title` is just `Frisp`. The card image already carries the tagline, so a full
+Kept at 160 characters or fewer, which is roughly where Google truncates.
+
+**The format list must name SVG.** The vector lane is a headline capability and
+one of the reasons the app gets used daily, but it is easy to drop: `README.md`
+lists the raster encoders in one sentence ("Encode to WebP, AVIF, JPEG XL...") and
+SVG on a separate bullet, so flattening that sentence into a format list silently
+loses it. The authority is the `formats` array in
+`src/lib/editor/intro/Intro.svelte`, which the landing itself renders, with SVG
+second. Copy the order from there rather than from prose.
+
+**The card and the description carry different messages, on purpose.** The
+description does search-intent work, so it is capability-led and lists formats. The
+card is seen by someone who already has the link in front of them, so it leads with
+the benefit ("Smaller images, same quality.") and states the mechanism once, in a
+subline. Saying "in your browser" in a headline and then "no uploads, works
+offline" underneath would be the same claim twice inside one small graphic.
+
+`og:title` is just `Frisp`. The card image already carries the message, so a full
 sentence there repeats itself inside one preview.
 
 The Squoosh-successor angle ("a maintained fork of Squoosh") is real and valuable
@@ -77,27 +94,29 @@ README content rather than in the description, which has one job.
 `scripts/generate-social-card.mjs` (`npm run social-card`). It is generated rather
 than hand-made so it stays reproducible: the mark comes from
 `src/lib/brand/logomark.svg`, the palette from the dark half of the same `--i-*`
-token contract `Intro.svelte` declares, and the wordmark from the shipped Satoshi
-face. Playwright renders it, and was already a devDependency.
+token contract `Intro.svelte` declares, the format list from the array the landing
+renders, and the wordmark from the shipped Satoshi face. Playwright renders it, and
+was already a devDependency.
 
-**The composition mirrors the production landing**, because a preview should look
-like the page behind the link. Keep the two in step when the landing changes:
+**It borrows the landing's language, not its layout.** Dark `#111113` surface,
+dashed viewfinder, Satoshi at weight 900 with tight tracking, and the quiet
+uppercase format row are all the landing's. The arrangement is not: a web page can
+hang chrome off one corner because the viewport is understood to continue, while a
+card is a fixed graphic where an off-centre lockup just reads as unbalanced. So the
+card is three bands on one centre axis: brand, message, formats.
 
-- Dark surface (`#111113`) and the dotted viewfinder, as on the landing.
-- Brand reduced to small HUD micro-copy top-left, exactly where the landing puts
-  it. The mark is chrome here, not the subject.
-- The statement headline is the hero, at the landing's weight 900 and -0.035em
-  tracking, with one full-strength accent moment on `in your browser.`
-- Format list along the bottom in the landing's `.hud-line` treatment: uppercase,
-  0.14em tracking, muted.
+Craft notes worth keeping:
 
-Two craft notes worth keeping:
-
-- **The dots need different geometry than the landing.** The landing's
-  `stroke-dasharray="7 9"` is right at viewport scale but collapses into a solid
-  hairline once a card is shrunk to a thumbnail. The card uses round caps on a
-  near-zero dash length, which reads unmistakably as dots at any size.
-- **The frame accent is dialled to 72%** so it stays chrome. At full strength it
+- **The frame needs different dash geometry than the landing.** The landing's
+  `stroke-dasharray="7 9"` at 1.5px is right at viewport scale but collapses into a
+  solid hairline once a card is shrunk to a thumbnail. The card uses `13 15` at
+  3.5px: long enough to read as dashes, with a gap wide enough to stay visibly
+  broken at 180px wide. Round dots were tried first and were too thin and too
+  fussy.
+- **The brand is centred and readable, not tucked into a corner.** It is still
+  small enough that the headline is the subject, but a preview should let someone
+  read the name.
+- **The frame accent is dialled to 78%** so it stays chrome. At full strength it
   competes with the headline, and the card should have one accent focal point.
 - **The surface is flat, and that is a byte decision as much as a visual one.** A
   soft accent glow behind the headline tripled the file, 203 kB against 58 kB,
