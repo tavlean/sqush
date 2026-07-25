@@ -101,11 +101,12 @@ const html = `<!doctype html>
 
   /* Brand lockup, centred. Big enough to READ the name, small enough that the
      headline stays the subject. */
-  .brand { display: flex; align-items: center; gap: 14px; }
-  .mark { width: 36px; height: 39px; color: ${TEXT_1}; display: block; }
+  .brand { display: flex; align-items: center; gap: 17px; }
+  /* Mark aspect is 1650x1800, so height drives width. */
+  .mark { width: 46px; height: 50px; color: ${TEXT_1}; display: block; }
   .mark svg { width: 100%; height: 100%; display: block; }
   .brand-name {
-    font-size: 33px;
+    font-size: 44px;
     font-weight: 700;
     letter-spacing: -0.02em;
     color: ${TEXT_1};
