@@ -57,6 +57,8 @@
   /** True when the drag actually carries files (not text, links, etc.). */
   function dragHasFiles(event: DragEvent): boolean {
     const types = event.dataTransfer?.types;
+    // `types` is a frozen array in the current spec, but older engines expose
+    // a DOMStringList with no `.includes`; the prototype call works on both.
     return !!types && Array.prototype.includes.call(types, 'Files');
   }
 
@@ -178,7 +180,7 @@
   </div>
   <div class="hud hud-bc">
     <ul class="hud-line formats" aria-label="Supported image formats">
-      {#each formats as format}
+      {#each formats as format (format)}
         <li>{format}</li>
       {/each}
     </ul>

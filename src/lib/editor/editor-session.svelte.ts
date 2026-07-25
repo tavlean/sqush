@@ -394,8 +394,7 @@ export class EditorSession {
     // ALONE — no side index — because a result is purely a function of its inputs;
     // an encode the RIGHT side already produced is byte-identical on the LEFT, so
     // matching the other side's recipe loads instantly too.
-    const cacheKey = encodeSig;
-    const cached = this.cache.get(cacheKey);
+    const cached = this.cache.get(encodeSig);
     if (cached) {
       this.showResult(index, cached, encodeSig, grainSig);
       return;
@@ -441,10 +440,10 @@ export class EditorSession {
           bridge,
         );
       });
-      this.inflight.set(cacheKey, pass);
+      this.inflight.set(encodeSig, pass);
       const settle = () => {
-        if (this.inflight.get(cacheKey) === pass)
-          this.inflight.delete(cacheKey);
+        if (this.inflight.get(encodeSig) === pass)
+          this.inflight.delete(encodeSig);
       };
       pass
         .then((outcome) => {
@@ -453,7 +452,7 @@ export class EditorSession {
           // completion and here): the finished result is valid, a piggybacking
           // side may be about to display it, and undo can reuse it. Revoking
           // here would race the other side; the cache owns the URL lifecycle.
-          const existing = this.cache.get(cacheKey);
+          const existing = this.cache.get(encodeSig);
           if (existing) {
             // A concurrent identical pass cached this key first; drop ours.
             URL.revokeObjectURL(outcome.outputUrl);
@@ -461,7 +460,7 @@ export class EditorSession {
               this.showResult(index, existing, encodeSig, grainSig);
             return;
           }
-          this.cache.set(cacheKey, outcome);
+          this.cache.set(encodeSig, outcome);
           if (!controller.signal.aborted)
             this.showResult(index, outcome, encodeSig, grainSig);
         })
@@ -482,7 +481,7 @@ export class EditorSession {
       // the OWNER aborts (its recipe changed) while this side still wants the
       // result, fall back to a pass of our own; a genuine encode error would
       // reproduce identically, so surface it instead of retrying.
-      const shared = this.inflight.get(cacheKey);
+      const shared = this.inflight.get(encodeSig);
       if (shared) {
         shared
           .then((outcome) => {
@@ -560,8 +559,7 @@ export class EditorSession {
       this.#preprocessedPromise = null;
       this.#preprocessedLoadId = -1;
 
-      let decodedPromise!: Promise<DecodedSourceImage>;
-      decodedPromise = decodeSourceImage(
+      const decodedPromise: Promise<DecodedSourceImage> = decodeSourceImage(
         sourceAbort.signal,
         file,
         bridge,
@@ -828,18 +826,20 @@ export class EditorSession {
     if (!this.file) return;
     const sig = this.docSig(doc);
 
-    if (this.historyTimer !== null) clearTimeout(this.historyTimer);
+    this.clearHistoryTimer();
     this.historyTimer = setTimeout(() => {
       this.historyTimer = null;
       this.history.commit(doc, sig);
     }, HISTORY_COMMIT_DELAY);
 
-    return () => {
-      if (this.historyTimer !== null) {
-        clearTimeout(this.historyTimer);
-        this.historyTimer = null;
-      }
-    };
+    return () => this.clearHistoryTimer();
+  }
+
+  private clearHistoryTimer(): void {
+    if (this.historyTimer !== null) {
+      clearTimeout(this.historyTimer);
+      this.historyTimer = null;
+    }
   }
 
   /**
@@ -848,10 +848,7 @@ export class EditorSession {
    * and remains reachable via redo.
    */
   private flushHistory(): void {
-    if (this.historyTimer !== null) {
-      clearTimeout(this.historyTimer);
-      this.historyTimer = null;
-    }
+    this.clearHistoryTimer();
     if (!this.file) return;
     const doc = this.captureDocument();
     this.history.commit(doc, this.docSig(doc));
@@ -859,10 +856,7 @@ export class EditorSession {
 
   /** Seed a fresh history baseline for a newly loaded image. */
   private resetHistory(): void {
-    if (this.historyTimer !== null) {
-      clearTimeout(this.historyTimer);
-      this.historyTimer = null;
-    }
+    this.clearHistoryTimer();
     const doc = this.captureDocument();
     this.history.reset(doc, this.docSig(doc));
   }
@@ -1019,10 +1013,7 @@ export class EditorSession {
     // constructor.
     this.stopEffects?.();
     this.stopEffects = null;
-    if (this.historyTimer !== null) {
-      clearTimeout(this.historyTimer);
-      this.historyTimer = null;
-    }
+    this.clearHistoryTimer();
     // Persist any pending settings change before teardown so the debounce never
     // drops the user's last edit.
     this.flushSettings();

@@ -4,9 +4,10 @@
 // headless `processBulkImageJob` from the diagnostics probe) in a small
 // stateful runner the reactive store drives. Two PERSISTENT worker bridges are
 // created (never shared across concurrent jobs — the per-side-bridge pattern
-// from EditorSession), and one AbortController scopes each run so cancel() tears
-// down cleanly. Every state transition reassigns `store.session` so the UI shows
-// queued -> processing -> encoded live, exactly the way the probe reassigns.
+// from EditorSession), and one AbortController scopes each run so
+// cancelProcessing() tears down cleanly. Every state transition reassigns
+// `store.session` so the UI shows queued -> processing -> encoded live,
+// exactly the way the probe reassigns.
 
 import { isAbortError } from 'client/lazy-app/abort';
 import type { ImagePipelineWorkerBridge } from 'client/lazy-app/image-pipeline';
@@ -46,7 +47,8 @@ export class BulkRuntime {
     null,
     null,
   ];
-  // Scopes the currently-running loop; replaced per run(), aborted by cancel().
+  // Scopes the currently-running loop; replaced per run(), aborted by
+  // cancelProcessing().
   #controller: AbortController | null = null;
   // Guards against two overlapping run() loops (e.g. import kicks a run while
   // one is already draining the queue).
@@ -144,7 +146,8 @@ export class BulkRuntime {
       host.rememberOutput?.(job.id, completedOutput);
     } catch (error) {
       // An abort is a clean cancel, not a job failure: leave the reducer to
-      // cancelActiveJobs() (called from cancel()) so the job returns to queued.
+      // cancelActiveJobs() (called from cancelProcessing()) so the job returns
+      // to queued.
       if (isAbortError(error) || signal.aborted) return;
       host.session = failJob(
         host.session,
