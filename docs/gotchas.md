@@ -76,6 +76,18 @@ this doc holds the cross-cutting ones that no single file owns.
 - **Worktree agents need `ln -s <main>/node_modules` and a widened
   `server.fs.allow`** to run the dev server, because the symlink resolves outside
   the default allow-list.
+- **`git add <dir>` while a parallel agent is editing that directory stages its
+  half-finished work under your commit message.** `git add src` takes whatever is
+  on disk at that instant, not what you reviewed a moment earlier, so a diff you
+  checked and then staged are two different things. The commit succeeds and its
+  message is now false. Either commit before delegating, wait for the agent to
+  report, or stage explicit file paths and re-read the staged diff with
+  `git diff --cached` before committing.
+- **Do not diagnose a lost edit from file mtimes.** A file whose changes were
+  absorbed into someone else's commit looks byte-identical to one whose changes
+  were reverted: `git status` reads clean in both cases. Check
+  `git show <commit> -- <file>` before re-applying anything, or you will redo work
+  that already landed.
 - **`codex exec` inside a compound background command must end with
   `</dev/null`.** Otherwise stdin never closes and it hangs at "Reading
   additional input from stdin".

@@ -1,7 +1,7 @@
 # First-Principles Review — Execution Plan & Specs
 
 Status: **IN PROGRESS** (orchestrated session started 2026-07-07). Source
-findings: [first-principles-review.md](../reports/2026-07-07-first-principles-review.md) (P1–P10).
+findings: [the first-principles review](../reports/2026-07-07-first-principles-review.md) (P1–P10).
 This document is the **single source of truth for execution state** — each
 workstream has a Status line; flip it as work lands. The review doc stays the
 record of *why*; this is the *how*.

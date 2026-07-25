@@ -5,7 +5,7 @@ vector lane is live, stages S1–S6; only the S8 benchmark remains open); jpegli
 and JPEG→JXL transcode superseded → build; HEIC still open.**
 
 This doc records a research pass on four candidate new codecs/processors that
-came out of the codec audit ([codec-upgrade-audit.md](project/reports/2026-06-02-codec-upgrade-audit.md)
+came out of the codec audit ([the codec upgrade audit](project/reports/2026-06-02-codec-upgrade-audit.md)
 §4–5). **SVGO has since shipped — the vector lane is live in the editor (stages
 S1–S6); only its S8 benchmark remains open.** The other three are not wired in.
 This is decision material, not a plan to execute — each entry says what it would
@@ -143,8 +143,8 @@ now live (stages S1–S6); the S8 benchmark is the only open piece.
 
 ## Related
 
-- [codec-upgrade-audit.md](project/reports/2026-06-02-codec-upgrade-audit.md) — the audit that raised these
+- [the codec upgrade audit](project/reports/2026-06-02-codec-upgrade-audit.md) — the audit that raised these
   candidates (§4–5).
 - [codec-upgrade-runbooks.md](codec-upgrade-runbooks.md) — turnkey upgrade steps
   for the *existing* codecs (a separate, executable track).
-- [road-map.md](project/roadmap.md) — product direction.
+- [roadmap.md](project/roadmap.md) — product direction.

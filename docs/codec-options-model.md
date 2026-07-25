@@ -53,7 +53,7 @@ means editing the mirror + `apply()` + the template.
   bespoke variants.
 - **Testable** mappings — the field↔control translation can be unit-tested,
   which is impossible while it lives inside `.svelte` markup.
-- **Pre-pays the bulk UI** ([road-map.md](project/roadmap.md)): bulk needs "global
+- **Pre-pays the bulk UI** ([roadmap.md](project/roadmap.md)): bulk needs "global
   settings + per-image overrides," which is exactly a clean options model applied
   N times. Doing this first makes bulk far smaller.
 

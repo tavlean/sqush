@@ -4,10 +4,10 @@ Frisp is a privacy-first, fully client-side image optimizer: a maintained modern
 
 Match the surrounding code by default. When the surroundings are mixed or absent and you are unsure which local style to follow, prefer these files:
 
-- [src/lib/editor/editor-session.svelte.ts](src/lib/editor/editor-session.svelte.ts): reactive state discipline; comments state the constraints code cannot show, such as why a field is deliberately untracked.
-- [src/lib/result-cache.ts](src/lib/result-cache.ts): how to write a small class. The header explains why it exists and its memory model, then the code stays quiet.
-- [src/lib/bulk/runtime.ts](src/lib/bulk/runtime.ts): delegating to a pure engine faithfully, with the reasoning attached.
-- [src/lib/editor/intro/Intro.svelte](src/lib/editor/intro/Intro.svelte): component discipline, where every comment is a constraint the code cannot show (event-routing contracts, a11y decisions with measured ratios, browser quirks with their trigger).
+- [src/lib/editor/editor-session.svelte.ts](src/lib/editor/editor-session.svelte.ts): reactive-state discipline at scale. Comments state constraints the code cannot show, such as why a read is untracked or who owns a URL's lifecycle, and every effect the class creates it also disposes.
+- [src/lib/result-cache.ts](src/lib/result-cache.ts): the model for a small class. A header explaining why it exists and its memory model, then quiet code with no comment the code already says.
+- [src/lib/bulk/runtime.ts](src/lib/bulk/runtime.ts): the model for delegating to a pure framework-neutral engine faithfully, with the reasoning (per-slot bridges, abort scoping, the rerun latch) attached where it binds.
+- [src/lib/editor/intro/Intro.svelte](src/lib/editor/intro/Intro.svelte): component discipline. Every comment is a contract (event routing, a11y with measured ratios, browser quirks with their trigger), and the styles carry their design reasoning.
 
 ## Hard rules (every task; all how-to detail lives in docs/)
 

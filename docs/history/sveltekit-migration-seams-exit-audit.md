@@ -5,7 +5,7 @@ Last updated: 2026-05-26.
 > Historical exit audit. The migration-seams track is no longer the active
 > branch; the root SvelteKit app now lives on `svelte`. Use
 > [the project brief](../project/brief.md), [MIGRATION-PLAN.md](MIGRATION-PLAN.md), and
-> [road-map.md](../project/roadmap.md) for current state and next actions.
+> [roadmap.md](../project/roadmap.md) for current state and next actions.
 
 This audit summarizes whether `code/sveltekit-migration-seams` has done enough
 to stop broadening this branch and move remaining work to focused follow-up

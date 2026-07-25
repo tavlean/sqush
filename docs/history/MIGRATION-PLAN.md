@@ -9,7 +9,7 @@ Last updated: 2026-06-01.
 > [svelte-hardening-plan.md](../svelte-hardening-plan.md).
 
 Read [the project brief](../project/brief.md) first. This document is only the migration track.
-New product features, including bulk UI, live in [road-map.md](../project/roadmap.md).
+New product features, including bulk UI, live in [roadmap.md](../project/roadmap.md).
 
 ## Decision
 
@@ -103,7 +103,7 @@ large photos and any edge formats they care about.
 
 None — the migration is closed. Post-migration cleanup is tracked in
 [svelte-hardening-plan.md](../svelte-hardening-plan.md); product work is in
-[road-map.md](../project/roadmap.md).
+[roadmap.md](../project/roadmap.md).
 
 ## Notes For Future Agents
 

@@ -114,7 +114,7 @@ The focused codec list being considered is:
 WebP 2 was **removed entirely** (encoder and decoder) on 2026-06-02 — it was a
 permanently-experimental format no browser can decode. See
 [codec-surface-cleanup.md](history/codec-surface-cleanup.md) for the removal record and
-[codec-upgrade-audit.md](project/reports/2026-06-02-codec-upgrade-audit.md) §3 for the rationale.
+[the codec upgrade audit](project/reports/2026-06-02-codec-upgrade-audit.md) §3 for the rationale.
 
 To reduce risk, first hide unwanted codecs from product UI after design discussion. Delete codec code only after:
 

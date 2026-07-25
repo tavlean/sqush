@@ -377,7 +377,7 @@ Deliberate deviations (my call — re-open if you disagree):
 2. **`wp2` (WebP v2, "unstable") was experimental parity — now RESOLVED by
    removal (2026-06-02).** It was restored in the SvelteKit surface for migration
    parity, but the maintainer testing that decision called for was done (see
-   [codec-upgrade-audit.md](project/reports/2026-06-02-codec-upgrade-audit.md) §3) and concluded WebP 2 is a
+   [the codec upgrade audit](project/reports/2026-06-02-codec-upgrade-audit.md) §3) and concluded WebP 2 is a
    permanently-experimental format no browser can decode, so it was removed
    entirely — see [codec-surface-cleanup.md](history/codec-surface-cleanup.md). This
    parity item is closed.

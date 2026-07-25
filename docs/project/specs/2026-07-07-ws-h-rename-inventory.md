@@ -236,7 +236,7 @@ docs/history/codec-surface-cleanup.md:52
 docs/history/codec-surface-cleanup.md:59
 docs/history/codec-surface-cleanup.md:96
 docs/history/codec-surface-cleanup.md:97
-docs/review-hardening-plan.md:113
+docs/history/review-hardening-plan.md:113
 docs/test-plan.md:37
 docs/test-plan.md:209
 docs/new-codec-investigation.md:60

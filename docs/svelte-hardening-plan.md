@@ -292,7 +292,7 @@ Highest leverage — one change at the primitives ripples through every panel.
 
 ## Explicitly not in scope
 
-- Production bulk UI (roadmap; needs design — see [road-map.md](project/roadmap.md)).
+- Production bulk UI (roadmap; needs design — see [roadmap.md](project/roadmap.md)).
 - Codec pruning / visibility changes (separate engineering decision; follow
   [codec-provenance.md](codec-provenance.md)).
 - Server-side processing or upload paths.

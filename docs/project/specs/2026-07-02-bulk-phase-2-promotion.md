@@ -638,7 +638,7 @@ auto-format `.md`):
 | `docs/test-plan.md` | §4: note the new engine tests (restoreJob, export option, relativePath) + the bulk e2e smoke list. |
 | `AGENTS.md` | The "do not implement production bulk UI without discussion" line → rewritten to reflect that bulk IS production now, pointing at the design record. |
 | `docs/user-guide/` | New page `bulk-optimization.md` (import N files/folder; global vs per-image settings + dots; multi-select; strip sizes; stack; Save all ZIP + keep-originals toggle; remove/undo) + link it from `index.md` + add the feature to `reference/features.md`. Follow the existing user-guide voice (plain, user-facing, no dev jargon). |
-| `.claude/PROJECT_BRIEF.md` | Current-state + priorities refresh (bulk shipped; next = Phase 3 overrides polish / 2b left panel). |
+| `docs/project/brief.md` | Current-state + priorities refresh (bulk shipped; next = Phase 3 overrides polish / 2b left panel). |
 
 Also append the journey notes ONLY if something notably hard happened
 (journey-and-article-notes.md is for article material, not a changelog).

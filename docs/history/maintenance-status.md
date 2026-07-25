@@ -5,7 +5,7 @@ Last updated: 2026-05-26.
 > Historical record. This file predates the root SvelteKit cutover and keeps the
 > old cleanup/prototype log for archaeology. For current state, use
 > [the project brief](../project/brief.md), [MIGRATION-PLAN.md](MIGRATION-PLAN.md), and
-> [road-map.md](../project/roadmap.md).
+> [roadmap.md](../project/roadmap.md).
 
 ## Resume handoff
 

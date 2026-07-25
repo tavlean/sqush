@@ -71,7 +71,7 @@ seams audits. This plan closes it out.
   machine's many cores to work. (Native-tier performance would require a
   Tauri/native wrapper — a separate product, not this plan.)
 - **Prerequisite for the "encode to every format at once, compare sizes"
-  feature** (see [road-map.md](project/roadmap.md) → Multi-Format Compare).
+  feature** (see [roadmap.md](project/roadmap.md) → Multi-Format Compare).
 
 ## Plan
 
@@ -307,7 +307,7 @@ dev (raw-serve middleware) and prod (raw hashed emit).
 
 ## Related
 
-- [codec-upgrade-audit.md](project/reports/2026-06-02-codec-upgrade-audit.md) — WASM framing; threading note.
-- [road-map.md](project/roadmap.md) — Multi-Format Compare feature (depends on this).
+- [the codec upgrade audit](project/reports/2026-06-02-codec-upgrade-audit.md) — WASM framing; threading note.
+- [roadmap.md](project/roadmap.md) — Multi-Format Compare feature (depends on this).
 - Archived context: `history/sveltekit-migration-seams-exit-audit.md`,
   `history/dashboard.html`.

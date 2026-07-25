@@ -11,7 +11,7 @@ gotchas, the bugs hit per codec) is in
 landed versions in the table below are authoritative).
 
 Turnkey, per-codec upgrade steps derived from the codec audit
-([codec-upgrade-audit.md](project/reports/2026-06-02-codec-upgrade-audit.md)). **All of these were executed
+([the codec upgrade audit](project/reports/2026-06-02-codec-upgrade-audit.md)). **All of these were executed
 on 2026-06-02** — built natively with emsdk 3.1.0 + rustup nightly (no Docker, no
 sudo) and committed on `codec-rebuilds`. These recipes are kept as a reference for
 future codec updates; the as-built record is in
@@ -662,7 +662,7 @@ new BSpline/Gaussian filters.
 
 ## Related
 
-- [codec-upgrade-audit.md](project/reports/2026-06-02-codec-upgrade-audit.md) — the audit these runbooks
+- [the codec upgrade audit](project/reports/2026-06-02-codec-upgrade-audit.md) — the audit these runbooks
   execute (the "why now / later" framing and CVE evidence).
 - [codec-provenance.md](codec-provenance.md) — codec origins + safety rules; read
   before touching `codecs/`.

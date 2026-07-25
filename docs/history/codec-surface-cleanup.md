@@ -10,7 +10,7 @@ then the browser canvas encoders + QOI-as-output (2026-06-27, branch
 Read [codec-provenance.md](../codec-provenance.md) before touching `codecs/`, and
 follow its build / generated-metadata / service-worker / browser verification
 rules. Evidence behind both removals is in
-[codec-upgrade-audit.md](../project/reports/2026-06-02-codec-upgrade-audit.md).
+[the codec upgrade audit](../project/reports/2026-06-02-codec-upgrade-audit.md).
 
 ## 1. Remove WebP 2 (wp2) — DONE
 
@@ -116,6 +116,6 @@ see the user-guide registry row in `docs/README.md`.
 
 - QOI (spec frozen — bump the pinned SHA only if rebuilding for another reason),
   `hqx` (already latest, upstream abandoned). Tracked in
-  [codec-upgrade-audit.md](../project/reports/2026-06-02-codec-upgrade-audit.md) as skip/opportunistic.
+  [the codec upgrade audit](../project/reports/2026-06-02-codec-upgrade-audit.md) as skip/opportunistic.
 - Other codec visibility/grouping decisions — product call, see
-  [road-map.md](../project/roadmap.md).
+  [roadmap.md](../project/roadmap.md).

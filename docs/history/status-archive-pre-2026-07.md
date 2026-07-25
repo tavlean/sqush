@@ -126,7 +126,7 @@
   the defects found by the post-migration review. Prioritized backlog:
   [svelte-hardening-plan.md](../svelte-hardening-plan.md).
 - Bulk UI is not part of this cleanup. Bulk and other product additions are
-  tracked in [road-map.md](../project/roadmap.md).
+  tracked in [roadmap.md](../project/roadmap.md).
 - Repo hygiene (2026-06-01): the ambient Emscripten type declaration now lives
   at `src/emscripten-types.d.ts`, alongside the other `src/*.d.ts` ambient
   files, instead of sitting loose at the repo root (its `///` reference in
@@ -156,7 +156,7 @@
   stay green.
 
 - Codec audit (2026-06-02): a full codec version + landscape audit ran (see
-  [codec-upgrade-audit.md](../project/reports/2026-06-02-codec-upgrade-audit.md)). Several outcomes have now
+  [the codec upgrade audit](../project/reports/2026-06-02-codec-upgrade-audit.md)). Several outcomes have now
   **landed and are merged into `main`** (via the former
   `codec-cleanup-and-threading` / `codec-rebuilds` branches, now deleted):
   - **Cross-origin isolation DONE & verified (commits `27ae8b88`, `09f08f22`).**
@@ -403,12 +403,12 @@ What's next, in short:
 2. ✅ **Codec security rebuilds + gradual upgrades — DONE** (all 7 codecs merged
    into `main`; see the Current State entry above). Build details:
    [codec-build-notes.md](../codec-build-notes.md). Audit/why:
-   [codec-upgrade-audit.md](../project/reports/2026-06-02-codec-upgrade-audit.md).
+   [the codec upgrade audit](../project/reports/2026-06-02-codec-upgrade-audit.md).
 3. **Investigate new codecs** — researched, not added:
    [new-codec-investigation.md](../new-codec-investigation.md) (SVGO first,
    HEIC-decode later, jpegli / JPEG→JXL skip).
 4. **Product features** — Multi-Format Compare, then bulk — see
-   [road-map.md](../project/roadmap.md).
+   [roadmap.md](../project/roadmap.md).
 
 ## Gotchas
 

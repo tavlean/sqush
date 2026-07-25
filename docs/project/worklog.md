@@ -46,9 +46,31 @@ found 39 links that were **already** dangling at `daa064cb`, all inside
 are fixed too. The tree is now at zero dangling relative markdown links, verified
 by a checker over every tracked `.md`.
 
-Gotchas worth keeping: `docs/history/` is frozen by policy but its links were
-never audited, so "frozen" had quietly come to mean "rotting"; a link checker is
-cheap and should run before any doc reorganization is called done.
+**Style tie-breakers.** The four files nominated by the 2026-07-10 and 2026-07-16
+passes were re-validated against current Svelte 5 documentation, not just the
+validators, and all four earned their slots. `result-cache.ts` needed nothing.
+`editor-session.svelte.ts` lost a `cacheKey` alias that gave one value two names
+in the same call pair, a definite-assignment two-step, and a history-timer
+teardown duplicated in five places. `runtime.ts` had two comments naming a
+`cancel()` alias deleted back in `5d88754b`. `Intro.svelte` gained the one missing
+constraint comment (an `Array.prototype.includes.call` on `DataTransfer.types` is
+a compat guard for engines that expose a DOMStringList) and a keyed `{#each}`.
+Left alone deliberately: the file mixes `private` and `#` fields with no rule,
+which is real churn across about 20 declarations, and `#bridgeFor` casts through
+`unknown` to paper over a structural type mismatch that needs the bridge types
+touched.
+
+Gotchas worth keeping, all now in `docs/gotchas.md`. `docs/history/` is frozen by
+policy but its links were never audited, so "frozen" had quietly come to mean
+"rotting"; a link checker is cheap enough to run before any doc reorganization is
+called done. Second, `git add <dir>` while a delegate is editing that directory
+stages its half-finished work under your message: `d8fb97c7` was first written as
+"no code changed" while actually carrying the first slice of the polish pass, and
+was rewritten before it left this machine. Third, mtimes cannot tell an absorbed
+edit from a reverted one, because `git status` reads clean either way; this session
+misdiagnosed the first as the second and asked the delegate to redo work that had
+already landed. Fourth, Prettier never rewraps comments, so `format:check` will
+not catch an overlong comment line.
 
 ## 2026-07-18 (Fable) — Lab restructure + design unification + Nucleo icons
 

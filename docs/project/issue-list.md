@@ -4,14 +4,15 @@ Last updated: 2026-07-21.
 
 Small backlog seed. The big tracks live in their own plans — see
 [README.md](../README.md) for the map. Product work belongs in
-[road-map.md](roadmap.md); the (concluded) migration record is in
+[roadmap.md](roadmap.md); the (concluded) migration record is in
 [history/MIGRATION-PLAN.md](../history/MIGRATION-PLAN.md).
 
 ## Done
 
-- Migration closeout verification — `npm run check`, `npm run audit`, production
-  preview browser smoke, and offline-reload-after-SW-install all pass (see
-  [the project brief](brief.md) → Verification State).
+- Migration closeout verification: `npm run check`, `npm run audit`, production
+  preview browser smoke, and offline-reload-after-SW-install all passed
+  (2026-06-01; the archived record is in
+  [history/status-archive-pre-2026-07.md](../history/status-archive-pre-2026-07.md)).
 - Svelte hardening waves 0–2, 4–6 landed; Wave 3 promoted to
   [codec-options-model.md](../codec-options-model.md).
 
@@ -25,7 +26,7 @@ Small backlog seed. The big tracks live in their own plans — see
    Playwright flow, capture it as a script. See [manual-qa.md](../manual-qa.md).
 3. **Codec provenance gaps.** Fill any remaining gaps in
    [codec-provenance.md](../codec-provenance.md) before touching committed codec
-   artifacts (the codec rebuilds in [codec-upgrade-audit.md](reports/2026-06-02-codec-upgrade-audit.md)
+   artifacts (the codec rebuilds in [the codec upgrade audit](reports/2026-06-02-codec-upgrade-audit.md)
    will exercise this).
 4. **Turn stable backlog items into GitHub issues** if/when the project moves to
    issue-tracked work.
@@ -80,7 +81,7 @@ Small backlog seed. The big tracks live in their own plans — see
 
 ## Pointers (not tracked here)
 
-- Codec version currency, urgency, new codecs → [codec-upgrade-audit.md](reports/2026-06-02-codec-upgrade-audit.md).
+- Codec version currency, urgency, new codecs → [the codec upgrade audit](reports/2026-06-02-codec-upgrade-audit.md).
 - WebP 2 removal (dead `codecs/png/` already deleted) → [codec-surface-cleanup.md](../history/codec-surface-cleanup.md).
 - Multithreading / COOP-COEP → [threading-enablement.md](../threading-enablement.md).
 - Remaining Svelte cleanup → [svelte-hardening-plan.md](../svelte-hardening-plan.md).
