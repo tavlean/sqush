@@ -46,6 +46,22 @@ those aliases is a real refactor, not a rename.
 - **The theme toggle cycles System, Light, Dark** and shows the glyph of the
   mode it is in (sun-moon, sun, moon).
 
+## Brand mark direction
+
+Tavlean's taste on the mark, stated through what he rejected across the 2026-07
+logo exploration. These are directions to avoid, not a brief:
+
+- **Soft matte depth** is the register that landed. Not flat vector, not gloss.
+- **No alphabet logos.** A letterform standing in for the product reads as a
+  placeholder.
+- **No pixel language.** It dates the mark and fights the matte direction.
+- **Avoid anything that reads as an audio waveform.** It repeatedly came out
+  looking like an audio tool, which is the wrong category signal for an image
+  compressor.
+
+The canonical mark today is `src/lib/brand/logomark.svg` (see Conventions in
+force above).
+
 ## Open for a design session
 
 - Whether the production editor adopts a re-style at all, and which of the three
