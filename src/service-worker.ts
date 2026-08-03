@@ -39,6 +39,14 @@ const CRAWLER_FILES = ['/robots.txt', '/sitemap.xml', '/social-card.png'];
 const isCrawlerFileUrl = (url: string) =>
   CRAWLER_FILES.some((name) => url.endsWith(name));
 
+// Manifest install icons are in the same category: the browser fetches them
+// only when the user installs the app, the app itself never does. The
+// manifest stays in the shell; it is a few hundred bytes and is what keeps
+// the installed app's identity resolvable offline.
+const INSTALL_ICON_FILES = ['/icon-192.png', '/icon-512.png'];
+const isInstallIconUrl = (url: string) =>
+  INSTALL_ICON_FILES.some((name) => url.endsWith(name));
+
 // The app shell: everything needed to boot offline, minus the
 // variant-selected codec assets (`build` lists every emitted file, including
 // all mutually-exclusive codec variants). Tiny codec files not in the records
@@ -50,7 +58,7 @@ const appShellUrls = [
       !isProbeWorkerUrl(url) &&
       !isSvgOptimizerWorkerUrl(url),
   ),
-  ...files.filter((url) => !isCrawlerFileUrl(url)),
+  ...files.filter((url) => !isCrawlerFileUrl(url) && !isInstallIconUrl(url)),
   ...prerendered,
 ];
 

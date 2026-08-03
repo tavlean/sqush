@@ -12,6 +12,11 @@
       rel="apple-touch-icon"
       href="%sveltekit.assets%/apple-touch-icon.png"
     />
+    <!-- The web-app manifest is what makes Chrome offer "Install app" in the
+         omnibox (a linked manifest with 192/512 icons plus the controlling
+         service worker satisfies the installability criteria). Icons are
+         regenerated with `npm run pwa-icons` after any brand change. -->
+    <link rel="manifest" href="%sveltekit.assets%/manifest.webmanifest" />
 
     <!-- Search and link-preview metadata. This HAS to live here rather than in a
          `<svelte:head>`: the app runs with `ssr = false`, so component head
