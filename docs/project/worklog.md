@@ -769,3 +769,22 @@ assertion I suggested, matching the documented model instead); Opus built
 CropPanel to the spec contract with zero API mismatches. Verified live in
 preview: gestures, out-of-canvas + fills, 16:9 refit, apply→re-encode,
 re-edit restore, light+dark. Gates: check 0 errors, 110 unit tests green.
+
+## 2026-08-03: install-app support (web app manifest)
+
+Chrome never offered "Install app" for frisp.app because the site had no web
+app manifest at all; the service worker and favicons were already in place.
+Shipped `static/manifest.webmanifest` (name Frisp, standalone, dark #111113
+ground) linked from `app.html`, plus `static/icon-192.png` /
+`static/icon-512.png` rendered from the canonical logomark by the new
+`npm run pwa-icons` script (same reproducible Playwright pattern as the
+social card; mark sized inside the maskable safe zone, one set serves
+`any maskable`). The icons stay out of the SW install shell like the crawler
+files (the browser fetches them only at install time); the manifest itself
+stays in the shell so the installed identity resolves offline. Deployed with
+`wrangler deploy`; verified live: manifest + icons resolve, SW activated and
+controlling. Gates: check 0 errors, 149 unit, 88 e2e green. Gotchas: the
+embedded Claude browser pane never fires `beforeinstallprompt`, so the
+omnibox icon itself cannot be proven from inside it, only the criteria; and
+a hidden pane defers page JS, which makes SW registration look absent on
+first sample. Local SW testing still needs the `?sw` opt-in on localhost.

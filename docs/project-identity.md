@@ -26,10 +26,13 @@ rename now touches ONLY:
 2. `package.json` — `name` + `homepage`.
 3. Brand art: `static/logo.svg`, `static/favicon.svg`,
    `src/lib/brand/logomark.svg` (+ the `static/favicon.png` /
-   `static/apple-touch-icon.png` rasters if restyled).
+   `static/apple-touch-icon.png` rasters if restyled; re-run
+   `npm run pwa-icons` so `static/icon-192.png` / `static/icon-512.png` pick up
+   the new mark).
 4. Prose docs / README — a grep-replace of the old name (attribution excluded).
 5. `src/app.html`: the name and the absolute URL in the search and
-   link-preview tags, plus `static/robots.txt` and `static/sitemap.xml`. This is
+   link-preview tags, plus `static/robots.txt`, `static/sitemap.xml`, and the
+   `name`/`short_name` in `static/manifest.webmanifest`. These are
    the ONE place outside `brand.ts` where the brand is written in code, because a
    static HTML template cannot import a module and those tags have to be in the
    prerendered shell for crawlers to see them (`docs/seo.md` has the reasoning

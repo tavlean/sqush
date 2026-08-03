@@ -77,8 +77,12 @@ Behavior (variant-aware precache, 2026-06-10 — first-visit payload
   probe workers, and the SVG optimizer worker (heavy SVGO + fflate, runtime-cached
   on first SVG use), plus the prerendered paths and every static file except the
   crawler-only ones (`robots.txt`, `sitemap.xml`, `social-card.png`: the app never
-  requests them and the card alone is ~42 kB). Everything excluded here stays in
-  `assets`, so it still resolves cache-first on demand;
+  requests them and the card alone is ~42 kB) and the manifest install icons
+  (`icon-192.png`, `icon-512.png`: fetched by the browser only when the user
+  installs the app). Everything excluded here stays in `assets`, so it still
+  resolves cache-first on demand. `manifest.webmanifest` itself stays in the
+  shell: it is a few hundred bytes and keeps the installed app's identity
+  resolvable offline;
 - activate: delete old Frisp caches and claim clients;
 - fetch: serve known assets cache-first (runtime-caching misses, so a
   non-precached variant still ends up cached after first use — a
