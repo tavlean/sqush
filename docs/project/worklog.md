@@ -788,3 +788,19 @@ embedded Claude browser pane never fires `beforeinstallprompt`, so the
 omnibox icon itself cannot be proven from inside it, only the criteria; and
 a hidden pane defers page JS, which makes SW registration look absent on
 first sample. Local SW testing still needs the `?sw` opt-in on localhost.
+
+## 2026-08-03 (later): apple-touch icon folded in, iOS standalone metas
+
+Follow-up sweep after "is the apple touch icon missing?": it was not
+(present, linked, live), but it was a hand-regenerated one-off, so
+`npm run pwa-icons` now renders it alongside the manifest icons from the
+canonical logomark (same tokens; mark a step larger at 0.62 because iOS
+crops its own squircle and has no maskable safe zone). Added the three
+Safari-only metas that the manifest cannot express (capable + title for
+older-iOS standalone, status-bar-style black for the tint); deliberately
+skipped iOS startup-splash images (~30 device-specific PNGs for a cosmetic
+launch frame) and the deprecated mask-icon. Android needed nothing more.
+Gate note: the WebKit landing e2e specs (drag-over :134, keyboard paste
+:185) are FLAKY under parallel load and occasionally in isolation;
+reproduced 1-of-6 on a clean pre-change tree, so pre-existing; spawned a
+follow-up task. Everything else green (check 0 errors, 149 unit).

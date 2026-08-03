@@ -25,10 +25,10 @@ rename now touches ONLY:
 1. `src/shared/brand.ts` — `APP_NAME` (display) and `APP_SLUG` (identifier).
 2. `package.json` — `name` + `homepage`.
 3. Brand art: `static/logo.svg`, `static/favicon.svg`,
-   `src/lib/brand/logomark.svg` (+ the `static/favicon.png` /
-   `static/apple-touch-icon.png` rasters if restyled; re-run
-   `npm run pwa-icons` so `static/icon-192.png` / `static/icon-512.png` pick up
-   the new mark).
+   `src/lib/brand/logomark.svg` (+ the `static/favicon.png` raster if
+   restyled; re-run `npm run pwa-icons` so `static/icon-192.png`,
+   `static/icon-512.png`, and `static/apple-touch-icon.png` pick up the new
+   mark).
 4. Prose docs / README — a grep-replace of the old name (attribution excluded).
 5. `src/app.html`: the name and the absolute URL in the search and
    link-preview tags, plus `static/robots.txt`, `static/sitemap.xml`, and the
