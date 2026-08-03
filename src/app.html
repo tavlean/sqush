@@ -17,6 +17,17 @@
          service worker satisfies the installability criteria). Icons are
          regenerated with `npm run pwa-icons` after any brand change. -->
     <link rel="manifest" href="%sveltekit.assets%/manifest.webmanifest" />
+    <!-- iOS standalone extras. Modern iOS reads the manifest (display,
+         short_name), so these cover two Safari-only gaps: older iOS needs the
+         capable/title pair to go standalone under the right name, and the
+         status-bar tint in standalone mode is controlled ONLY by this Safari
+         meta ("black" = opaque black bar, matching the dark app without
+         needing safe-area layout work). Startup-splash images are deliberately
+         omitted: a cosmetic launch frame is not worth ~30 device-specific
+         PNGs in every visitor's precache. -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-title" content="Frisp" />
 
     <!-- Search and link-preview metadata. This HAS to live here rather than in a
          `<svelte:head>`: the app runs with `ssr = false`, so component head
