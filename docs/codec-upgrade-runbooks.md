@@ -1,14 +1,16 @@
 # Codec Upgrade Runbooks — Per-Codec, Turnkey
 
-Last updated: 2026-06-02. Status: **✅ DONE.** Every codec in the table below was
+Last updated: 2026-08-08. Status: **✅ DONE.** Every codec in the table below was
 upgraded to the target version and committed on the **`codec-rebuilds`** branch,
 built **natively with emsdk 3.1.0 + rustup nightly (no Docker, no sudo)** —
 verified by the 17-test Playwright e2e suite + the benchmark with no regressions.
 **These per-codec recipes are now historical**; the actual build record (toolchains,
 gotchas, the bugs hit per codec) is in
-[codec-build-notes.md](codec-build-notes.md). Note: libjxl shipped **Path A
-(v0.8.5)** and libaom shipped **v3.12.1** (the audit cited later targets — the
-landed versions in the table below are authoritative).
+[codec-build-notes.md](codec-build-notes.md). Note: libaom shipped **v3.12.1** (the
+audit cited a later target, so the landed versions in the table below are
+authoritative). libjxl shipped **Path A (v0.8.5)** in that sweep and then
+**Path B (v0.12.0) on 2026-08-08**; its section below is the only one since
+updated.
 
 Turnkey, per-codec upgrade steps derived from the codec audit
 ([the codec upgrade audit](project/reports/2026-06-02-codec-upgrade-audit.md)). **All of these were executed
@@ -53,8 +55,9 @@ patch lives in `scripts/patch-codec-wrappers.mjs`; it handles both
 1. **libimagequant** — lowest-risk; warms up the Docker/emsdk pipeline first.
 2. **libwebp**, then **libavif+libaom** — the CVE-urgent pair, done in one batch
    (libavif v1.4.2 itself pins libwebp v1.6.0 for sharpyuv).
-3. **libjxl** — urgent but **isolate it** (Path A first); the wrapper uses
-   libjxl-internal headers, not the public C API.
+3. **libjxl**, urgent but **isolate it** (Path A first); the wrapper used
+   libjxl-internal headers, not the public C API. (Historical: since 2026-08-08
+   the wrapper is on the public C API and this constraint is gone.)
 4. **oxipng**, **mozjpeg**, **resize** — gradual; defer each to its own session.
 
 | Codec | Status | From → To (landed) | Wrapper edits |
@@ -62,7 +65,7 @@ patch lives in `scripts/patch-codec-wrappers.mjs`; it handles both
 | libimagequant (`codecs/imagequant`) | ✅ done | 2.12.1 → 2.18.0 | none |
 | libwebp (`codecs/webp`) | ✅ done | commit `d2e245ea` (pre-1.2.0) → v1.6.0 | none |
 | libavif + libaom (`codecs/avif`) | ✅ done | avif 1.0.1 / aom 3.7.0 → avif 1.4.2 / aom 3.12.1 | likely none (verify) |
-| libjxl (`codecs/jxl`) | ✅ done | commit `9f544641` (pre-0.7) → **v0.8.5 (Path A shipped)** | A: ~none; B: full encoder rewrite |
+| libjxl (`codecs/jxl`) | ✅ done | commit `9f544641` (pre-0.7) → v0.8.5 (Path A) → **v0.12.0 (Path B, 2026-08-08)** | encoder rewritten onto the public C API; done |
 | oxipng (`codecs/oxipng`) | ✅ done | 9.0.0 → 10.1.1 | one line + one import |
 | mozjpeg (`codecs/mozjpeg`) | ✅ done | v3.3.1 → v4.1.5 | none in `.cpp`; build-system rewrite (autotools → CMake) |
 | resize (`codecs/resize`) | ✅ done | 0.5.5 → 0.8.9 | moderate rewrite |
@@ -275,18 +278,27 @@ change that. (5) Regenerated `.wasm` sizes change; re-check the audit budget.
 
 ---
 
-## libjxl (`codecs/jxl`) — ✅ done (Path A shipped: → v0.8.5)
+## libjxl (`codecs/jxl`) ✅ done (Path A shipped 2026-06-02 → v0.8.5; **Path B executed 2026-08-08 → v0.12.0**)
 
-- **Current pin:** commit `9f544641ec83f6abd9da598bdd08178ee8a003e0` (Jan 2022,
-  pre-0.7).
-- **Target — TWO PATHS.**
-  - **Path A (low-risk, recommended first): v0.8.5** — the highest tag that still
-    ships the internal C++ headers this wrapper depends on.
-  - **Path B (full target, requires a wrapper rewrite): v0.11.2.**
+- **Current pin:** `v0.12.0`.
+- **History:** commit `9f544641ec83f6abd9da598bdd08178ee8a003e0` (Jan 2022,
+  pre-0.7) → `v0.8.5` (Path A) → `v0.12.0` (Path B).
 
-> **ISOLATE this upgrade in its own branch/session.** Both Squoosh and jSquash are
-> STILL stuck on Frisp's exact pin — strong evidence of WASM build friction. Do
-> not batch with the other three.
+> **Path B is done.** The encoder wrapper is on the public `JxlEncoder*` C API,
+> so the internal-header wall that stopped both upstreams is behind us and future
+> libjxl bumps are ordinary version bumps. Executed per
+> [2026-07-11-libjxl-0-12-upgrade.md](project/specs/2026-07-11-libjxl-0-12-upgrade.md)
+> (which targeted v0.12.0 rather than the v0.11.2 sketched below). The build
+> gotchas it turned up are gotchas 7–15 in
+> [codec-build-notes.md](codec-build-notes.md) §libjxl; read those before any
+> further libjxl work.
+>
+> **Carry-over decision for the next session:** v0.12.0 spends more bits than
+> v0.8.5 for the same butteraugli distance, so every quality slider position now
+> yields a larger, higher-fidelity file. The quality→distance mapping was left
+> untouched on purpose. Whether to retune it is a product call, not a build call.
+
+The two-path framing below is kept as the record of why this took two goes.
 
 **Build-file change.** In `codecs/jxl/Makefile` line 2, change `CODEC_VERSION`
 from the commit to a tag — Path A: `CODEC_VERSION = v0.8.5`; Path B:
@@ -333,48 +345,53 @@ v0.9.0, v0.9.2, v0.10.3, and v0.11.2** (replaced by a refactored
   at v0.11.2**, so the decoder needs no rewrite either way (the skcms include path
   is the only thing to recheck).
 
-**Build:**
+**Build (current recipe, native emsdk 3.1.0, no Docker):**
 
 ```sh
-# emsdk 2.0.34 via codecs/cpp.Dockerfile. JXL pulls submodules
-# (brotli, highway, skcms) at the pinned tag.
-cd /Users/tav/Development/Tavlean/Frisp/codecs/jxl
+# Replicates codecs/cpp.Dockerfile's env. emsdk/upstream/bin on PATH is only
+# needed for llvm-ar, which the 0.12 Makefile no longer calls, but it costs
+# nothing to keep. CMAKE_FLAGS is the hook the Makefile passes to emcmake.
+source <emsdk>/emsdk_env.sh
+export CFLAGS="-O3 -flto"
+export CXXFLAGS="-O3 -flto -std=c++17"
+export LDFLAGS="-O3 -flto -s FILESYSTEM=0 -s ALLOW_MEMORY_GROWTH=1 -s TEXTDECODER=2 -s NODEJS_CATCH_EXIT=0 -s NODEJS_CATCH_REJECTION=0"
+export CMAKE_FLAGS="-DCMAKE_POLICY_VERSION_MINIMUM=3.5"   # brotli's 2019 cmake
+
+cd codecs/jxl
 rm -rf node_modules            # purge old jxl checkout + build/{mt,mt-simd}
-../build-cpp.sh                 # docker build squoosh-cpp + emmake make -j$(nproc)
+emmake make -j8
 # Regenerates enc/jxl_enc.js, enc/jxl_enc_mt.js, enc/jxl_enc_mt_simd.js
-# (+ workers), dec/jxl_dec.js, and *_node_* variants.
-# If the skcms manual compile (Makefile lines 78-80) fails, the skcms source
-# path under third_party/skcms moved — adjust the emcc -I and the .cc path.
+# (+ workers), dec/jxl_dec.js, and *_node_* variants. Two library builds feed
+# those six: build/mt and build/mt-simd. Check timestamps on all six before
+# committing. A partial rebuild ships a stale mt-simd.
 ```
 
 **Verify:**
 
-1. **Path A first:** build at v0.8.5. If the encoder wrapper compiles unchanged,
-   you have captured most of the security value (CVE-2023-0645, CVE-2023-35790 are
-   fixed in the 0.8 line) with near-zero wrapper risk.
-2. Confirm regenerated `enc/jxl_enc*.wasm`, `dec/jxl_dec.wasm` in `git status`;
-   sizes differ from committed.
+1. Confirm all six regenerated artifacts in `git status`, with fresh timestamps
+   on both `jxl_enc_mt.wasm` and `jxl_enc_mt_simd.wasm`.
+2. `npm run sync`. The app imports the *patched* wrappers, so skipping this
+   silently keeps the old codec in the build.
 3. `npm run check` — the JXL `_mt` and `_mt_simd` variants are `?url`-referenced
    through codec-assets + worker bridge + SW cache plan; confirm all resolve.
-4. Functional: encode lossy, lossless (quality 100 / lossyModular), and
-   progressive JXL; decode a JXL input. Compare to pre-upgrade. v0.10+ gives
-   5–10× faster lossless and 30–40% smaller progressive — measure to confirm you
-   actually got 0.10+ behavior (**Path B only**).
-5. **If pursuing Path B (v0.11.2):** after the encoder rewrite, re-verify the
-   quality-slider mapping end-to-end (the old `butteraugli_distance` math must be
-   reproduced via `JxlEncoderSetFrameDistance`) and confirm the JXL feature
-   metadata in `src/features/encoders/*` still matches the rewritten wrapper's
-   option set.
+4. `npm run test:e2e` in **both** Chromium and WebKit. The threading spec is the
+   one that catches a broken `_mt` pthread pool; the encode spec is the one that
+   catches a broken WASM import name. A green build proves neither.
+5. Functional: encode lossy, lossless (quality 100 / lossyModular), and
+   progressive JXL; decode a JXL input. The fastest way to do this is a Node
+   harness linked against the cached `build/mt/lib/*.a` (~40s per relink versus
+   ~20 minutes for the library), which is also how you bisect an option mapping.
+6. `npm run bench` + `npm run bench:compare` against the committed baseline.
 
-**Risks:** **HIGH for Path B, LOW-MEDIUM for Path A.** The decisive risk is the
-internal-vs-public API mismatch above — the audit understates it.
-**Recommendation:** ship Path A (v0.8.5) as the security-driven step now (minimal
-wrapper risk, captures early CVEs), and treat Path B (v0.11.2 + public-API encoder
-rewrite, which unlocks the big 0.10 lossless-speed and 0.11 progressive-size wins)
-as a separate, isolated project. Secondary risks: submodule/`third_party` path
-drift breaking the skcms hand-compile and the brotli/highway/skcms static-lib link
-list (Makefile lines 53–80); Highway version bumps may reintroduce
-`-Wdeprecated-declarations` warnings (already suppressed, line 33).
+**Risk, in hindsight.** The risk estimate above was right about the API mismatch
+and wrong about where the pain would be. The public-API rewrite itself was
+straightforward once modelled on `examples/encode_oneshot.cc`; the expensive part
+was everything around it: renamed CMake targets, the new `libjxl_cms.a`, the new
+default streaming mode, and libjxl's changed rate/distortion behaviour at a given
+distance. All of it is written up as gotchas 7–15 in
+[codec-build-notes.md](codec-build-notes.md) §libjxl. The next libjxl bump is a
+one-line `CODEC_VERSION` change plus a rebuild, because the wrapper is now on a
+stable public API.
 
 ---
 

@@ -4,6 +4,53 @@ Short session-by-session build log: what changed, why, and the gotchas a future
 session must know. Newest first. (Live project state stays in
 [the project brief](brief.md); this is the narrative trail.)
 
+## 2026-08-08 (Opus, executor) - libjxl v0.8.5 to v0.12.0, and the question it raises
+
+Executed [specs/2026-07-11-libjxl-0-12-upgrade.md](specs/2026-07-11-libjxl-0-12-upgrade.md).
+`codecs/jxl/enc/jxl_enc.cpp` is rewritten from libjxl's internal C++ API onto the
+public `JxlEncoder*` C API, which is what v0.9.0 forced when it deleted
+`enc_file.h` and `enc_color_management.h`. The app-facing contract is untouched:
+same eight `JXLOptions` fields, same embind signature, same six artifacts. The
+wall that stopped both Squoosh and jSquash at this exact pin is now behind us,
+and the next libjxl bump is a one-line `CODEC_VERSION` change.
+
+**The rewrite was the easy half.** The build had drifted underneath it: the
+static CMake targets lost their `-static` suffix, colour management moved into a
+new `libjxl_cms.a` that also swallowed skcms (which deletes the Makefile's
+hand-rolled `emcc` + `llvm-ar` skcms step), and brotli's archives lost their
+`-static` suffix too. All of it, plus the wrapper-level traps, is written up as
+gotchas 7 to 15 in [../codec-build-notes.md](../codec-build-notes.md).
+
+**Two things the spec could not have known.** v0.11 added a streaming encode
+mode and turns it on by default for any frame over 8 groups, trading compression
+for peak memory; on the 1280x800 screenshot fixture that alone cost 28702 bytes
+against 14064. The wrapper pins `JXL_ENC_FRAME_SETTING_BUFFERING = 0` to keep the
+whole-image behaviour v0.8.5 had. And `JxlEncoderSetFrameDistance` refuses
+distances above 25, which the ported quality curve exceeds below quality 5, so
+the curve is clamped rather than left to fail the encode.
+
+**The open question, and why this is not finished.** Even with streaming off,
+v0.12.0 spends more bits than v0.8.5 for the same butteraugli distance: 8 of 9
+bench fixtures grew, from +3.0% on hard-edges to +70.1% on noise-synthetic, with
+only `transparent` improving at -17.9%. This is upstream behaviour, confirmed by
+building `cjxl` natively from the same v0.12.0 checkout and encoding the identical
+pixels (6354 bytes against the wasm wrapper's 6351 at `-d 2.35 -e 7`). The extra
+bytes buy real fidelity: illustration at quality 75 goes from 41.88 dB to 43.11 dB
+PSNR. So the same slider position now means a better, larger file, and **whether
+to retune the quality→distance mapping is a product call that has to happen before
+this ships.** The mapping was deliberately left alone so the delta is attributable
+to the library and nothing else.
+
+Gates: `npm run check` 0 errors / 57 known warnings, unit 149/149, full e2e green
+in Chromium and WebKit (88 passed, the 2 usual WebKit offline skips), JXL threading
+engaging with the full worker pool in both. Every non-JXL codec is byte-identical.
+
+**Benchmark methodology gotcha, now in [../gotchas.md](../gotchas.md):**
+`benchmarks/baseline.json` is stale for WebP and AVIF *sizes*, not only for
+timing. Comparing against it made this change look like it had regressed WebP by
+20%. A control run captured at HEAD with the change stashed is the only honest
+reference.
+
 ## 2026-07-25 (Opus, later) - Search and link-preview metadata
 
 The app had **no `<title>` in its served HTML at all**, plus no description and no

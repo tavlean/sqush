@@ -1,6 +1,6 @@
 # Gotchas
 
-Last updated: 2026-07-25.
+Last updated: 2026-08-08.
 
 Traps that fail **silently**: the build stays green, the tests stay green, and
 the damage shows up later. Loud failures are deliberately absent because the
@@ -62,6 +62,14 @@ this doc holds the cross-cutting ones that no single file owns.
   not refreshed because that would bake cache-hit artifacts into the reference.
 - **The `photo-large` bench fixture is a single cold run.** Treat it as a
   regression signal, never as a timing measurement.
+- **`benchmarks/baseline.json` is stale for WebP and AVIF *sizes*, not just for
+  timing** (measured 2026-08-08). `main` with no codec change now produces
+  59302 bytes for WebP on `photo` against the baseline's 49372, and AVIF drifts
+  a percent or two; MozJPEG and OxiPNG are still byte-identical. So
+  `bench:compare` against the committed baseline will accuse a codec upgrade of
+  regressing codecs it never touched. **Capture a control run at HEAD first**
+  (`BENCH_LABEL=head-control npm run bench` with the change stashed) and diff
+  against that, which is the only way to attribute a size delta.
 - **The SVG auto gate deliberately upscales small sources.** Precision loss that
   is invisible at 24px is obvious at 256px.
 

@@ -1,11 +1,12 @@
 # Codec build notes — engineering log
 
-Last updated: 2026-06-02.
+Last updated: 2026-08-08.
 
 > **STATUS: all codecs rebuilt natively (no Docker) and committed on branch
 > `codec-rebuilds`.** imagequant 2.18.0, libwebp v1.6.0, libavif v1.4.2 +
-> libaom v3.12.1, libjxl v0.8.5, oxipng 10.1.1, mozjpeg v4.1.5, resize 0.8.9 —
-> all verified by the 17-test e2e suite + benchmark (no regressions). The
+> libaom v3.12.1, libjxl **v0.12.0** (was v0.8.5; bumped 2026-08-08 with the
+> encoder wrapper rewritten onto libjxl's public C API), oxipng 10.1.1,
+> mozjpeg v4.1.5, resize 0.8.9. All verified by the e2e suite + benchmark. The
 > per-codec sections below are the engineering record of how each was built.
 
 Deep technical record of **building the WASM codecs from source** — what works,
@@ -184,7 +185,70 @@ inner archive) before blaming the linker.**
 > path IS exercised at runtime, and the artifact is correct and on the secure
 > libaom.
 
-### libjxl — ✅ DONE (emcc 3.1.0, Path A v0.8.5). The runtime bug was embind, not the codec.
+### libjxl (✅ DONE, emcc 3.1.0, now v0.12.0 on the public C API)
+
+**v0.8.5 → v0.12.0, 2026-08-08 (Path B).** The encoder wrapper was rewritten from
+libjxl's internal C++ API onto the public `JxlEncoder*` C API, which is what
+v0.9.0 forced when it deleted `enc_file.h` / `enc_color_management.h`. Both the
+build and the wrapper needed real work; the gotchas below are on top of the six
+0.8.5-era ones that follow, which all still apply.
+
+7. **The static CMake targets were renamed.** `jxl-static` and
+   `jxl_threads-static` are gone; the targets are now plain `jxl` and
+   `jxl_threads` (with `BUILD_SHARED_LIBS=0` they produce the same archives).
+   `make jxl-static` fails with "No rule to make target".
+8. **Colour management split out into `libjxl_cms.a`, and it now owns skcms.**
+   `JPEGXL_BUNDLE_SKCMS` no longer exists. `jxl_cms` compiles the skcms sources
+   into itself, `libjxl.a` no longer contains them, and `libjxl.a` needs
+   `libjxl_cms.a` on the link line. This **deletes** the 0.8.5-era problem
+   (gotcha 5) and the Makefile's hand-rolled `emcc` + `llvm-ar` skcms compile:
+   the decoder's direct `skcms_*` calls resolve out of `libjxl_cms.a`. Worth
+   knowing if you ever do rebuild skcms by hand: 0.12's skcms is two
+   translation units (`skcms.cc` plus `src/skcms_TransformBaseline.cc`), not
+   the single self-contained file it was at 0.8.
+9. **Brotli's archives lost their `-static` suffix**: `libbrotlidec.a`, not
+   `libbrotlidec-static.a`. A stale path here fails at link, not at configure.
+10. **`JxlEncoderSetFrameDistance` rejects distance > 25.** The old wrapper wrote
+    `cparams.butteraugli_distance` directly and was unbounded; our quality→distance
+    curve maps quality 0 to ~45.5. Without a clamp the bottom five notches of the
+    quality slider return `val::null()`, i.e. the app shows "no download". The
+    wrapper clamps at 25.
+11. **v0.11 added a streaming encode mode and turns it on by default.** With
+    `buffering = -1` (the default) libjxl streams any frame with more than 8
+    groups, trading compression for peak memory. On
+    `tests/fixtures/screenshot.png` (1280×800) at the default quality that costs
+    **28702 bytes vs 14064** with streaming off. The wrapper sets
+    `JXL_ENC_FRAME_SETTING_BUFFERING = 0` to keep the whole-image behaviour
+    v0.8.5 had. Small fixtures (512×512, four groups) never trip it, so this is
+    invisible until you benchmark something big.
+12. **`JxlDecoderGetICCProfileSize` / `JxlDecoderGetColorAsICCProfile` lost their
+    `JxlPixelFormat*` first argument** in v0.9. Two call sites in `dec/jxl_dec.cpp`.
+    `lib/jxl/color_encoding_internal.h`, the one internal header the decoder
+    includes, still exists at v0.12.0 and still compiles.
+13. **v0.12 spends more bits for the same requested distance than v0.8.5 did.**
+    This is not a wrapper bug and it is not a build flag. At `-d 2.35 -e 7` on
+    `illustration.png`, v0.8.5 produced 4915 bytes / 41.88 dB PSNR and v0.12.0
+    produces 6401 bytes / 43.11 dB. A **natively built v0.12.0 `cjxl`** on the
+    identical pixels produces 6354 bytes, so the wasm wrapper is faithful. The
+    fastest way to settle "is this my wrapper or is this libjxl" is exactly that:
+    `cmake -B <dir> <libjxl src> && cmake --build <dir> --target cjxl`, dump the
+    fixture to a binary PPM (cjxl reads PPM without libpng), and compare. Bench
+    impact is in [codec-provenance.md](codec-provenance.md); it is large enough
+    that the quality→distance mapping needs a product decision.
+14. **Iterate the wrapper with a hand-rolled single link, not `make`.** The
+    library build is ~20 minutes; relinking one wrapper against the cached
+    `build/mt/lib/*.a` is ~40 seconds. Same trick as the 2026-06 sweep, and the
+    reason bisecting gotchas 11 and 13 was tractable at all.
+15. **The `*_node_*` artifacts cannot be loaded by modern Node.** `EXPORT_ES6=1`
+    plus `ENVIRONMENT=node` on emcc 3.1.0 emits ESM glue that calls `require()`
+    and `__dirname`, so Node ≥ 20 throws `ERR_AMBIGUOUS_MODULE_SYNTAX`. It also
+    reaches for global `fetch` to load the `.wasm`. Pre-existing, and nothing in
+    the app imports them, but if you want a Node harness: convert to CommonJS
+    (replace `import.meta.url` with `pathToFileURL(__filename).href`, swap the
+    `export default` for `module.exports`), pass `wasmBinary` explicitly, and
+    polyfill `ImageData` for the decoder.
+
+**The 0.8.5-era record (still current for gotchas 1–6 and the embind bug).**
 pre-0.7 commit → **v0.8.5** (CVE-2023-0645, CVE-2023-35790, CVE-2025-12474;
 CVE-2026-1837 is LCMS2-only and we link skcms → N/A). **Result: 3–6 % smaller +
 2–9 % faster** across all image types (benchmark-verified). Complex multi-library

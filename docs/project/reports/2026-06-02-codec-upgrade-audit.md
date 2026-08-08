@@ -19,7 +19,13 @@ before acting, since web research can drift.
 >   CVSS 9.8; zero size regression, 6–13% faster encode)
 > - **libjxl** pre-0.7 commit → **v0.8.5** (Path A; CVE-2023-0645, CVE-2023-35790,
 >   CVE-2025-12474; CVE-2026-1837 is LCMS2-only and the build uses skcms, so N/A;
->   3–6% smaller + 2–9% faster)
+>   3–6% smaller + 2–9% faster). **Superseded 2026-08-08: libjxl is now on
+>   `v0.12.0`** (Path B; the encoder wrapper was rewritten onto the public
+>   `JxlEncoder*` C API, which is what this audit's v0.11.2 target always
+>   required). Adds the 0.11.1 / 0.11.2 CVE fixes. Note that v0.12.0 produces
+>   *larger* output than v0.8.5 at the same quality slider position, because it
+>   hits the requested butteraugli distance more accurately; see
+>   [codec-provenance.md](../../codec-provenance.md).
 > - **oxipng** 9.0.0 → **10.1.1** (byte-identical at default preset; robustness +
 >   fast-mode/ICC fixes)
 > - **mozjpeg** 3.3.1 → **4.1.5** (9 CVEs from the libjpeg-turbo 2.x base;

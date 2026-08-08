@@ -68,7 +68,7 @@ generated from exactly these inputs.
 | ------------------- | ----------------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
 | `codecs/avif`       | AOMediaCodec/libavif                                  | `v1.4.2` tarball (was `v1.0.1`)                                     | Uses libaom `v3.12.1` (was `v3.7.0`) and libwebp `v1.6.0` for libsharpyuv. CVE-2024-5171; zero size regression, 6–13% faster encode. |
 | `codecs/webp`       | webmproject/libwebp                                   | `v1.6.0` tarball (was commit `d2e245ea9e959a5a79e1db0ed2085206947e98f2`) | Builds baseline and SIMD browser artifacts plus Node encoder/decoder artifacts. CVE-2023-4863; byte-identical output. |
-| `codecs/jxl`        | libjxl/libjxl                                         | `v0.8.5` (was commit `9f544641ec83f6abd9da598bdd08178ee8a003e0`)   | Fetches submodules recursively and builds single-thread, multithread, SIMD, and Node-targeted outputs. CVE-2023-0645, CVE-2023-35790, CVE-2025-12474; 3–6% smaller + 2–9% faster. |
+| `codecs/jxl`        | libjxl/libjxl                                         | `v0.12.0` (was `v0.8.5`, before that commit `9f544641ec83f6abd9da598bdd08178ee8a003e0`) | Fetches submodules recursively and builds single-thread, multithread, SIMD, and Node-targeted outputs. Encoder wrapper rewritten onto the public `JxlEncoder*` C API (2026-08-08). Adds the 0.11.1 / 0.11.2 CVE fixes on top of CVE-2023-0645, CVE-2023-35790, CVE-2025-12474. **Output at a given quality slider position is larger than at v0.8.5**; see the note below. |
 | `codecs/qoi`        | phoboslab/qoi                                         | commit `8d35d93cdca85d2868246c2a8a80a1e2c16ba2a8` tarball           | Builds encoder and decoder outputs. (Not upgraded — spec is frozen.)                                  |
 | `codecs/mozjpeg`    | mozilla/mozjpeg                                       | `v4.1.5` tarball (was `v3.3.1`)                                     | Build moved autotools → CMake. 9 CVEs from the libjpeg-turbo 2.x base; compression intentionally unchanged = byte-identical. |
 | `codecs/imagequant` | ImageOptim/libimagequant                              | `2.18.0` tarball (was `2.12.1`)                                     | Configures with `--disable-sse`. Byte-identical; security/quality.                                    |
@@ -76,6 +76,36 @@ generated from exactly these inputs.
 | `codecs/resize`     | crates.io `resize` crate                              | `0.8.9` (was `0.5.5`)                                               | Rust wrapper package is `squoosh-resize` `0.1.0`; lockfile should be preserved when rebuilding. Ahead of both Squoosh and jSquash (which pin 0.5.5). |
 | `codecs/oxipng`     | crates.io `oxipng`                                    | `10.1.1` (was `9.0`)                                               | Builds normal and parallel wasm-pack outputs. Byte-identical at default preset; value is robustness + fast-mode/ICC fixes. |
 | `codecs/rotate`     | local Rust source                                     | local `squoosh-rotate` `0.1.0`                                      | Build uses `codecs/rotate/Dockerfile`, WABT `1.0.11`, and `wasm-opt`.                                  |
+
+> **libjxl v0.12.0 (2026-08-08): the quality slider now means something
+> different.** The encoder wrapper is off libjxl's deleted internal C++ API and
+> onto the public `JxlEncoder*` C API, and the quality→butteraugli-distance
+> mapping was ported unchanged. But libjxl recalibrated how accurately it hits a
+> requested distance somewhere in the 0.9–0.12 range, so the same distance now
+> buys more fidelity and more bytes: on `tests/fixtures/illustration.png` at the
+> default quality 75 (distance 2.35, effort 7), v0.8.5 produced 4915 bytes at
+> 41.88 dB PSNR and v0.12.0 produces 6401 bytes at 43.11 dB. Verified against a
+> natively built v0.12.0 `cjxl` on the identical pixels (6354 bytes at the same
+> `-d 2.35 -e 7`), so this is upstream behaviour, not a wrapper bug.
+>
+> Measured across the benchmark fixtures at default settings (v0.8.5 → v0.12.0,
+> every other codec byte-identical):
+>
+> | Fixture | v0.8.5 | v0.12.0 | Δ |
+> |---|---|---|---|
+> | photo | 56171 | 60801 | +8.2% |
+> | illustration | 4915 | 6401 | +30.2% |
+> | transparent | 5999 | 4925 | **−17.9%** |
+> | gradient | 2378 | 2833 | +19.1% |
+> | gradient-dithered | 2362 | 2883 | +22.1% |
+> | hard-edges | 62846 | 64735 | +3.0% |
+> | noise-synthetic | 99474 | 169236 | +70.1% |
+> | screenshot | 9830 | 14064 | +43.1% |
+> | photo-large | 376439 | 418656 | +11.2% |
+>
+> **Deciding whether to retune the quality→distance mapping is an open product
+> question** and it blocks calling this upgrade finished; the mapping was
+> deliberately left alone here so the delta is attributable to the library alone.
 
 ## App codec inventory
 

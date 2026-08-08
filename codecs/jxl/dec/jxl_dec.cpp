@@ -59,11 +59,12 @@ val decode(std::string data) {
   EXPECT_EQ(JXL_DEC_COLOR_ENCODING, JxlDecoderProcessInput(dec.get()));
   static const JxlPixelFormat format = {COMPONENTS_PER_PIXEL, JXL_TYPE_FLOAT, JXL_LITTLE_ENDIAN, 0};
   size_t icc_size;
-  EXPECT_EQ(JXL_DEC_SUCCESS, JxlDecoderGetICCProfileSize(dec.get(), &format,
-                                                         JXL_COLOR_PROFILE_TARGET_DATA, &icc_size));
+  // libjxl v0.9 dropped the unused JxlPixelFormat argument from both of these.
+  EXPECT_EQ(JXL_DEC_SUCCESS,
+            JxlDecoderGetICCProfileSize(dec.get(), JXL_COLOR_PROFILE_TARGET_DATA, &icc_size));
   std::vector<uint8_t> icc_profile(icc_size);
   EXPECT_EQ(JXL_DEC_SUCCESS,
-            JxlDecoderGetColorAsICCProfile(dec.get(), &format, JXL_COLOR_PROFILE_TARGET_DATA,
+            JxlDecoderGetColorAsICCProfile(dec.get(), JXL_COLOR_PROFILE_TARGET_DATA,
                                            icc_profile.data(), icc_profile.size()));
 
   EXPECT_EQ(JXL_DEC_NEED_IMAGE_OUT_BUFFER, JxlDecoderProcessInput(dec.get()));
