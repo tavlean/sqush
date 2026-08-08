@@ -18,6 +18,11 @@ Small backlog seed. The big tracks live in their own plans — see
 
 ## Open
 
+1. **`landing.spec.ts` drag-and-drop tests flake under machine load.** Seen
+   three times on 2026-08-08 (different tests, both browsers) while codec
+   builds or benches ran in parallel; always pass in isolation and on quiet
+   full runs. If it recurs on a quiet machine, treat it as real; otherwise a
+   candidate for a retry annotation or a less load-sensitive drop simulation.
 1. **WebP default method 6 is a bad trade on alpha content.** Measured
    2026-08-08 on `transparent.png`: method 6 is 50x slower than method 4 (2880ms
    vs 57ms) and produces a slightly larger file (2896 vs 2846 bytes). On photos

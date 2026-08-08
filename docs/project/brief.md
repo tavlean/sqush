@@ -95,6 +95,14 @@ the multi-threaded runtime is verified in Chromium and WebKit. Gates are green:
 
 Shipped since then, newest first:
 
+- **libjxl v0.12.0 (2026-08-08).** The encoder rewritten onto the public C API
+  (the internal-API wall is gone; zero internal headers remain), a new
+  fidelity-calibrated quality curve, RESAMPLING pinned so the quality slider
+  can never silently halve resolution, and 3 CVE-fixing releases absorbed.
+  This unblocked the whole 2026-07 codec batch. Same day: the benchmark
+  methodology was fixed and re-baselined, and a ResultCache eviction bug
+  (revoking the URL of a just-cached result under memory pressure) was fixed
+  with the cache's first unit tests.
 - **Search and link-preview metadata (2026-07-25).** The served HTML had no title,
   description, or Open Graph tags, because `ssr = false` keeps `<svelte:head>` out
   of the prerendered shell. Tags now live in `src/app.html`, with a generated
@@ -143,15 +151,16 @@ later phase. Do not delete it.
 3. **Pick an editor re-style direction** from the three lab skins, then promote.
 4. **Keyboard control**: a Figma-style single-key proposal is ready at
    [../keyboard-control.md](../keyboard-control.md) with five open decisions.
-5. **The 2026-07 codec batch**: libjxl 0.12 upgrade, jpegli, JPEG to JXL
-   transcode (blocked on the upgrade), auto-quality mode. All specced.
+5. **The 2026-07 codec batch**: jpegli, JPEG to JXL transcode, auto-quality
+   mode. All specced, and unblocked since the libjxl 0.12 upgrade landed on
+   2026-08-08.
 
 Sequencing (decided 2026-08-08): the UI and UX tracks lead. The libjxl 0.12
-upgrade is fast-tracked out of the codec batch because it blocks jpegli, the
+upgrade was fast-tracked out of the codec batch because it blocked jpegli, the
 transcode, the auto-quality engine, and through auto-quality everything
-agent-facing; it runs now, in parallel with the UI work. The rest of the agent
-track (headless core, CLI, Raycast) follows without displacing the human
-surface.
+agent-facing; it landed the same day, so the batch is fully unblocked. The
+rest of the agent track (headless core, CLI, Raycast) follows without
+displacing the human surface.
 
 The full phased plan with status is [roadmap.md](roadmap.md).
 

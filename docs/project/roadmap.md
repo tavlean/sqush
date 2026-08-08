@@ -23,15 +23,6 @@ engineering tracks in one list, because they compete for the same time.
 
 ## Now
 
-- [ ] **libjxl v0.8.5 to v0.12.0, fast-tracked (2026-08-08).** Pulled out of
-      the codec batch because it blocks jpegli, the JPEG to JXL transcode, and
-      the auto-quality engine, and through auto-quality the whole agent
-      surface. Implemented the same day on branch `codec/libjxl-0-12` (all
-      gates pass except the output-size criterion, which fails for an upstream
-      reason: accurate distance targeting makes same-slider output higher
-      fidelity and larger). The merge is gated on one product decision, the
-      quality-to-distance mapping; the spec's Outcome section has the numbers.
-      [specs/2026-07-11-libjxl-0-12-upgrade.md](specs/2026-07-11-libjxl-0-12-upgrade.md)
 - [ ] **SVG benchmark (stage S8).** The competitive comparison against nano and
       ImageOptim over the stratified corpus in `benchmarks/svg/`. Everything else
       in the SVG track shipped on 2026-07-12. The protocol is self-contained in
@@ -61,10 +52,10 @@ engineering tracks in one list, because they compete for the same time.
 
 ## The 2026-07 codec batch
 
-Maintainer-approved on 2026-07-11. The libjxl upgrade was fast-tracked into
-Now on 2026-08-08 because everything below depends on it; the remaining items
-run in this order once it lands. Each spec is executable by an agent with no
-access to the deciding conversation.
+Maintainer-approved on 2026-07-11. The libjxl 0.12 upgrade that gated this
+batch landed on 2026-08-08, so every item below is unblocked; run them in this
+order. Each spec is executable by an agent with no access to the deciding
+conversation.
 
 - [ ] **jpegli.** A libjxl-based encoder producing standard JPEG at roughly 30%
       better compression, and the highest-return new codec available. The spec
@@ -183,6 +174,15 @@ access to the deciding conversation.
 
 Newest first. The narrative, with the gotchas, is in [worklog.md](worklog.md).
 
+- [x] **libjxl v0.8.5 to v0.12.0** (2026-08-08, fast-tracked and landed the
+      same day): encoder rewritten onto the public C API (the internal-API wall
+      both upstream anchors failed to cross; zero internal headers remain), a
+      new fidelity-calibrated quality curve for the accurate distance targeting,
+      RESAMPLING pinned so the slider can never silently halve resolution, and
+      the JXL baseline re-captured. Default photo behavior preserved within 0.4
+      percent; the old slider bottom (negative SSIMULACRA2) is fixed. The
+      spec's Outcome section has the measurement story.
+      [specs/2026-07-11-libjxl-0-12-upgrade.md](specs/2026-07-11-libjxl-0-12-upgrade.md)
 - [x] **Benchmark methodology fixed and re-baselined** (2026-08-08): measured
       runs are cache-cold and module-warm instead of timing a `ResultCache` hit,
       timing no longer gates the exit code (size and reliability do), the suite

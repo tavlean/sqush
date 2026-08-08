@@ -1,9 +1,10 @@
 # Spec: libjxl v0.8.5 → v0.12.0 (encoder rewrite onto the public C API)
 
-Last updated: 2026-08-08. Status: **implemented on branch `codec/libjxl-0-12`**
-(commit 97968d6c); merge gated by the quality-mapping decision in the Outcome
-section at the end. Acceptance criteria 1, 2, 3, 5, 6 pass; criterion 4 fails
-for an upstream reason, not a build defect.
+Last updated: 2026-08-08. Status: **landed on `main`** (merge `6135a6fd`),
+together with a follow-up the measurement forced: the quality-to-distance curve
+was redesigned for v0.12.0's accurate distance targeting and RESAMPLING is
+pinned to full resolution. The Outcome section at the end records why criterion
+4 was superseded rather than met.
 Origin: maintainer decision 2026-07-11. Supersedes the "Path A stops at 0.8.5"
 outcome in [codec-upgrade-runbooks.md](../../codec-upgrade-runbooks.md) §jxl —
 this IS that runbook's "Path B", now decided. Prerequisite for
@@ -282,10 +283,21 @@ against natively built cjxl from the same checkout (within 3 bytes). The
 guardrail "do not retune the quality mapping" and criterion 4 "size must not
 grow" cannot both hold; per the guardrail the mapping was left untouched.
 
-Open decision that gates the merge: retune the quality-to-distance mapping to
-restore the old size-per-slider behavior, or accept the new
-higher-fidelity-but-larger meaning of each slider position. Also flagged for
-follow-up: encoder artifact size grew roughly 0.9 to 1.1 MB per artifact.
+The decision (2026-08-08, maintainer delegated the mapping design): a
+matched-size measurement showed v0.12.0 ties v0.8.5 on photographs and needs
+18 to 30 percent more bytes on flat and text content at equal SSIMULACRA2. It
+also exposed that libjxl's silent 2x-downsampling threshold moved from
+distance 20 to 10, which the ported curve crossed at slider 13, and that the
+old curve's bottom scored negative SSIMULACRA2 even on v0.8.5. The shipped
+resolution: RESAMPLING pinned to 1 and a new curve calibrated to delivered
+fidelity (100 lossless; 30 to 100 linear to distance 0.1 + (100 - q) / 10;
+below 30 linear to 15 at q0). Default 75 reproduces the old default's photo
+behavior within 0.4 percent, and every slider position is now full-resolution
+and monotone. Artifact growth (roughly 1 MB per encoder artifact) was
+investigated to the end: no CMake flag reduces it, -Os would save 392 KB at
+about 20 percent encode time and was rejected, so the growth is accepted.
+The benchmark baseline was re-captured at the merge commit with the new JXL
+sizes.
 
 Handoff:
 `codex exec -C /Users/tav/Development/Tavlean/Frisp -s workspace-write -m gpt-5.6-sol -c model_reasoning_effort="medium" "Implement docs/project/specs/2026-07-11-libjxl-0-12-upgrade.md exactly. Read docs/codec-build-notes.md and docs/codec-upgrade-runbooks.md (jxl section) first. Follow the guardrails. Do not commit or push. Report PASS or FAIL against each acceptance criterion."`
