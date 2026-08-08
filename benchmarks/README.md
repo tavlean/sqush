@@ -83,8 +83,9 @@ human to judge; re-run on a quiet machine before believing it.
   and record here when and at which commit, because a stale baseline is worse
   than none: it reads as a codec regression long after the real cause (a changed
   default, a codec rebuild) has been forgotten. Current baseline captured
-  **2026-08-08 at commit `6135a6fd`** (the libjxl v0.12.0 merge, new JXL quality
-  curve), on a Mac reporting 11 logical cores, with
+  **2026-08-09 at commit `c788155f`** (the jpegli merge; also reflects the
+  libjxl v0.12.0 curve from 2026-08-08), on a Mac reporting 11 logical cores,
+  with
   the cache-cold methodology described above. It replaced a 2026-06-02 capture
   (commit `c9fe93d4`) that predated both the WebP default change (`e184882f`,
   quality 75 → 80 and method 4 → 6) and AVIF multi-threading actually engaging

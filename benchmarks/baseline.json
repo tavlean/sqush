@@ -1,6 +1,6 @@
 {
   "label": "current",
-  "generatedAt": "2026-08-08T11:21:12.123Z",
+  "generatedAt": "2026-08-08T20:29:45.026Z",
   "machine": {
     "cores": 11,
     "isolated": true,
@@ -17,12 +17,12 @@
           "label": "WebP",
           "ok": true,
           "outputBytes": 59302,
-          "coldMs": 409,
+          "coldMs": 313,
           "medianMs": 297,
           "runsMs": [
-            337,
-            297,
-            241
+            307,
+            274,
+            297
           ]
         },
         {
@@ -30,12 +30,12 @@
           "label": "AVIF",
           "ok": true,
           "outputBytes": 29940,
-          "coldMs": 736,
-          "medianMs": 441,
+          "coldMs": 729,
+          "medianMs": 473,
           "runsMs": [
-            441,
-            443,
-            353
+            473,
+            440,
+            498
           ]
         },
         {
@@ -43,12 +43,12 @@
           "label": "JPEG XL",
           "ok": true,
           "outputBytes": 56395,
-          "coldMs": 731,
-          "medianMs": 458,
+          "coldMs": 705,
+          "medianMs": 497,
           "runsMs": [
-            603,
-            458,
-            409
+            539,
+            464,
+            497
           ]
         },
         {
@@ -56,12 +56,25 @@
           "label": "MozJPEG",
           "ok": true,
           "outputBytes": 74780,
-          "coldMs": 232,
-          "medianMs": 185,
+          "coldMs": 255,
+          "medianMs": 219,
           "runsMs": [
-            202,
-            185,
-            185
+            219,
+            224,
+            218
+          ]
+        },
+        {
+          "format": "jpegli",
+          "label": "jpegli",
+          "ok": true,
+          "outputBytes": 69804,
+          "coldMs": 160,
+          "medianMs": 161,
+          "runsMs": [
+            161,
+            179,
+            153
           ]
         },
         {
@@ -69,12 +82,12 @@
           "label": "OxiPNG",
           "ok": true,
           "outputBytes": 763645,
-          "coldMs": 801,
-          "medianMs": 729,
+          "coldMs": 1081,
+          "medianMs": 906,
           "runsMs": [
-            729,
-            766,
-            625
+            849,
+            912,
+            906
           ]
         }
       ]
@@ -89,12 +102,12 @@
           "label": "WebP",
           "ok": true,
           "outputBytes": 3358,
-          "coldMs": 128,
-          "medianMs": 128,
+          "coldMs": 152,
+          "medianMs": 145,
           "runsMs": [
-            128,
-            129,
-            128
+            153,
+            144,
+            145
           ]
         },
         {
@@ -102,12 +115,12 @@
           "label": "AVIF",
           "ok": true,
           "outputBytes": 1228,
-          "coldMs": 392,
-          "medianMs": 321,
+          "coldMs": 513,
+          "medianMs": 448,
           "runsMs": [
-            321,
-            313,
-            329
+            465,
+            425,
+            448
           ]
         },
         {
@@ -115,12 +128,12 @@
           "label": "JPEG XL",
           "ok": true,
           "outputBytes": 6243,
-          "coldMs": 210,
-          "medianMs": 217,
+          "coldMs": 280,
+          "medianMs": 288,
           "runsMs": [
-            217,
-            217,
-            225
+            288,
+            280,
+            297
           ]
         },
         {
@@ -128,12 +141,25 @@
           "label": "MozJPEG",
           "ok": true,
           "outputBytes": 6778,
-          "coldMs": 129,
-          "medianMs": 120,
+          "coldMs": 145,
+          "medianMs": 137,
+          "runsMs": [
+            137,
+            130,
+            137
+          ]
+        },
+        {
+          "format": "jpegli",
+          "label": "jpegli",
+          "ok": true,
+          "outputBytes": 7974,
+          "coldMs": 128,
+          "medianMs": 121,
           "runsMs": [
             121,
-            120,
-            120
+            121,
+            121
           ]
         },
         {
@@ -141,12 +167,12 @@
           "label": "OxiPNG",
           "ok": true,
           "outputBytes": 1290,
-          "coldMs": 161,
-          "medianMs": 153,
+          "coldMs": 232,
+          "medianMs": 185,
           "runsMs": [
-            152,
-            169,
-            153
+            184,
+            193,
+            185
           ]
         }
       ]
@@ -161,12 +187,12 @@
           "label": "WebP",
           "ok": true,
           "outputBytes": 2896,
-          "coldMs": 2712,
-          "medianMs": 2272,
+          "coldMs": 4000,
+          "medianMs": 3762,
           "runsMs": [
-            2329,
-            2272,
-            2241
+            3762,
+            3858,
+            3457
           ]
         },
         {
@@ -174,12 +200,12 @@
           "label": "AVIF",
           "ok": true,
           "outputBytes": 2833,
-          "coldMs": 473,
-          "medianMs": 353,
+          "coldMs": 649,
+          "medianMs": 569,
           "runsMs": [
-            353,
-            362,
-            345
+            480,
+            569,
+            585
           ]
         },
         {
@@ -187,12 +213,12 @@
           "label": "JPEG XL",
           "ok": true,
           "outputBytes": 4747,
-          "coldMs": 393,
-          "medianMs": 241,
+          "coldMs": 473,
+          "medianMs": 305,
           "runsMs": [
-            260,
-            233,
-            241
+            304,
+            305,
+            313
           ]
         },
         {
@@ -200,12 +226,25 @@
           "label": "MozJPEG",
           "ok": true,
           "outputBytes": 6569,
-          "coldMs": 131,
-          "medianMs": 121,
+          "coldMs": 147,
+          "medianMs": 137,
           "runsMs": [
-            122,
+            137,
+            137,
+            139
+          ]
+        },
+        {
+          "format": "jpegli",
+          "label": "jpegli",
+          "ok": true,
+          "outputBytes": 7842,
+          "coldMs": 136,
+          "medianMs": 129,
+          "runsMs": [
+            129,
             121,
-            120
+            194
           ]
         },
         {
@@ -213,12 +252,12 @@
           "label": "OxiPNG",
           "ok": true,
           "outputBytes": 3042,
-          "coldMs": 305,
-          "medianMs": 193,
+          "coldMs": 386,
+          "medianMs": 233,
           "runsMs": [
-            193,
-            217,
-            192
+            233,
+            241,
+            232
           ]
         }
       ]
@@ -233,12 +272,12 @@
           "label": "WebP",
           "ok": true,
           "outputBytes": 2698,
-          "coldMs": 129,
-          "medianMs": 128,
+          "coldMs": 161,
+          "medianMs": 154,
           "runsMs": [
-            129,
-            128,
-            128
+            170,
+            152,
+            154
           ]
         },
         {
@@ -246,12 +285,12 @@
           "label": "AVIF",
           "ok": true,
           "outputBytes": 1190,
-          "coldMs": 184,
-          "medianMs": 177,
+          "coldMs": 234,
+          "medianMs": 233,
           "runsMs": [
-            177,
-            185,
-            177
+            241,
+            233,
+            224
           ]
         },
         {
@@ -259,12 +298,12 @@
           "label": "JPEG XL",
           "ok": true,
           "outputBytes": 2757,
-          "coldMs": 216,
-          "medianMs": 217,
+          "coldMs": 281,
+          "medianMs": 289,
           "runsMs": [
-            235,
-            217,
-            210
+            313,
+            267,
+            289
           ]
         },
         {
@@ -272,12 +311,25 @@
           "label": "MozJPEG",
           "ok": true,
           "outputBytes": 5978,
-          "coldMs": 120,
-          "medianMs": 120,
+          "coldMs": 137,
+          "medianMs": 137,
           "runsMs": [
-            120,
-            120,
-            120
+            137,
+            137,
+            185
+          ]
+        },
+        {
+          "format": "jpegli",
+          "label": "jpegli",
+          "ok": true,
+          "outputBytes": 6477,
+          "coldMs": 130,
+          "medianMs": 129,
+          "runsMs": [
+            121,
+            129,
+            129
           ]
         },
         {
@@ -285,12 +337,12 @@
           "label": "OxiPNG",
           "ok": true,
           "outputBytes": 44039,
-          "coldMs": 449,
-          "medianMs": 441,
+          "coldMs": 787,
+          "medianMs": 642,
           "runsMs": [
-            441,
-            457,
-            433
+            656,
+            642,
+            625
           ]
         }
       ]
@@ -305,12 +357,12 @@
           "label": "WebP",
           "ok": true,
           "outputBytes": 2674,
-          "coldMs": 145,
-          "medianMs": 130,
+          "coldMs": 161,
+          "medianMs": 145,
           "runsMs": [
-            129,
-            130,
-            137
+            162,
+            145,
+            145
           ]
         },
         {
@@ -318,12 +370,12 @@
           "label": "AVIF",
           "ok": true,
           "outputBytes": 1228,
-          "coldMs": 185,
-          "medianMs": 184,
+          "coldMs": 233,
+          "medianMs": 216,
           "runsMs": [
-            177,
-            185,
-            184
+            249,
+            216,
+            216
           ]
         },
         {
@@ -331,12 +383,12 @@
           "label": "JPEG XL",
           "ok": true,
           "outputBytes": 2811,
-          "coldMs": 217,
-          "medianMs": 217,
+          "coldMs": 291,
+          "medianMs": 265,
           "runsMs": [
-            209,
-            217,
-            224
+            289,
+            265,
+            264
           ]
         },
         {
@@ -344,12 +396,25 @@
           "label": "MozJPEG",
           "ok": true,
           "outputBytes": 5969,
-          "coldMs": 121,
+          "coldMs": 137,
+          "medianMs": 137,
+          "runsMs": [
+            137,
+            136,
+            138
+          ]
+        },
+        {
+          "format": "jpegli",
+          "label": "jpegli",
+          "ok": true,
+          "outputBytes": 6486,
+          "coldMs": 137,
           "medianMs": 121,
           "runsMs": [
+            128,
             121,
-            121,
-            144
+            121
           ]
         },
         {
@@ -357,12 +422,12 @@
           "label": "OxiPNG",
           "ok": true,
           "outputBytes": 61048,
-          "coldMs": 426,
-          "medianMs": 457,
+          "coldMs": 681,
+          "medianMs": 576,
           "runsMs": [
-            425,
-            490,
-            457
+            569,
+            576,
+            593
           ]
         }
       ]
@@ -377,12 +442,12 @@
           "label": "WebP",
           "ok": true,
           "outputBytes": 50014,
-          "coldMs": 162,
-          "medianMs": 178,
+          "coldMs": 193,
+          "medianMs": 193,
           "runsMs": [
-            185,
-            178,
-            177
+            201,
+            193,
+            193
           ]
         },
         {
@@ -390,12 +455,12 @@
           "label": "AVIF",
           "ok": true,
           "outputBytes": 6383,
-          "coldMs": 857,
-          "medianMs": 777,
+          "coldMs": 906,
+          "medianMs": 912,
           "runsMs": [
-            880,
-            777,
-            648
+            996,
+            912,
+            889
           ]
         },
         {
@@ -403,12 +468,12 @@
           "label": "JPEG XL",
           "ok": true,
           "outputBytes": 62209,
-          "coldMs": 481,
-          "medianMs": 257,
+          "coldMs": 496,
+          "medianMs": 322,
           "runsMs": [
-            273,
-            257,
-            249
+            322,
+            336,
+            313
           ]
         },
         {
@@ -417,11 +482,24 @@
           "ok": true,
           "outputBytes": 61927,
           "coldMs": 193,
-          "medianMs": 161,
+          "medianMs": 178,
           "runsMs": [
-            169,
-            154,
-            161
+            178,
+            193,
+            178
+          ]
+        },
+        {
+          "format": "jpegli",
+          "label": "jpegli",
+          "ok": true,
+          "outputBytes": 91673,
+          "coldMs": 145,
+          "medianMs": 128,
+          "runsMs": [
+            128,
+            129,
+            128
           ]
         },
         {
@@ -429,11 +507,11 @@
           "label": "OxiPNG",
           "ok": true,
           "outputBytes": 5344,
-          "coldMs": 176,
-          "medianMs": 144,
+          "coldMs": 192,
+          "medianMs": 154,
           "runsMs": [
-            137,
-            144,
+            154,
+            154,
             169
           ]
         }
@@ -449,12 +527,12 @@
           "label": "WebP",
           "ok": true,
           "outputBytes": 180628,
-          "coldMs": 224,
-          "medianMs": 224,
+          "coldMs": 281,
+          "medianMs": 288,
           "runsMs": [
-            225,
-            224,
-            217
+            288,
+            273,
+            289
           ]
         },
         {
@@ -462,12 +540,12 @@
           "label": "AVIF",
           "ok": true,
           "outputBytes": 141819,
-          "coldMs": 289,
-          "medianMs": 289,
+          "coldMs": 393,
+          "medianMs": 385,
           "runsMs": [
-            289,
-            291,
-            289
+            402,
+            372,
+            385
           ]
         },
         {
@@ -475,12 +553,12 @@
           "label": "JPEG XL",
           "ok": true,
           "outputBytes": 149563,
-          "coldMs": 241,
-          "medianMs": 225,
+          "coldMs": 297,
+          "medianMs": 290,
           "runsMs": [
-            257,
-            225,
-            225
+            290,
+            281,
+            305
           ]
         },
         {
@@ -488,12 +566,25 @@
           "label": "MozJPEG",
           "ok": true,
           "outputBytes": 123822,
-          "coldMs": 217,
-          "medianMs": 217,
+          "coldMs": 282,
+          "medianMs": 280,
           "runsMs": [
-            217,
-            217,
-            217
+            272,
+            281,
+            280
+          ]
+        },
+        {
+          "format": "jpegli",
+          "label": "jpegli",
+          "ok": true,
+          "outputBytes": 139900,
+          "coldMs": 154,
+          "medianMs": 145,
+          "runsMs": [
+            145,
+            145,
+            139
           ]
         },
         {
@@ -501,12 +592,12 @@
           "label": "OxiPNG",
           "ok": true,
           "outputBytes": 787072,
-          "coldMs": 217,
-          "medianMs": 169,
+          "coldMs": 265,
+          "medianMs": 193,
           "runsMs": [
-            169,
-            170,
-            169
+            193,
+            193,
+            217
           ]
         }
       ]
@@ -521,12 +612,12 @@
           "label": "WebP",
           "ok": true,
           "outputBytes": 14976,
-          "coldMs": 225,
-          "medianMs": 184,
+          "coldMs": 218,
+          "medianMs": 244,
           "runsMs": [
-            185,
-            184,
-            184
+            244,
+            331,
+            241
           ]
         },
         {
@@ -534,12 +625,12 @@
           "label": "AVIF",
           "ok": true,
           "outputBytes": 3720,
-          "coldMs": 1098,
-          "medianMs": 1234,
+          "coldMs": 1601,
+          "medianMs": 1624,
           "runsMs": [
-            1297,
-            1212,
-            1234
+            1577,
+            1624,
+            1625
           ]
         },
         {
@@ -547,12 +638,12 @@
           "label": "JPEG XL",
           "ok": true,
           "outputBytes": 13030,
-          "coldMs": 921,
-          "medianMs": 560,
+          "coldMs": 906,
+          "medianMs": 674,
           "runsMs": [
-            560,
-            547,
-            609
+            667,
+            674,
+            674
           ]
         },
         {
@@ -560,12 +651,25 @@
           "label": "MozJPEG",
           "ok": true,
           "outputBytes": 32782,
-          "coldMs": 208,
-          "medianMs": 193,
+          "coldMs": 219,
+          "medianMs": 209,
           "runsMs": [
-            195,
-            170,
-            193
+            209,
+            209,
+            217
+          ]
+        },
+        {
+          "format": "jpegli",
+          "label": "jpegli",
+          "ok": true,
+          "outputBytes": 37496,
+          "coldMs": 178,
+          "medianMs": 160,
+          "runsMs": [
+            161,
+            160,
+            160
           ]
         },
         {
@@ -573,12 +677,12 @@
           "label": "OxiPNG",
           "ok": true,
           "outputBytes": 5860,
-          "coldMs": 442,
-          "medianMs": 273,
+          "coldMs": 504,
+          "medianMs": 353,
           "runsMs": [
-            273,
-            259,
-            320
+            353,
+            329,
+            500
           ]
         }
       ]
@@ -594,9 +698,9 @@
           "ok": true,
           "outputBytes": 348038,
           "coldMs": 0,
-          "medianMs": 1781,
+          "medianMs": 2019,
           "runsMs": [
-            1781
+            2019
           ]
         },
         {
@@ -605,9 +709,9 @@
           "ok": true,
           "outputBytes": 130766,
           "coldMs": 0,
-          "medianMs": 12776,
+          "medianMs": 19665,
           "runsMs": [
-            12776
+            19665
           ]
         },
         {
@@ -616,9 +720,9 @@
           "ok": true,
           "outputBytes": 385858,
           "coldMs": 0,
-          "medianMs": 6282,
+          "medianMs": 9274,
           "runsMs": [
-            6282
+            9274
           ]
         },
         {
@@ -627,9 +731,20 @@
           "ok": true,
           "outputBytes": 583978,
           "coldMs": 0,
-          "medianMs": 1031,
+          "medianMs": 1461,
           "runsMs": [
-            1031
+            1461
+          ]
+        },
+        {
+          "format": "jpegli",
+          "label": "jpegli",
+          "ok": true,
+          "outputBytes": 540531,
+          "coldMs": 0,
+          "medianMs": 961,
+          "runsMs": [
+            961
           ]
         },
         {
@@ -638,9 +753,9 @@
           "ok": true,
           "outputBytes": 6363066,
           "coldMs": 0,
-          "medianMs": 14958,
+          "medianMs": 23111,
           "runsMs": [
-            14958
+            23111
           ]
         }
       ]

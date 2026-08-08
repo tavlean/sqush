@@ -57,10 +57,6 @@ batch landed on 2026-08-08, so every item below is unblocked; run them in this
 order. Each spec is executable by an agent with no access to the deciding
 conversation.
 
-- [ ] **jpegli.** A libjxl-based encoder producing standard JPEG at roughly 30%
-      better compression, and the highest-return new codec available. The spec
-      doubles as a reusable add-a-codec touch list.
-      [specs/2026-07-11-jpegli-codec.md](specs/2026-07-11-jpegli-codec.md)
 - [ ] **Lossless JPEG to JXL transcode.** Blocked on the fast-tracked libjxl
       upgrade in Now.
       [specs/2026-07-11-jpeg-to-jxl-transcode.md](specs/2026-07-11-jpeg-to-jxl-transcode.md)
@@ -174,6 +170,12 @@ conversation.
 
 Newest first. The narrative, with the gotchas, is in [worklog.md](worklog.md).
 
+- [x] **jpegli** (2026-08-09): new encode-only codec from google/jpegli,
+      shipped as "JPEG (jpegli)" beside MozJPEG with no default change. Faster
+      than MozJPEG on every bench fixture and about 7 percent smaller on photos
+      at the shipped defaults; the equal-quality ladder study that decides the
+      default JPEG encoder is future work.
+      [specs/2026-07-11-jpegli-codec.md](specs/2026-07-11-jpegli-codec.md)
 - [x] **libjxl v0.8.5 to v0.12.0** (2026-08-08, fast-tracked and landed the
       same day): encoder rewritten onto the public C API (the internal-API wall
       both upstream anchors failed to cross; zero internal headers remain), a

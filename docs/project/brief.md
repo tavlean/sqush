@@ -95,6 +95,12 @@ the multi-threaded runtime is verified in Chromium and WebKit. Gates are green:
 
 Shipped since then, newest first:
 
+- **jpegli (2026-08-09).** A new encode-only codec from google/jpegli, shipped
+  as "JPEG (jpegli)" beside MozJPEG with no default change: standard JPEG
+  every decoder reads, from the tuned encoder extracted out of libjxl. Faster
+  than MozJPEG on every bench fixture and about 7 percent smaller on photos at
+  the shipped defaults. Same day: SvelteKit 2.61 to 2.70.2 plus nanoid and
+  postcss bumps turned the CI audit gate green.
 - **libjxl v0.12.0 (2026-08-08).** The encoder rewritten onto the public C API
   (the internal-API wall is gone; zero internal headers remain), a new
   fidelity-calibrated quality curve, RESAMPLING pinned so the quality slider
@@ -151,9 +157,9 @@ later phase. Do not delete it.
 3. **Pick an editor re-style direction** from the three lab skins, then promote.
 4. **Keyboard control**: a Figma-style single-key proposal is ready at
    [../keyboard-control.md](../keyboard-control.md) with five open decisions.
-5. **The 2026-07 codec batch**: jpegli, JPEG to JXL transcode, auto-quality
-   mode. All specced, and unblocked since the libjxl 0.12 upgrade landed on
-   2026-08-08.
+5. **The 2026-07 codec batch**: JPEG to JXL transcode and auto-quality mode
+   remain, both specced and unblocked (libjxl 0.12 landed 2026-08-08, jpegli
+   2026-08-09).
 
 Sequencing (decided 2026-08-08): the UI and UX tracks lead. The libjxl 0.12
 upgrade was fast-tracked out of the codec batch because it blocked jpegli, the
