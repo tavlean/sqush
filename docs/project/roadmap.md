@@ -26,9 +26,11 @@ engineering tracks in one list, because they compete for the same time.
 - [ ] **libjxl v0.8.5 to v0.12.0, fast-tracked (2026-08-08).** Pulled out of
       the codec batch because it blocks jpegli, the JPEG to JXL transcode, and
       the auto-quality engine, and through auto-quality the whole agent
-      surface. A public-API encoder rewrite, on an isolated branch (the one
-      standing exception to committing on `main`), because the old pin is an
-      internal-API wall.
+      surface. Implemented the same day on branch `codec/libjxl-0-12` (all
+      gates pass except the output-size criterion, which fails for an upstream
+      reason: accurate distance targeting makes same-slider output higher
+      fidelity and larger). The merge is gated on one product decision, the
+      quality-to-distance mapping; the spec's Outcome section has the numbers.
       [specs/2026-07-11-libjxl-0-12-upgrade.md](specs/2026-07-11-libjxl-0-12-upgrade.md)
 - [ ] **SVG benchmark (stage S8).** The competitive comparison against nano and
       ImageOptim over the stratified corpus in `benchmarks/svg/`. Everything else

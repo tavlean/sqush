@@ -1,6 +1,9 @@
 # Spec: libjxl v0.8.5 → v0.12.0 (encoder rewrite onto the public C API)
 
-Last updated: 2026-07-11. Status: **not started.**
+Last updated: 2026-08-08. Status: **implemented on branch `codec/libjxl-0-12`**
+(commit 97968d6c); merge gated by the quality-mapping decision in the Outcome
+section at the end. Acceptance criteria 1, 2, 3, 5, 6 pass; criterion 4 fails
+for an upstream reason, not a build defect.
 Origin: maintainer decision 2026-07-11. Supersedes the "Path A stops at 0.8.5"
 outcome in [codec-upgrade-runbooks.md](../../codec-upgrade-runbooks.md) §jxl —
 this IS that runbook's "Path B", now decided. Prerequisite for
@@ -261,6 +264,28 @@ Work in an isolated branch — this is the one codec both upstreams failed to
 upgrade.
 
 Spec: `docs/project/specs/2026-07-11-libjxl-0-12-upgrade.md`
+
+## Outcome (2026-08-08)
+
+Executed on branch `codec/libjxl-0-12` (commit 97968d6c). Check, unit, and
+full e2e pass in both browsers including the threading spec; lossless
+round-trip is pixel-identical; every non-JXL codec is byte-identical against
+a HEAD control run (the committed `benchmarks/baseline.json` is stale for
+WebP and AVIF sizes; see docs/gotchas.md).
+
+Criterion 4 fails because libjxl 0.10 to 0.12 made distance targeting
+accurate: at the same slider position the encoder now actually reaches the
+requested butteraugli distance, so lossy output is higher fidelity and 3 to
+70 percent larger (illustration at quality 75: 4915 bytes at 41.88 dB on
+v0.8.5, 6401 bytes at 43.11 dB on v0.12.0). The wrapper was verified faithful
+against natively built cjxl from the same checkout (within 3 bytes). The
+guardrail "do not retune the quality mapping" and criterion 4 "size must not
+grow" cannot both hold; per the guardrail the mapping was left untouched.
+
+Open decision that gates the merge: retune the quality-to-distance mapping to
+restore the old size-per-slider behavior, or accept the new
+higher-fidelity-but-larger meaning of each slider position. Also flagged for
+follow-up: encoder artifact size grew roughly 0.9 to 1.1 MB per artifact.
 
 Handoff:
 `codex exec -C /Users/tav/Development/Tavlean/Frisp -s workspace-write -m gpt-5.6-sol -c model_reasoning_effort="medium" "Implement docs/project/specs/2026-07-11-libjxl-0-12-upgrade.md exactly. Read docs/codec-build-notes.md and docs/codec-upgrade-runbooks.md (jxl section) first. Follow the guardrails. Do not commit or push. Report PASS or FAIL against each acceptance criterion."`
