@@ -1,6 +1,6 @@
 # Frisp docs
 
-Last updated: 2026-07-25.
+Last updated: 2026-08-08.
 
 The index of every doc, and the discipline that keeps them worth reading. Start
 with [project/brief.md](project/brief.md): what Frisp is, where it stands, and
@@ -65,7 +65,7 @@ invalidated. A task is not complete while a doc it touched is stale.
 | [codec-options-model.md](codec-options-model.md) | The proposed unified codec-options model, plus the sequencing analysis that puts a minimal slice before bulk Phase 3. |
 | [new-codec-investigation.md](new-codec-investigation.md) | Candidates researched but not added. HEIC is the one still undecided. |
 | [svg-optimization-analysis.md](svg-optimization-analysis.md) | The SVG vector-lane analysis and the competitive findings against nano and ImageOptim. |
-| [frisp-cli-analysis.md](frisp-cli-analysis.md) | Strategic analysis for a possible CLI reusing the codecs and engines. Decision pending. |
+| [frisp-cli-analysis.md](frisp-cli-analysis.md) | Strategic analysis and design for the headless core and CLI. Direction ratified 2026-08-08; two design questions open. |
 
 ## Product and design
 

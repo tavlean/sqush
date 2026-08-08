@@ -1,8 +1,11 @@
 # Frisp CLI — strategic analysis (decision material)
 
-Last updated: 2026-07-11 (later). Status: **maintainer agreed with the
-direction 2026-07-11** (scope notes in §3a below); still no spec — the two
-design questions in §5 come first. The npm name: unscoped `frisp` is
+Last updated: 2026-08-08. Status: **direction ratified as fundamental by the
+2026-08-08 product thesis** in [project/brief.md](project/brief.md): agents
+are a primary interface, so the headless surface is core product rather than
+the "cheap upside bet" this analysis originally framed it as. Earlier:
+maintainer agreed with the direction 2026-07-11 (scope notes in §3a below).
+Still no spec — the two design questions in §5 come first. The npm name: unscoped `frisp` is
 **blocked by npm's typosquat filter** (403 "too similar to existing package
 fresh"); a support ticket requesting an exception was submitted 2026-07-11
 from the maintainer's account (confirmation banner received). The placeholder

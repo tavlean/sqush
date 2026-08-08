@@ -1,6 +1,6 @@
 # Project brief: Frisp
 
-Last updated: 2026-07-25.
+Last updated: 2026-08-08.
 
 Intent, where things stand, and what is still undecided. Read this and
 [../README.md](../README.md) (the docs index) before starting work.
@@ -30,6 +30,31 @@ Brand identity lives in exactly one place, `src/shared/brand.ts`: `APP_NAME`
 as the CLI, package, domain, and filenames. Every internal identifier is
 deliberately brand-free, so a future rename is a small task rather than a
 project. Procedure: [../project-identity.md](../project-identity.md).
+
+## Product thesis (maintainer, 2026-08-08)
+
+Frisp is one optimization capability with two front doors, and the right door
+depends on who is making the format and quality decisions:
+
+- **An intelligence decides.** AI agents are increasingly the interface, and
+  Frisp must be usable invisibly by them: headless and scriptable, running
+  wherever the images already live. Locally through the CLI, programmatically
+  as a library, and on the user's own servers, CI, or workers. Agents state
+  targets ("visually lossless, smallest format that fits"); Frisp picks the
+  knobs and verifies the outcome with a metric.
+- **A human decides.** When a person picks the format and quality, Frisp is a
+  beautiful, frictionless UI that makes the decision enjoyable, for single
+  images and for bulk. That is frisp.app, and eventually thin native shells
+  around the same build.
+
+Both doors share one engine: the codecs, the pure bulk engine, and the
+auto-quality brain. Integrations expose one or both doors; the planned Raycast
+extension is the model case, with an automatic headless command and an
+open-in-the-app handoff.
+
+The privacy story holds in both worlds and gains a sharper wording: Frisp
+never hosts a processing endpoint. The headless core travels to where the
+images live; images never travel to Frisp.
 
 ## Architecture in brief
 
@@ -114,6 +139,10 @@ later phase. Do not delete it.
 5. **The 2026-07 codec batch**: libjxl 0.12 upgrade, jpegli, JPEG to JXL
    transcode (blocked on the upgrade), auto-quality mode. All specced.
 
+The 2026-08-08 thesis adds the agent-surface track: the auto-quality engine,
+then the headless core and CLI v1, then the Raycast automatic command. How it
+interleaves with items 2 to 5 is the maintainer's next sequencing call.
+
 The full phased plan with status is [roadmap.md](roadmap.md).
 
 ## Hard open questions
@@ -125,23 +154,28 @@ The full phased plan with status is [roadmap.md](roadmap.md).
   fixed dimensions.
 - **Memory ceiling for N images.** Decode-on-demand, thumbnail strategy, LRU.
 - **Whether the codec-options-model refactor precedes the override UI.**
-- **The Frisp CLI.** Analysis and a recommendation exist at
-  [../frisp-cli-analysis.md](../frisp-cli-analysis.md); the go decision and two
-  design questions are open.
+- **The agent surface.** The go decision was settled by the 2026-08-08 product
+  thesis; [../frisp-cli-analysis.md](../frisp-cli-analysis.md) holds the design.
+  Still open: the Node decode path, the format-race policy, whether
+  auto-quality moves ahead of jpegli in the codec batch, and how far the stack
+  goes beyond the CLI (library export for servers and workers, MCP, skill).
 - **HEIC.** Still undecided in
   [../new-codec-investigation.md](../new-codec-investigation.md).
 
 ## Constraints and non-goals
 
-- No server-side processing and no upload paths, ever. Offline must keep working.
+- The hosted app never uploads and Frisp never hosts a processing endpoint.
+  Offline must keep working. The headless core running on a user's own server,
+  worker, or CI is in scope: the tool moves to the images, never the reverse.
 - The single-image workflow is protected. Bulk must never degrade it.
 - The engine stays framework-neutral and pure. UI wraps it and never forks
   `EditorSession`.
 - Never store live blobs or object URLs in localStorage; snapshots are
   metadata-only. The `app:settings:v3` schema is frozen.
-- A native wrapper shipping native codec binaries is the only route to true
-  native-CPU speed, but it loses the zero-install advantage and is a separate
-  product. Not planned.
+- Desktop shells are direction, not scheduled work: an Electron shell (macOS
+  first, maintainer preference 2026-08-08) around the same static build, for
+  OS integration, once PWA polish hits its ceiling. A separate product
+  shipping native codec binaries for CPU speed is still not planned.
 
 ## Pointers
 

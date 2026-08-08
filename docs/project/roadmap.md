@@ -1,6 +1,6 @@
 # Roadmap
 
-Last updated: 2026-07-25.
+Last updated: 2026-08-08.
 
 The plan and its status, highest priority first. Product direction and
 engineering tracks in one list, because they compete for the same time.
@@ -69,7 +69,9 @@ this order.
 - [ ] **Auto-quality mode.** A one-shot Auto action on every lossy panel that
       bisects quality until the output meets an SSIMULACRA2 target, powered by a
       new `codecs/ssimulacra2` module. This is the app-level intelligence layer on
-      top of the codecs, and the planned engine of a possible CLI.
+      top of the codecs, and per the 2026-08-08 product thesis in
+      [brief.md](brief.md) the shared brain of both product surfaces. Whether it
+      moves ahead of jpegli and the transcode is an open sequencing call.
       [specs/2026-07-11-auto-quality-mode.md](specs/2026-07-11-auto-quality-mode.md)
 - [ ] **Fold in rename Phase B** while codecs are being rebuilt anyway: the
       `squoosh_*` crate names are baked into the WASM import strings and can only
@@ -84,12 +86,21 @@ this order.
       the same substrate, which is why bulk comes first. Use fast presets for the
       compare pass and a full-quality encode once the user commits, with
       concurrency bounded by `navigator.hardwareConcurrency`.
-- [ ] **Frisp CLI.** Target-driven, metric-verified, agent-first, reusing the
-      existing `*_node_*` codec artifacts, the pure bulk engine, and the
-      auto-quality engine. The maintainer agreed with the direction on 2026-07-11
-      and the `frisp` npm name is held by a placeholder at `packages/cli/`. Two
-      design questions (the Node decode path, format-race policy) and the go
-      decision come before a spec. [../frisp-cli-analysis.md](../frisp-cli-analysis.md)
+- [ ] **Frisp headless core and CLI.** Target-driven, metric-verified,
+      agent-first, reusing the existing `*_node_*` codec artifacts, the pure
+      bulk engine, and the auto-quality engine. The go decision was settled by
+      the 2026-08-08 product thesis in [brief.md](brief.md): agents are a
+      primary interface, so the headless surface is core product, not a side
+      bet. Ship it as a library plus a thin CLI (on servers, workers, and CI
+      the library is the interface), with agent-grade help, NDJSON, and an MCP
+      adapter per the analysis. Two design questions (the Node decode path,
+      the format-race policy) come before a spec.
+      [../frisp-cli-analysis.md](../frisp-cli-analysis.md)
+- [ ] **Raycast extension.** One command per door: "Optimize with Frisp" runs
+      the headless core over the Finder selection with auto targets and no
+      window; "Open in Frisp" hands files to the app through the
+      `web+frisp://` protocol handler. The extension stays thin and depends on
+      the headless core above.
 - [ ] **Remaining first-principles workstreams**, all fully designed in
       [specs/2026-07-07-first-principles-execution.md](specs/2026-07-07-first-principles-execution.md):
       a composite worker op, worker-side decode, and the `src/engine` rename. The
@@ -100,11 +111,17 @@ this order.
 - [ ] **Bulk export evolution.** Duplicate-safe naming templates, suffix and
       extension rules, presets for common WebP and AVIF workflows, warnings for
       larger output and memory-heavy batches, and summary totals.
-- [ ] **PWA, import, and persistence.** Installable polish, an OS share target for
-      incoming images, a target-file-size mode, metadata stripping controls, and
-      session files for saving a batch plan. IndexedDB-backed restore only if the
-      product genuinely needs persisted source blobs, and never live blobs or
-      object URLs in localStorage.
+- [ ] **PWA and OS-integration polish.** The native-gap closers, each of which
+      also carries unchanged into a future Electron shell: manifest
+      `file_handlers` (installed Chromium PWAs register with Finder as real
+      "Open With" targets), `launch_handler: focus-existing`, a `web+frisp://`
+      protocol handler (designed once; it is also the Raycast open-in-app
+      handoff), persisted directory handles for recent folders and bulk
+      write-back, and Window Controls Overlay. Plus the earlier scope: an OS
+      share target for incoming images, a target-file-size mode, metadata
+      stripping controls, and session files for saving a batch plan.
+      IndexedDB-backed restore only if the product genuinely needs persisted
+      source blobs, and never live blobs or object URLs in localStorage.
 - [ ] **UI polish.** A mobile multi-panel accordion if the responsive editor
       proves insufficient, visual difference metrics, stronger preset and warning
       language, and advanced codec grouping once the format focus is settled.
@@ -126,9 +143,14 @@ this order.
 - **WebP 2 is never coming back.** It was removed in 2026-06 because it is
   permanently experimental with a non-final bitstream and no browser decodes it.
   Do not reintroduce it for parity.
-- **A native wrapper** shipping native codec binaries is the only path to true
-  native-CPU performance, but it loses the zero-install browser advantage and is a
-  different product. Not planned; noted so nobody re-derives it.
+- **Desktop shells are direction, not scheduled work.** An Electron shell
+  (macOS first, maintainer preference 2026-08-08) around the same static build
+  is the intended path to Services-grade OS integration once the PWA polish
+  above hits its ceiling: a custom protocol with COOP/COEP injected so the
+  threaded codecs keep multi-core, sandboxed renderer, no Node in the
+  renderer, and the PWA build as the single source of truth. A separate
+  product shipping native codec binaries for CPU speed is still not planned;
+  noted so nobody re-derives it.
 - **Branch `claude/clever-swartz-2b34ed` is kept, not merged.** Its experiments
   (compare-size chips with a best badge, fit-under-target binary search, shared
   Adjust state) are idea material for a later phase. Do not delete it.
