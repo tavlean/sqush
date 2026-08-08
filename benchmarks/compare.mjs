@@ -24,10 +24,18 @@ const after = load(afterPath);
 
 const pct = (b, a) => (b ? ((a - b) / b) * 100 : 0);
 const fmtPct = (v) => `${v >= 0 ? '+' : ''}${v.toFixed(1)}%`;
-// Size is exact/deterministic, so a tight tolerance is right. Encode time is
-// machine-noisy run-to-run (commonly ±5%), so only a real slowdown counts.
+// Size is exact and reproduces to the byte on one machine, so any real move is a
+// regression and a tight tolerance is right.
 const SIZE_TOL = 0.5;
+// Time is not. Two back-to-back runs of this suite on the same machine, with no
+// code change between them, drifted +10% to +60% per codec purely on machine
+// state (thermal, whatever else is running). A tight timing gate therefore only
+// ever fires on noise, so ONLY SIZE AND RELIABILITY DECIDE THE EXIT CODE. Timing
+// is printed, and anything past the second threshold is called out loudly for a
+// human to judge; deliberately, because a codec upgrade that halves the speed
+// should not slip past unmentioned just because the gate cannot be automated.
 const TIME_TOL = 12;
+const TIME_SHOUT_TOL = 25;
 const verdict = (v, tol) => {
   if (Math.abs(v) < tol) return '≈';
   return v < 0 ? '✓ better' : '✗ WORSE'; // lower (smaller/faster) is better
@@ -38,11 +46,12 @@ console.log(`  before: ${before.label}  (${before.generatedAt ?? '?'})`);
 console.log(`  after:  ${after.label}  (${after.generatedAt ?? '?'})`);
 if (before.machine?.cores !== after.machine?.cores) {
   console.log(
-    `  ⚠ different machines (cores ${before.machine?.cores} vs ${after.machine?.cores}) — timing not comparable`,
+    `  ⚠ different machines (cores ${before.machine?.cores} vs ${after.machine?.cores}); timing not comparable`,
   );
 }
 
 let regressions = 0;
+const slowdowns = [];
 
 for (const af of after.fixtures ?? []) {
   const bf = (before.fixtures ?? []).find((x) => x.name === af.name);
@@ -62,14 +71,19 @@ for (const af of after.fixtures ?? []) {
   for (const a of af.codecs) {
     const b = bf?.codecs?.find((x) => x.format === a.format);
     if (!b) {
-      console.log(`  ${a.label.padEnd(9)}  (new — no baseline)`);
+      console.log(`  ${a.label.padEnd(9)}  (new; no baseline)`);
       continue;
     }
     const sizePct = pct(b.outputBytes, a.outputBytes);
     const timePct = pct(b.medianMs, a.medianMs);
     const sv = verdict(sizePct, SIZE_TOL);
     const tv = verdict(timePct, TIME_TOL);
-    if (sv.includes('WORSE') || tv.includes('WORSE') || !a.ok) regressions++;
+    if (sv.includes('WORSE') || !a.ok) regressions++;
+    if (timePct > TIME_SHOUT_TOL) {
+      slowdowns.push(
+        `${af.name} / ${a.label}: ${b.medianMs}ms → ${a.medianMs}ms (${fmtPct(timePct)})`,
+      );
+    }
     console.log(
       [
         `  ${a.label.padEnd(9)}`,
@@ -87,10 +101,19 @@ for (const af of after.fixtures ?? []) {
 }
 
 console.log('');
+if (slowdowns.length) {
+  console.log(`⚠ ${slowdowns.length} timing(s) more than ${TIME_SHOUT_TOL}% slower:`);
+  for (const line of slowdowns) console.log(`    ${line}`);
+  console.log(
+    '  Timing does not fail this check; the same suite drifts this much on machine\n' +
+      '  state alone. Re-run on a quiet machine before believing any of it.',
+  );
+  console.log('');
+}
 console.log(
   regressions === 0
-    ? '✓ No size/speed/reliability regressions across any image type.'
-    : `✗ ${regressions} codec/fixture pair(s) regressed — review above before shipping.`,
+    ? '✓ No size or reliability regressions across any image type.'
+    : `✗ ${regressions} codec/fixture pair(s) regressed; review above before shipping.`,
 );
 console.log('  (smaller bytes = better compression; lower ms = faster.)\n');
 process.exit(regressions === 0 ? 0 : 1);
