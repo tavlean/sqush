@@ -52,6 +52,13 @@ auto-quality brain. Integrations expose one or both doors; the planned Raycast
 extension is the model case, with an automatic headless command and an
 open-in-the-app handoff.
 
+Priority between the doors (2026-08-08): the human surface leads. The first
+focus is making the UI and UX absolutely amazing; the agent surface is never
+deferred but never takes over, advancing in parallel where the work does not
+compete for the same time. When choosing agent surfaces (CLI, MCP, skills,
+harness plugins), prefer the most universal one, so there are fewer surfaces
+to maintain.
+
 The privacy story holds in both worlds and gains a sharper wording: Frisp
 never hosts a processing endpoint. The headless core travels to where the
 images live; images never travel to Frisp.
@@ -139,9 +146,12 @@ later phase. Do not delete it.
 5. **The 2026-07 codec batch**: libjxl 0.12 upgrade, jpegli, JPEG to JXL
    transcode (blocked on the upgrade), auto-quality mode. All specced.
 
-The 2026-08-08 thesis adds the agent-surface track: the auto-quality engine,
-then the headless core and CLI v1, then the Raycast automatic command. How it
-interleaves with items 2 to 5 is the maintainer's next sequencing call.
+Sequencing (decided 2026-08-08): the UI and UX tracks lead. The libjxl 0.12
+upgrade is fast-tracked out of the codec batch because it blocks jpegli, the
+transcode, the auto-quality engine, and through auto-quality everything
+agent-facing; it runs now, in parallel with the UI work. The rest of the agent
+track (headless core, CLI, Raycast) follows without displacing the human
+surface.
 
 The full phased plan with status is [roadmap.md](roadmap.md).
 
@@ -156,9 +166,9 @@ The full phased plan with status is [roadmap.md](roadmap.md).
 - **Whether the codec-options-model refactor precedes the override UI.**
 - **The agent surface.** The go decision was settled by the 2026-08-08 product
   thesis; [../frisp-cli-analysis.md](../frisp-cli-analysis.md) holds the design.
-  Still open: the Node decode path, the format-race policy, whether
-  auto-quality moves ahead of jpegli in the codec batch, and how far the stack
-  goes beyond the CLI (library export for servers and workers, MCP, skill).
+  Still open: the Node decode path and the format-race policy. Surface choice
+  follows the 2026-08-08 universality preference: the fewest surfaces that
+  reach the most agents.
 - **HEIC.** Still undecided in
   [../new-codec-investigation.md](../new-codec-investigation.md).
 

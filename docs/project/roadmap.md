@@ -23,12 +23,19 @@ engineering tracks in one list, because they compete for the same time.
 
 ## Now
 
+- [ ] **libjxl v0.8.5 to v0.12.0, fast-tracked (2026-08-08).** Pulled out of
+      the codec batch because it blocks jpegli, the JPEG to JXL transcode, and
+      the auto-quality engine, and through auto-quality the whole agent
+      surface. A public-API encoder rewrite, on an isolated branch (the one
+      standing exception to committing on `main`), because the old pin is an
+      internal-API wall.
+      [specs/2026-07-11-libjxl-0-12-upgrade.md](specs/2026-07-11-libjxl-0-12-upgrade.md)
 - [ ] **SVG benchmark (stage S8).** The competitive comparison against nano and
       ImageOptim over the stratified corpus in `benchmarks/svg/`. Everything else
       in the SVG track shipped on 2026-07-12. The protocol is self-contained in
       [specs/2026-07-12-svg-optimization.md](specs/2026-07-12-svg-optimization.md),
-      so this needs no design work, only execution. Highest priority because the
-      maintainer optimizes SVGs daily.
+      so this needs no design work, only execution. The maintainer optimizes
+      SVGs daily, which keeps this in Now.
 
 ## Next
 
@@ -52,26 +59,23 @@ engineering tracks in one list, because they compete for the same time.
 
 ## The 2026-07 codec batch
 
-Maintainer-approved on 2026-07-11, sequenced behind bulk Phase 3. Each spec is
-executable by an agent with no access to the deciding conversation. Run them in
-this order.
+Maintainer-approved on 2026-07-11. The libjxl upgrade was fast-tracked into
+Now on 2026-08-08 because everything below depends on it; the remaining items
+run in this order once it lands. Each spec is executable by an agent with no
+access to the deciding conversation.
 
-- [ ] **libjxl v0.8.5 to v0.12.0.** A public-API encoder rewrite, on an isolated
-      branch (the one standing exception to committing on `main`), because the old
-      pin is an internal-API wall.
-      [specs/2026-07-11-libjxl-0-12-upgrade.md](specs/2026-07-11-libjxl-0-12-upgrade.md)
 - [ ] **jpegli.** A libjxl-based encoder producing standard JPEG at roughly 30%
       better compression, and the highest-return new codec available. The spec
       doubles as a reusable add-a-codec touch list.
       [specs/2026-07-11-jpegli-codec.md](specs/2026-07-11-jpegli-codec.md)
-- [ ] **Lossless JPEG to JXL transcode.** Blocked on the upgrade above.
+- [ ] **Lossless JPEG to JXL transcode.** Blocked on the fast-tracked libjxl
+      upgrade in Now.
       [specs/2026-07-11-jpeg-to-jxl-transcode.md](specs/2026-07-11-jpeg-to-jxl-transcode.md)
 - [ ] **Auto-quality mode.** A one-shot Auto action on every lossy panel that
       bisects quality until the output meets an SSIMULACRA2 target, powered by a
       new `codecs/ssimulacra2` module. This is the app-level intelligence layer on
       top of the codecs, and per the 2026-08-08 product thesis in
-      [brief.md](brief.md) the shared brain of both product surfaces. Whether it
-      moves ahead of jpegli and the transcode is an open sequencing call.
+      [brief.md](brief.md) the shared brain of both product surfaces.
       [specs/2026-07-11-auto-quality-mode.md](specs/2026-07-11-auto-quality-mode.md)
 - [ ] **Fold in rename Phase B** while codecs are being rebuilt anyway: the
       `squoosh_*` crate names are baked into the WASM import strings and can only
@@ -93,8 +97,11 @@ this order.
       primary interface, so the headless surface is core product, not a side
       bet. Ship it as a library plus a thin CLI (on servers, workers, and CI
       the library is the interface), with agent-grade help, NDJSON, and an MCP
-      adapter per the analysis. Two design questions (the Node decode path,
-      the format-race policy) come before a spec.
+      adapter per the analysis. Surface policy (maintainer, 2026-08-08):
+      prefer the most universal surface that reaches the most agents, and add
+      adapters only where they clearly pay for themselves, keeping the
+      maintained surface count low. Two design questions (the Node decode
+      path, the format-race policy) come before a spec.
       [../frisp-cli-analysis.md](../frisp-cli-analysis.md)
 - [ ] **Raycast extension.** One command per door: "Optimize with Frisp" runs
       the headless core over the Finder selection with auto targets and no
