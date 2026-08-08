@@ -1,6 +1,8 @@
 # Spec: jpegli encoder — new codec
 
-Last updated: 2026-07-11. Status: **not started.**
+Last updated: 2026-08-09. Status: **in execution since 2026-08-09** (build
+agent in an isolated worktree; unblocked by the libjxl v0.12.0 landing on
+2026-08-08).
 Origin: maintainer decision 2026-07-11. Supersedes the "SKIP now" verdict in
 [new-codec-investigation.md](../../new-codec-investigation.md) §3 — both of that
 verdict's blockers are gone: the emsdk toolchain has been installed and proven
