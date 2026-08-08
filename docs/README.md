@@ -31,8 +31,6 @@ invalidated. A task is not complete while a doc it touched is stale.
   the old way remains.
 - **Nothing conversational.** Every doc has to work for someone arriving cold.
 - **Add a new doc to this index in the same change.**
-- Doc edits are drafts for review. `Status: ACCEPTED by Tavlean on YYYY-MM-DD` is
-  the only marker that makes something ratified.
 
 ## Orientation
 

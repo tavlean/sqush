@@ -12,7 +12,7 @@ Match the surrounding code by default. When the surroundings are mixed or absent
 ## Hard rules (every task; all how-to detail lives in docs/)
 
 - Never push. Commit checkpoint-sized changes regularly, straight to `main` unless the change is risky enough to need a branch.
-- Doc edits are drafts for review, never self-ratified. One source of truth per topic.
+- One source of truth per topic.
 - Never introduce server-side image processing or an upload path. Offline must keep working after first load.
 - Never delete or move anything under `codecs/`, the codec asset manifest, the workers, or the WASM assets without proving the build AND runtime consequences. A green build is not sufficient; only the e2e suite catches a broken WASM import name.
 - Never store live blobs or object URLs in localStorage. The `app:settings:v3` wire format is frozen.
