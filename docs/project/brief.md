@@ -65,7 +65,7 @@ images live; images never travel to Frisp.
 
 ## Architecture in brief
 
-- SvelteKit 2.61 + Svelte 5.55 runes, Vite 8, adapter-static, `ssr = false`.
+- SvelteKit 2.70 + Svelte 5.55 runes, Vite 8, adapter-static, `ssr = false`.
 - Editor state: `src/lib/editor/editor-session.svelte.ts` (`EditorSession` plus
   two `SideRuntime`s), `editor-history.svelte.ts` for undo/redo,
   `src/lib/result-cache.ts` (LRU signature to result), `settings-storage.ts` for
