@@ -51,6 +51,66 @@ timing. Comparing against it made this change look like it had regressed WebP by
 20%. A control run captured at HEAD with the change stashed is the only honest
 reference.
 
+### Phase 2, same day: measurement, a resolution bug, and the retune
+
+The open question was settled by measuring instead of arguing. Both encoder
+generations were driven over the same Chromium-decoded pixels, decoded through
+the app's own decoder, and scored with `ssimulacra2` and `butteraugli_main` built
+natively from the same v0.12.0 checkout.
+
+**The verdict was not the one upstream advertises.** Compared at equal
+SSIMULACRA2 rather than equal distance, v0.12.0 is a wash on photographs (+0.9%
+and −0.3% bytes on `photo`) and clearly worse on synthetic content: +18 to +23%
+on `illustration`, +29% on `screenshot`. Cross-checked against a natively built
+`cjxl` on identical pixels (6354 bytes vs the wasm build's 6351 at `-d 2.35
+-e 7`), so it is upstream behaviour and not our wrapper.
+
+**Then the measurement turned up a real bug.** libjxl encodes at half resolution
+once the distance crosses a threshold, and v0.9 moved that threshold from 20 to
+10. The ported v0.8.5 curve crossed 10 at slider quality 13, so quality 0 to 13
+was shipping soft, half-resolution images. Nothing failed: the file decodes back
+to full dimensions, so the magic-byte and size assertions in the e2e were all
+happy. At slider 10 on the screenshot fixture it was also 2.7x *larger* than
+v0.8.5 for a vastly worse image. The wrapper now pins
+`JXL_ENC_FRAME_SETTING_RESAMPLING = 1`, which is better on both axes at every
+distance from 10 to 15 on all three fixtures. Resolution belongs to the resize
+control, not to a quality slider.
+
+**The curve was redesigned rather than ported**, which the "no existing users"
+call made cheap. The v0.8.5 curve was shaped around an encoder that undershot
+its requested distance and compensated with an exponential tail running out to
+distance 45; against an accurate encoder that compensation is actively harmful:
+
+```
+quality >= 100                    -> 0            (lossless, unchanged)
+100 > quality >= 30               -> 0.1 + (100 - q) * 0.10
+ 30 > quality >= 0                -> 7.1 + (30 - q) * (15.0 - 7.1) / 30
+```
+
+Continuous at the joint, calibrated to delivered SSIMULACRA2 bands rather than to
+a nominal distance. The default 75 lands at 2.6, which reproduces the old
+default's photo behaviour almost exactly (56171 bytes at 78.54 becomes 56395 at
+78.58). It deliberately starts at 0.2 rather than diving under 1.0, where flat
+content pays a lot of bytes for almost no fidelity, and stops at 15 rather than
+the API's 25, so with resampling pinned the slider never approaches the
+downsampling zone. Verified across sliders 100/90/75/50/30/10/0 on three
+fixtures: **no position downsamples**, and the old bottom-of-slider collapse is
+gone (photo at 0 went from SSIMULACRA2 −12.88 to 28.40, screenshot from −5.19 to
+39.11).
+
+**Artifact size was investigated and accepted.** Every candidate reduction was
+measured and rejected; the full ledger is in
+[../codec-build-notes.md](../codec-build-notes.md) §libjxl. Short version: no
+CMake feature flag saves anything, because wasm-ld already dead-strips what the
+encoder never calls, and the only real lever is `-Os` (−392 KB for roughly 20%
+slower encode), which we declined. `-O3` stays.
+
+Also cleaned up while in there, all three verified byte-identical: the decoder's
+unused `lib/jxl/color_encoding_internal.h` include is gone, so **`codecs/jxl` now
+compiles against libjxl's public headers only**; three dead `-I` paths dropped
+from the Makefile; and `make clean` fixed, which had been expanding to
+`make -C  clean` and aborting before it cleaned either build dir.
+
 ## 2026-07-25 (Opus, later) - Search and link-preview metadata
 
 The app had **no `<title>` in its served HTML at all**, plus no description and no

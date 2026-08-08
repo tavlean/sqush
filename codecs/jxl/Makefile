@@ -49,11 +49,8 @@ $(OUT_JS):
 	$(CXX) \
 		$(CXXFLAGS) \
 		$(LDFLAGS) \
-		-I $(CODEC_DIR) \
-		-I $(CODEC_DIR)/lib \
 		-I $(CODEC_DIR)/lib/include \
 		-I $(CODEC_BUILD_DIR)/lib/include \
-		-I $(CODEC_DIR)/third_party/highway \
 		-I $(CODEC_DIR)/third_party/skcms \
 		--bind \
 		-s ENVIRONMENT=$(ENVIRONMENT) \
@@ -99,8 +96,10 @@ $(CODEC_DIR)/CMakeLists.txt:
 	git -C $(@D) checkout FETCH_HEAD
 	git -C $(@D) submodule update --init --depth 1 --recursive --jobs `nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4`
 
+# CODEC_BUILD_DIR is target-specific, so it is empty here; the line that used it
+# expanded to `make -C  clean` and aborted before either real build dir was
+# cleaned. The two build dirs below are the only ones that exist.
 clean:
 	$(RM) $(OUT_JS) $(OUT_WASM) $(OUT_WORKER)
-	$(MAKE) -C $(CODEC_BUILD_DIR) clean
 	$(MAKE) -C $(CODEC_MT_BUILD_DIR) clean
 	$(MAKE) -C $(CODEC_MT_SIMD_BUILD_DIR) clean

@@ -12,7 +12,6 @@
 #include <jxl/thread_parallel_runner_cxx.h>
 #endif
 
-#include <cmath>
 #include <cstdint>
 #include <vector>
 
@@ -32,32 +31,41 @@ struct JXLOptions {
 // libjxl v0.9 deleted the internal C++ encoder API this wrapper used to call
 // (enc_file.h / enc_color_management.h / EncodeFile / GetJxlCms), so from
 // v0.12.0 the body is written against the public JxlEncoder* C API, modelled on
-// examples/encode_oneshot.cc in the libjxl tree. Only the option *mappings* and
-// the quality->distance math survive from the old body; each mapping below is
-// the same cparams field the old code wrote, reached through the public setter
-// that libjxl's own cjxl tool uses for the equivalent flag.
+// examples/encode_oneshot.cc in the libjxl tree. Only the option *mappings*
+// survive from the old body; each one below is the same cparams field the old
+// code wrote, reached through the public setter that libjxl's own cjxl tool
+// uses for the equivalent flag. The quality->distance curve did NOT survive: it
+// was rewritten for v0.12.0, see QualityToDistance.
 
-// Quality settings roughly match libjpeg qualities. libjxl drives BOTH VarDCT
-// and modular modes from butteraugli_distance (lower = better quality);
-// quality == 100 -> distance 0 == lossless. Ported unchanged from the v0.8.5
-// wrapper: this is product behaviour, not an implementation detail.
+// libjxl drives BOTH VarDCT and modular modes from butteraugli_distance (lower
+// = better quality); quality == 100 -> distance 0 == lossless.
 //
-// The only addition is the upper clamp. The old wrapper wrote
-// cparams.butteraugli_distance directly and was unbounded (quality 0 mapped to
-// ~45.5); JxlEncoderSetFrameDistance rejects anything above 25.0 and would turn
-// the bottom of the quality slider into an encode failure. Clamping keeps the
-// mapping identical everywhere it is expressible and keeps quality 0-4 working.
+// This curve was designed for v0.12.0 and replaces the one carried over from
+// v0.8.5. The old one was shaped around an encoder that undershot the distance
+// it was asked for, so it compensated with an exponential tail that ran out to
+// distance 45. v0.12.0 hits a requested distance accurately, which makes that
+// compensation actively harmful, so the curve is calibrated against delivered
+// SSIMULACRA2 instead: near-lossless at the top of the slider, solid web
+// quality at the 75 default, visibly rough but still full-resolution at 0.
+//
+// Two deliberate endpoints. Slider 90 is anchored at distance 1.1 so the
+// sub-1.0 region stays confined to the very top of the slider (95 and up,
+// where near-lossless intent justifies it), because on flat and synthetic
+// content that region buys almost no fidelity for a lot of bytes (measured:
+// illustration at distance 0.5 is LARGER than at 1.0 for 0.85 SSIMULACRA2).
+// And the range stops
+// at 15 rather than running to the API's limit of 25, because past distance 10
+// the extra range only buys artefacts; with resampling pinned below, the slider
+// never enters libjxl's downsampling zone at any position.
 static float QualityToDistance(float quality) {
   if (quality >= 100) {
     return 0.0f;
   }
-  float distance;
   if (quality >= 30) {
-    distance = 0.1 + (100 - quality) * 0.09;
-  } else {
-    distance = 6.4 + pow(2.5, (30 - quality) / 5.0f) / 6.25f;
+    return 0.1f + (100.0f - quality) * 0.10f;
   }
-  return distance > 25.0f ? 25.0f : distance;
+  // Continuous at the joint: both branches give 7.1 at quality 30.
+  return 7.1f + (30.0f - quality) * ((15.0f - 7.1f) / 30.0f);
 }
 
 val encode(std::string image, int width, int height, JXLOptions options) {
@@ -146,6 +154,19 @@ val encode(std::string image, int width, int height, JXLOptions options) {
   // keeps the behaviour it had rather than adopting a new mode.
   if (JXL_ENC_SUCCESS !=
       JxlEncoderFrameSettingsSetOption(frame_settings, JXL_ENC_FRAME_SETTING_BUFFERING, 0)) {
+    return val::null();
+  }
+  // Also not an app option, and the more important of the two pins. Left alone,
+  // libjxl silently encodes at half resolution once the distance crosses a
+  // threshold, and v0.9 moved that threshold from 20 down to 10 (it also
+  // rescales the distance to d * 0.25 + 0.25 when it fires). The app has an
+  // explicit resize control, so output resolution is the user's decision and
+  // must never be a hidden consequence of the quality slider. Pinning it is
+  // also just better: on tests/fixtures/screenshot.png at distance 10, letting
+  // libjxl downsample gives 11161 bytes at SSIMULACRA2 8.56, while pinning full
+  // resolution gives 6393 bytes at 56.80. Smaller and far better.
+  if (JXL_ENC_SUCCESS !=
+      JxlEncoderFrameSettingsSetOption(frame_settings, JXL_ENC_FRAME_SETTING_RESAMPLING, 1)) {
     return val::null();
   }
 

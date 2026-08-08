@@ -77,35 +77,38 @@ generated from exactly these inputs.
 | `codecs/oxipng`     | crates.io `oxipng`                                    | `10.1.1` (was `9.0`)                                               | Builds normal and parallel wasm-pack outputs. Byte-identical at default preset; value is robustness + fast-mode/ICC fixes. |
 | `codecs/rotate`     | local Rust source                                     | local `squoosh-rotate` `0.1.0`                                      | Build uses `codecs/rotate/Dockerfile`, WABT `1.0.11`, and `wasm-opt`.                                  |
 
-> **libjxl v0.12.0 (2026-08-08): the quality slider now means something
-> different.** The encoder wrapper is off libjxl's deleted internal C++ API and
-> onto the public `JxlEncoder*` C API, and the quality→butteraugli-distance
-> mapping was ported unchanged. But libjxl recalibrated how accurately it hits a
-> requested distance somewhere in the 0.9–0.12 range, so the same distance now
-> buys more fidelity and more bytes: on `tests/fixtures/illustration.png` at the
-> default quality 75 (distance 2.35, effort 7), v0.8.5 produced 4915 bytes at
-> 41.88 dB PSNR and v0.12.0 produces 6401 bytes at 43.11 dB. Verified against a
-> natively built v0.12.0 `cjxl` on the identical pixels (6354 bytes at the same
-> `-d 2.35 -e 7`), so this is upstream behaviour, not a wrapper bug.
+> **libjxl v0.12.0 (2026-08-08): the quality slider was recalibrated.** The
+> encoder wrapper is off libjxl's deleted internal C++ API and onto the public
+> `JxlEncoder*` C API. libjxl also became accurate about hitting the butteraugli
+> distance it is asked for, where v0.8.5 undershot, so the old curve's
+> exponential low-quality tail no longer made sense and **the quality→distance
+> mapping was redesigned** (`QualityToDistance` in `codecs/jxl/enc/jxl_enc.cpp`).
+> The slider is calibrated against delivered SSIMULACRA2 instead of a nominal
+> distance, and it deliberately stops at distance 15 so it never reaches
+> libjxl's automatic downsampling zone. Compared at equal SSIMULACRA2 rather
+> than equal distance, v0.12.0 is a wash on photographs and costs 18 to 29% more
+> bytes on flat and text-heavy content; that is upstream behaviour, verified
+> against a natively built v0.12.0 `cjxl` on identical pixels.
 >
-> Measured across the benchmark fixtures at default settings (v0.8.5 → v0.12.0,
-> every other codec byte-identical):
+> Benchmark fixtures at default settings, against a control captured at the same
+> commit (every other codec byte-identical):
 >
-> | Fixture | v0.8.5 | v0.12.0 | Δ |
+> | Fixture | v0.8.5 | v0.12.0 retuned | Δ |
 > |---|---|---|---|
-> | photo | 56171 | 60801 | +8.2% |
-> | illustration | 4915 | 6401 | +30.2% |
-> | transparent | 5999 | 4925 | **−17.9%** |
-> | gradient | 2378 | 2833 | +19.1% |
-> | gradient-dithered | 2362 | 2883 | +22.1% |
-> | hard-edges | 62846 | 64735 | +3.0% |
-> | noise-synthetic | 99474 | 169236 | +70.1% |
-> | screenshot | 9830 | 14064 | +43.1% |
-> | photo-large | 376439 | 418656 | +11.2% |
+> | photo | 56171 | 56395 | +0.4% |
+> | illustration | 4915 | 6243 | +27.0% |
+> | transparent | 5999 | 4747 | **−20.9%** |
+> | gradient | 2378 | 2757 | +15.9% |
+> | gradient-dithered | 2362 | 2811 | +19.0% |
+> | hard-edges | 62846 | 62209 | **−1.0%** |
+> | noise-synthetic | 99474 | 149563 | +50.4% |
+> | screenshot | 9830 | 13030 | +32.6% |
+> | photo-large | 376439 | 385858 | +2.5% |
 >
-> **Deciding whether to retune the quality→distance mapping is an open product
-> question** and it blocks calling this upgrade finished; the mapping was
-> deliberately left alone here so the delta is attributable to the library alone.
+> Photographs, the common case, are now a wash. The remaining cost is on
+> synthetic content, where v0.12's VarDCT is genuinely less efficient than
+> v0.8.5's, and it buys the 0.11.1 / 0.11.2 CVE fixes and a wrapper that no
+> longer depends on libjxl internals.
 
 ## App codec inventory
 

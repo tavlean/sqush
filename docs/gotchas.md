@@ -30,6 +30,17 @@ this doc holds the cross-cutting ones that no single file owns.
 
 ## Runtime
 
+- **A codec can silently change the output's resolution.** libjxl downsamples 2x
+  on its own once the requested butteraugli distance crosses a threshold, and
+  v0.9 moved that threshold from 20 to 10, which quietly put the bottom of
+  Frisp's quality slider into the downsampling zone. The file still decodes back
+  to the original dimensions, so nothing throws and the e2e magic-byte and
+  size checks all pass; the image is just soft. `codecs/jxl` now pins
+  `JXL_ENC_FRAME_SETTING_RESAMPLING = 1`. **Resolution is the resize control's
+  job, never a side effect of a quality setting.** Worth checking whenever a
+  codec is upgraded, since the only reliable detector is decoding the output and
+  comparing dimensions.
+
 - **`requestAnimationFrame` never fires in a non-compositing context** such as a
   headless e2e run or a background tab. Never use it to schedule state work; use
   a latest-wins drain loop with `setTimeout` yields. This was hit live while

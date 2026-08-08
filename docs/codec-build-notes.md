@@ -193,6 +193,22 @@ v0.9.0 forced when it deleted `enc_file.h` / `enc_color_management.h`. Both the
 build and the wrapper needed real work; the gotchas below are on top of the six
 0.8.5-era ones that follow, which all still apply.
 
+**Artifact size is the accepted cost of v0.12.** The encoder grew from 1402981 to
+2485851 bytes (+77%), the decoder from 858216 to 1030281 (+20%). Split: CODE
++665 KB, DATA +418 KB, the latter entirely libjxl's own static tables. Every
+reduction was measured and rejected. Turning off `TRANSCODE_JPEG`, `BOXES`,
+`TOOLS` and `SJPEG` changes nothing (+3319 bytes) because wasm-ld already
+dead-strips code the encoder never calls. `JPEGXL_ENABLE_SKCMS=0` is 156 KB
+*worse* (lcms2 is bigger). Disabling the `WASM_EMU256` highway target is 19 KB
+worse, and it was never compiled anyway (highway gates it behind
+`HWY_WANT_WASM2`, which nothing defines). A `wasm-opt -Oz` post-pass saves 7 KB,
+because emcc already ran wasm-opt. Colour management costs 171 KB and cannot be
+dropped: `JxlEncoderCreate` calls `JxlGetDefaultCms()` unconditionally, and that
+one symbol is the *only* thing `libjxl.a` needs from `libjxl_cms.a`. The single
+real lever is compiling libjxl at `-Os`, worth 392 KB (−15.8%) with
+byte-identical encoder output, at roughly 20% slower encode; **we keep `-O3`**
+and accept the size. Do not re-litigate this without new measurements.
+
 7. **The static CMake targets were renamed.** `jxl-static` and
    `jxl_threads-static` are gone; the targets are now plain `jxl` and
    `jxl_threads` (with `BUILD_SHARED_LIBS=0` they produce the same archives).
@@ -208,11 +224,12 @@ build and the wrapper needed real work; the gotchas below are on top of the six
    the single self-contained file it was at 0.8.
 9. **Brotli's archives lost their `-static` suffix**: `libbrotlidec.a`, not
    `libbrotlidec-static.a`. A stale path here fails at link, not at configure.
-10. **`JxlEncoderSetFrameDistance` rejects distance > 25.** The old wrapper wrote
-    `cparams.butteraugli_distance` directly and was unbounded; our quality→distance
-    curve maps quality 0 to ~45.5. Without a clamp the bottom five notches of the
-    quality slider return `val::null()`, i.e. the app shows "no download". The
-    wrapper clamps at 25.
+10. **`JxlEncoderSetFrameDistance` rejects distance > 25.** The v0.8.5 wrapper
+    wrote `cparams.butteraugli_distance` directly and was unbounded, so its curve
+    ran out to ~45.5 at quality 0. Fed to the public API that is not a clamp, it
+    is an encode failure: `val::null()`, which the app shows as "no download".
+    The v0.12.0 curve tops out at 15, so the limit is now unreachable by
+    construction rather than clamped.
 11. **v0.11 added a streaming encode mode and turns it on by default.** With
     `buffering = -1` (the default) libjxl streams any frame with more than 8
     groups, trading compression for peak memory. On
@@ -223,8 +240,11 @@ build and the wrapper needed real work; the gotchas below are on top of the six
     invisible until you benchmark something big.
 12. **`JxlDecoderGetICCProfileSize` / `JxlDecoderGetColorAsICCProfile` lost their
     `JxlPixelFormat*` first argument** in v0.9. Two call sites in `dec/jxl_dec.cpp`.
-    `lib/jxl/color_encoding_internal.h`, the one internal header the decoder
-    includes, still exists at v0.12.0 and still compiles.
+    The decoder also carried `lib/jxl/color_encoding_internal.h`, the last
+    internal header anywhere in `codecs/`; it still exists at v0.12.0, but it was
+    never actually used, and dropping it produces byte-identical artifacts.
+    **`codecs/jxl` now compiles against libjxl's public headers only**, which is
+    what makes the next version bump a one-line change.
 13. **v0.12 spends more bits for the same requested distance than v0.8.5 did.**
     This is not a wrapper bug and it is not a build flag. At `-d 2.35 -e 7` on
     `illustration.png`, v0.8.5 produced 4915 bytes / 41.88 dB PSNR and v0.12.0
@@ -232,9 +252,15 @@ build and the wrapper needed real work; the gotchas below are on top of the six
     identical pixels produces 6354 bytes, so the wasm wrapper is faithful. The
     fastest way to settle "is this my wrapper or is this libjxl" is exactly that:
     `cmake -B <dir> <libjxl src> && cmake --build <dir> --target cjxl`, dump the
-    fixture to a binary PPM (cjxl reads PPM without libpng), and compare. Bench
-    impact is in [codec-provenance.md](codec-provenance.md); it is large enough
-    that the quality→distance mapping needs a product decision.
+    fixture to a binary PPM (cjxl reads PPM without libpng), and compare.
+    The cause is accuracy, not efficiency: v0.12 hits the distance it is asked
+    for, where v0.8.5 undershot. **This is why the quality→distance curve was
+    redesigned rather than ported** (see `QualityToDistance` in
+    `enc/jxl_enc.cpp`). Measured at equal SSIMULACRA2 rather than equal
+    distance, v0.12 is a wash on photographs (+0.9% / −0.3% bytes on `photo`)
+    and genuinely worse on synthetic content (+18 to +23% on `illustration`,
+    +29% on `screenshot`), so the upstream "smaller files" headline does not
+    hold for flat or text-heavy images.
 14. **Iterate the wrapper with a hand-rolled single link, not `make`.** The
     library build is ~20 minutes; relinking one wrapper against the cached
     `build/mt/lib/*.a` is ~40 seconds. Same trick as the 2026-06 sweep, and the
@@ -247,6 +273,40 @@ build and the wrapper needed real work; the gotchas below are on top of the six
     (replace `import.meta.url` with `pathToFileURL(__filename).href`, swap the
     `export default` for `module.exports`), pass `wasmBinary` explicitly, and
     polyfill `ImageData` for the decoder.
+16. **libjxl silently encodes at half resolution above a distance threshold, and
+    v0.9 moved that threshold from 20 to 10.** `enc_frame.cc`: when
+    `butteraugli_distance >= 10` and the frame was not already downsampled it
+    sets `resampling = 2` and rescales the distance to `d * 0.25 + 0.25`. The
+    output decodes back to full size, so nothing errors and no test notices; the
+    image is just soft. Frisp's ported v0.8.5 curve crossed 10 at slider quality
+    13, so **quality 0 to 13 shipped half-resolution images** until this was
+    caught. The wrapper now pins `JXL_ENC_FRAME_SETTING_RESAMPLING = 1`. Pinning
+    is better on both axes anyway: `screenshot.png` at distance 10 gives 11161
+    bytes at SSIMULACRA2 8.56 when libjxl downsamples, against 6393 bytes at
+    56.80 pinned. Downsampling only starts to pay off past distance 20 on
+    photographic content, and never on screenshots.
+17. **The v0.12 rate curve is not monotonic at low distance on flat content, and
+    it has cliffs.** `illustration.png` at distance 0.5 is *larger* than at 1.0
+    for 0.85 SSIMULACRA2, and the resampling switch in gotcha 16 is a
+    discontinuity in both size and quality. Consequence for methodology:
+    **do not bisect on output size** to find "the distance that matches N bytes",
+    because it lands inside a cliff and silently reports a wildly wrong answer.
+    Measure a dense distance ladder once per fixture and interpolate in
+    log(size); that is also reusable for every later question.
+18. **`ssimulacra2` and `butteraugli_main` need `-DJPEGXL_ENABLE_DEVTOOLS=1`.**
+    They are not in the default target set, so a stock `cmake --build . --target
+    ssimulacra2` fails with no such target. They read PPM, so a fixture dumped
+    as binary P6 needs no image libraries. PSNR alone is not enough to judge a
+    libjxl change: libjxl optimises butteraugli, and the two metrics disagree
+    about which encoder wins.
+19. **Node harness quirks, all three of which cost time.** (a) A `package.json`
+    containing `{"type":"module"}` anywhere above the probe files makes `require()`
+    of emscripten MODULARIZE glue fail with `ERR_AMBIGUOUS_MODULE_SYNTAX`; copy
+    the glue to `.cjs`. (b) Pulling a 12 MP `getImageData` back from Chromium in
+    one `page.evaluate` exhausts the Node heap; stash it in a page global and
+    read it in slices. (c) Chromium is the right decoder for fixture pixels
+    anyway, because it handles the JPEG fixtures and matches what `npm run bench`
+    actually measures.
 
 **The 0.8.5-era record (still current for gotchas 1–6 and the embind bug).**
 pre-0.7 commit → **v0.8.5** (CVE-2023-0645, CVE-2023-35790, CVE-2025-12474;
