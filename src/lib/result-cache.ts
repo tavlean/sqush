@@ -70,7 +70,11 @@ export class ResultCache {
     if (this.#map.has(key)) return;
     this.#map.set(key, outcome);
     this.#bytes += outcomeBytes(outcome);
-    this.#evict();
+    // The caller pins this key only after `set` returns (cache first, then
+    // display), so the eviction pass must never reach the entry it just
+    // admitted: with every older entry pinned it would otherwise revoke this
+    // URL before the UI ever points at it.
+    this.#evict(key);
   }
 
   /**
@@ -96,14 +100,14 @@ export class ResultCache {
     return this.#map.size;
   }
 
-  #evict(): void {
+  #evict(protectedKey?: string): void {
     // Walk oldest → newest, skipping pinned entries, until we're under both caps.
     const iterator = this.#map.keys();
     while (this.#map.size > this.#maxEntries || this.#bytes > this.#maxBytes) {
       const next = iterator.next();
       if (next.done) break; // only pinned entries remain — stop.
       const key = next.value;
-      if (this.#pinned.has(key)) continue;
+      if (key === protectedKey || this.#pinned.has(key)) continue;
       const victim = this.#map.get(key)!;
       this.#map.delete(key);
       this.#bytes -= outcomeBytes(victim);
