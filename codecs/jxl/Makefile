@@ -1,10 +1,10 @@
 CODEC_URL = https://github.com/libjxl/libjxl.git
-# v0.8.5 = tip of the 0.8.x branch (Path A). Keeps libjxl's INTERNAL C++ API
-# (enc_file.h / enc_color_management.h / EncodeFile / GetJxlCms) that the encoder
-# wrapper uses — removed at v0.9.0+. Fixes CVE-2023-0645, CVE-2023-35790,
-# CVE-2025-12474. CVE-2026-1837 is LCMS2-only and we link skcms, so N/A.
-# Upgrading past 0.8.x = a full public-C-API encoder rewrite (Path B), deferred.
-CODEC_VERSION = v0.8.5
+# v0.12.0. The encoder wrapper is written against libjxl's PUBLIC JxlEncoder* C
+# API, so the internal-header constraint that pinned us to 0.8.x is gone (v0.9.0
+# deleted enc_file.h / enc_color_management.h / EncodeFile / GetJxlCms). Adds the
+# 0.11.1 / 0.11.2 CVE fixes on top of the 0.8.x ones. Note that 0.12 spends more
+# bits than 0.8.5 for the same butteraugli distance; see codec-provenance.md.
+CODEC_VERSION = v0.12.0
 CODEC_DIR = node_modules/jxl
 CODEC_BUILD_ROOT := $(CODEC_DIR)/build
 CODEC_MT_BUILD_DIR := $(CODEC_BUILD_ROOT)/mt
@@ -49,28 +49,31 @@ $(OUT_JS):
 	$(CXX) \
 		$(CXXFLAGS) \
 		$(LDFLAGS) \
-		-I $(CODEC_DIR) \
-		-I $(CODEC_DIR)/lib \
 		-I $(CODEC_DIR)/lib/include \
 		-I $(CODEC_BUILD_DIR)/lib/include \
-		-I $(CODEC_DIR)/third_party/highway \
 		-I $(CODEC_DIR)/third_party/skcms \
 		--bind \
 		-s ENVIRONMENT=$(ENVIRONMENT) \
 		-s EXPORT_ES6=1 \
 		-o $@ \
 		$+ \
-		$(CODEC_BUILD_DIR)/third_party/brotli/libbrotlidec-static.a \
-		$(CODEC_BUILD_DIR)/third_party/brotli/libbrotlienc-static.a \
-		$(CODEC_BUILD_DIR)/third_party/brotli/libbrotlicommon-static.a \
-		$(CODEC_BUILD_DIR)/third_party/libskcms.a \
+		$(CODEC_BUILD_DIR)/lib/libjxl_cms.a \
+		$(CODEC_BUILD_DIR)/third_party/brotli/libbrotlidec.a \
+		$(CODEC_BUILD_DIR)/third_party/brotli/libbrotlienc.a \
+		$(CODEC_BUILD_DIR)/third_party/brotli/libbrotlicommon.a \
 		$(CODEC_BUILD_DIR)/third_party/highway/libhwy.a
 
+# v0.12.0 renamed the static targets: `jxl-static` / `jxl_threads-static` became
+# plain `jxl` / `jxl_threads` (BUILD_SHARED_LIBS=0 makes them archives), and the
+# colour-management code moved out of libjxl.a into its own libjxl_cms.a, which
+# `make jxl` builds as a link dependency. libjxl_cms.a is also where skcms now
+# lives (v0.8.x's JPEGXL_BUNDLE_SKCMS option is gone), so the decoder's skcms
+# calls resolve from it and the hand-compiled libskcms.a is no longer built.
 %/lib/libjxl.a: %/Makefile
-	$(MAKE) -C $(<D) jxl-static
+	$(MAKE) -C $(<D) jxl
 
 %/lib/libjxl_threads.a: %/Makefile
-	$(MAKE) -C $(<D) jxl_threads-static
+	$(MAKE) -C $(<D) jxl_threads
 
 # Enable SIMD on a SIMD build.
 $(CODEC_MT_SIMD_BUILD_DIR)/Makefile: CXXFLAGS+=-msimd128
@@ -85,9 +88,6 @@ $(CODEC_MT_SIMD_BUILD_DIR)/Makefile: CXXFLAGS+=-msimd128
 	-DCMAKE_CROSSCOMPILING_EMULATOR=node \
 	-B $(@D) \
 	$(<D)
-	emcc -Wall -O3 -o $(CODEC_DIR)/third_party/skcms/skcms.cc.o -I$(CODEC_DIR)/third_party/skcms -c $(CODEC_DIR)/third_party/skcms/skcms.cc
-	llvm-ar rc $(CODEC_BUILD_DIR)/third_party/libskcms.a $(CODEC_DIR)/third_party/skcms/skcms.cc.o
-	rm $(CODEC_DIR)/third_party/skcms/skcms.cc.o
 
 $(CODEC_DIR)/CMakeLists.txt:
 	$(RM) -r $(@D)
@@ -96,8 +96,10 @@ $(CODEC_DIR)/CMakeLists.txt:
 	git -C $(@D) checkout FETCH_HEAD
 	git -C $(@D) submodule update --init --depth 1 --recursive --jobs `nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4`
 
+# CODEC_BUILD_DIR is target-specific, so it is empty here; the line that used it
+# expanded to `make -C  clean` and aborted before either real build dir was
+# cleaned. The two build dirs below are the only ones that exist.
 clean:
 	$(RM) $(OUT_JS) $(OUT_WASM) $(OUT_WORKER)
-	$(MAKE) -C $(CODEC_BUILD_DIR) clean
 	$(MAKE) -C $(CODEC_MT_BUILD_DIR) clean
 	$(MAKE) -C $(CODEC_MT_SIMD_BUILD_DIR) clean

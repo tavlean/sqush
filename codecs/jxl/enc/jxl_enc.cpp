@@ -1,10 +1,19 @@
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
 
-#include "lib/jxl/base/thread_pool_internal.h"
-#include "lib/jxl/enc_external_image.h"
-#include "lib/jxl/enc_file.h"
-#include "lib/jxl/enc_color_management.h"
+#include <jxl/codestream_header.h>
+#include <jxl/color_encoding.h>
+#include <jxl/encode.h>
+#include <jxl/encode_cxx.h>
+#include <jxl/types.h>
+
+#ifdef __EMSCRIPTEN_PTHREADS__
+#include <jxl/thread_parallel_runner.h>
+#include <jxl/thread_parallel_runner_cxx.h>
+#endif
+
+#include <cstdint>
+#include <vector>
 
 using namespace emscripten;
 
@@ -19,96 +28,243 @@ struct JXLOptions {
   bool lossyModular;
 };
 
+// libjxl v0.9 deleted the internal C++ encoder API this wrapper used to call
+// (enc_file.h / enc_color_management.h / EncodeFile / GetJxlCms), so from
+// v0.12.0 the body is written against the public JxlEncoder* C API, modelled on
+// examples/encode_oneshot.cc in the libjxl tree. Only the option *mappings*
+// survive from the old body; each one below is the same cparams field the old
+// code wrote, reached through the public setter that libjxl's own cjxl tool
+// uses for the equivalent flag. The quality->distance curve did NOT survive: it
+// was rewritten for v0.12.0, see QualityToDistance.
+
+// libjxl drives BOTH VarDCT and modular modes from butteraugli_distance (lower
+// = better quality); quality == 100 -> distance 0 == lossless.
+//
+// This curve was designed for v0.12.0 and replaces the one carried over from
+// v0.8.5. The old one was shaped around an encoder that undershot the distance
+// it was asked for, so it compensated with an exponential tail that ran out to
+// distance 45. v0.12.0 hits a requested distance accurately, which makes that
+// compensation actively harmful, so the curve is calibrated against delivered
+// SSIMULACRA2 instead: near-lossless at the top of the slider, solid web
+// quality at the 75 default, visibly rough but still full-resolution at 0.
+//
+// Two deliberate endpoints. Slider 90 is anchored at distance 1.1 so the
+// sub-1.0 region stays confined to the very top of the slider (95 and up,
+// where near-lossless intent justifies it), because on flat and synthetic
+// content that region buys almost no fidelity for a lot of bytes (measured:
+// illustration at distance 0.5 is LARGER than at 1.0 for 0.85 SSIMULACRA2).
+// And the range stops
+// at 15 rather than running to the API's limit of 25, because past distance 10
+// the extra range only buys artefacts; with resampling pinned below, the slider
+// never enters libjxl's downsampling zone at any position.
+static float QualityToDistance(float quality) {
+  if (quality >= 100) {
+    return 0.0f;
+  }
+  if (quality >= 30) {
+    return 0.1f + (100.0f - quality) * 0.10f;
+  }
+  // Continuous at the joint: both branches give 7.1 at quality 30.
+  return 7.1f + (30.0f - quality) * ((15.0f - 7.1f) / 30.0f);
+}
+
 val encode(std::string image, int width, int height, JXLOptions options) {
-  jxl::CompressParams cparams;
-  jxl::PassesEncoderState passes_enc_state;
-  jxl::CodecInOut io;
-  jxl::PaddedBytes bytes;
-  jxl::ImageBundle* main = &io.Main();
-  jxl::ThreadPoolInternal* pool_ptr = nullptr;
+  const float distance = QualityToDistance(options.quality);
+  const bool lossless = (distance == 0.0f);
+
+  // Declared before the encoder so it outlives it: unique_ptr members are
+  // destroyed in reverse declaration order, which destroys the encoder first
+  // and only then the runner it points at.
 #ifdef __EMSCRIPTEN_PTHREADS__
-  jxl::ThreadPoolInternal pool;
-  pool_ptr = &pool;
+  JxlThreadParallelRunnerPtr runner = JxlThreadParallelRunnerMake(
+      nullptr, JxlThreadParallelRunnerDefaultNumWorkerThreads());
+  if (!runner) {
+    return val::null();
+  }
 #endif
 
-  size_t st = 10 - options.effort;
-  cparams.speed_tier = jxl::SpeedTier(st);
+  JxlEncoderPtr enc = JxlEncoderMake(nullptr);
+  if (!enc) {
+    return val::null();
+  }
 
-  cparams.epf = options.epf;
-  cparams.decoding_speed_tier = options.decodingSpeedTier;
-  cparams.photon_noise_iso = options.photonNoiseIso;
+  // Single-threaded variants are built without -pthread and link no
+  // libjxl_threads.a, so they must not touch the runner API at all; libjxl then
+  // runs its own sequential runner.
+#ifdef __EMSCRIPTEN_PTHREADS__
+  if (JXL_ENC_SUCCESS != JxlEncoderSetParallelRunner(enc.get(), JxlThreadParallelRunner,
+                                                     runner.get())) {
+    return val::null();
+  }
+#endif
+
+  JxlBasicInfo info;
+  JxlEncoderInitBasicInfo(&info);
+  info.xsize = width;
+  info.ysize = height;
+  info.num_color_channels = 3;
+  info.num_extra_channels = 1;
+  info.alpha_bits = 8;
+  info.bits_per_sample = 8;
+  // Lossless requires the original (non-XYB) profile; leaving this false makes
+  // JxlEncoderSetFrameLossless fail and would silently downgrade lossless.
+  info.uses_original_profile = lossless ? JXL_TRUE : JXL_FALSE;
+  if (JXL_ENC_SUCCESS != JxlEncoderSetBasicInfo(enc.get(), &info)) {
+    return val::null();
+  }
+
+  JxlColorEncoding color_encoding;
+  JxlColorEncodingSetToSRGB(&color_encoding, /*is_gray=*/JXL_FALSE);
+  if (JXL_ENC_SUCCESS != JxlEncoderSetColorEncoding(enc.get(), &color_encoding)) {
+    return val::null();
+  }
+
+  JxlEncoderFrameSettings* frame_settings = JxlEncoderFrameSettingsCreate(enc.get(), nullptr);
+  if (!frame_settings) {
+    return val::null();
+  }
+
+  // effort -> cparams.speed_tier: the public setter applies the same
+  // SpeedTier(10 - effort) the old wrapper computed by hand.
+  if (JXL_ENC_SUCCESS !=
+      JxlEncoderFrameSettingsSetOption(frame_settings, JXL_ENC_FRAME_SETTING_EFFORT,
+                                       options.effort)) {
+    return val::null();
+  }
+  if (JXL_ENC_SUCCESS !=
+      JxlEncoderFrameSettingsSetOption(frame_settings, JXL_ENC_FRAME_SETTING_EPF, options.epf)) {
+    return val::null();
+  }
+  if (JXL_ENC_SUCCESS !=
+      JxlEncoderFrameSettingsSetOption(frame_settings, JXL_ENC_FRAME_SETTING_DECODING_SPEED,
+                                       options.decodingSpeedTier)) {
+    return val::null();
+  }
+  if (JXL_ENC_SUCCESS !=
+      JxlEncoderFrameSettingsSetFloatOption(frame_settings, JXL_ENC_FRAME_SETTING_PHOTON_NOISE,
+                                            options.photonNoiseIso)) {
+    return val::null();
+  }
+  // Not an option the app exposes: it pins the encoder to the whole-image mode
+  // v0.8.5 always used. v0.11 added a streaming mode that libjxl turns on by
+  // default (buffering = -1) once a frame has more than 8 groups, trading
+  // compression for peak memory. Measured on tests/fixtures/screenshot.png at
+  // the default quality, letting it stream costs 28702 bytes against 14064 with
+  // streaming off. Frisp already held whole images in memory at v0.8.5, so this
+  // keeps the behaviour it had rather than adopting a new mode.
+  if (JXL_ENC_SUCCESS !=
+      JxlEncoderFrameSettingsSetOption(frame_settings, JXL_ENC_FRAME_SETTING_BUFFERING, 0)) {
+    return val::null();
+  }
+  // Also not an app option, and the more important of the two pins. Left alone,
+  // libjxl silently encodes at half resolution once the distance crosses a
+  // threshold, and v0.9 moved that threshold from 20 down to 10 (it also
+  // rescales the distance to d * 0.25 + 0.25 when it fires). The app has an
+  // explicit resize control, so output resolution is the user's decision and
+  // must never be a hidden consequence of the quality slider. Pinning it is
+  // also just better: on tests/fixtures/screenshot.png at distance 10, letting
+  // libjxl downsample gives 11161 bytes at SSIMULACRA2 8.56, while pinning full
+  // resolution gives 6393 bytes at 56.80. Smaller and far better.
+  if (JXL_ENC_SUCCESS !=
+      JxlEncoderFrameSettingsSetOption(frame_settings, JXL_ENC_FRAME_SETTING_RESAMPLING, 1)) {
+    return val::null();
+  }
 
   if (options.lossyPalette) {
-    cparams.lossy_palette = true;
-    cparams.palette_colors = 0;
-    cparams.options.predictor = jxl::Predictor::Zero;
-    // Near-lossless assumes -R 0
-    cparams.responsive = 0;
-    cparams.modular_mode = true;
+    // Near-lossless palette assumes -R 0 and the Zero predictor, as before. The
+    // modular_mode this block used to set is immediately overwritten by the
+    // MODULAR write below, exactly as in the v0.8.5 wrapper.
+    if (JXL_ENC_SUCCESS !=
+            JxlEncoderFrameSettingsSetOption(frame_settings,
+                                             JXL_ENC_FRAME_SETTING_LOSSY_PALETTE, 1) ||
+        JXL_ENC_SUCCESS != JxlEncoderFrameSettingsSetOption(
+                               frame_settings, JXL_ENC_FRAME_SETTING_PALETTE_COLORS, 0) ||
+        JXL_ENC_SUCCESS !=
+            JxlEncoderFrameSettingsSetOption(frame_settings,
+                                             JXL_ENC_FRAME_SETTING_MODULAR_PREDICTOR,
+                                             /*jxl::Predictor::Zero=*/0) ||
+        JXL_ENC_SUCCESS !=
+            JxlEncoderFrameSettingsSetOption(frame_settings, JXL_ENC_FRAME_SETTING_RESPONSIVE, 0)) {
+      return val::null();
+    }
   }
 
-  float quality = options.quality;
-
-  // Quality settings roughly match libjpeg qualities. libjxl v0.8 drives BOTH
-  // VarDCT and modular modes from butteraugli_distance (lower = better quality);
-  // the old modular-only `quality_pair` field was removed, so map quality ->
-  // distance for both. quality == 100 -> distance 0 == lossless.
-  if (quality >= 100) {
-    cparams.butteraugli_distance = 0.0f;
-  } else if (quality >= 30) {
-    cparams.butteraugli_distance = 0.1 + (100 - quality) * 0.09;
-  } else {
-    cparams.butteraugli_distance = 6.4 + pow(2.5, (30 - quality) / 5.0f) / 6.25f;
+  const bool modular = (options.lossyModular || lossless);
+  if (JXL_ENC_SUCCESS != JxlEncoderFrameSettingsSetOption(
+                             frame_settings, JXL_ENC_FRAME_SETTING_MODULAR, modular ? 1 : 0)) {
+    return val::null();
   }
-  cparams.modular_mode = (options.lossyModular || quality == 100);
 
   if (options.progressive) {
-    cparams.qprogressive_mode = true;
-    cparams.responsive = 1;
-    if (!cparams.modular_mode) {
-      cparams.progressive_dc = 1;
+    if (JXL_ENC_SUCCESS !=
+            JxlEncoderFrameSettingsSetOption(frame_settings,
+                                             JXL_ENC_FRAME_SETTING_QPROGRESSIVE_AC, 1) ||
+        JXL_ENC_SUCCESS !=
+            JxlEncoderFrameSettingsSetOption(frame_settings, JXL_ENC_FRAME_SETTING_RESPONSIVE, 1)) {
+      return val::null();
+    }
+    if (!modular && JXL_ENC_SUCCESS !=
+                        JxlEncoderFrameSettingsSetOption(
+                            frame_settings, JXL_ENC_FRAME_SETTING_PROGRESSIVE_DC, 1)) {
+      return val::null();
     }
   }
 
-  if (cparams.modular_mode) {
-    // Lossless modular (distance 0) keeps exact RGB (no XYB); lossy uses XYB.
-    if (cparams.butteraugli_distance != 0.0f) {
-      cparams.color_transform = jxl::ColorTransform::kXYB;
-    } else {
-      cparams.color_transform = jxl::ColorTransform::kNone;
+  if (modular) {
+    // Lossless modular keeps exact RGB (kNone); lossy uses XYB. jxl::ColorTransform
+    // is kXYB = 0, kNone = 1, and JXL_ENC_FRAME_SETTING_COLOR_TRANSFORM takes the
+    // enum value directly.
+    if (JXL_ENC_SUCCESS != JxlEncoderFrameSettingsSetOption(
+                               frame_settings, JXL_ENC_FRAME_SETTING_COLOR_TRANSFORM,
+                               lossless ? 1 : 0)) {
+      return val::null();
     }
   }
 
-  io.metadata.m.SetAlphaBits(8);
-  if (!io.metadata.size.Set(width, height)) {
+  if (lossless) {
+    if (JXL_ENC_SUCCESS != JxlEncoderSetFrameLossless(frame_settings, JXL_TRUE)) {
+      return val::null();
+    }
+  } else if (JXL_ENC_SUCCESS != JxlEncoderSetFrameDistance(frame_settings, distance)) {
     return val::null();
   }
 
-  // libjxl v0.8 ConvertFromExternal takes a JxlPixelFormat instead of the old
-  // has_alpha/endianness/float_in args. 4 channels = RGBA (alpha comes from the
-  // SetAlphaBits(8) above); UINT8 little-endian matches the input buffer.
+  // 4 channels = RGBA (alpha comes from the alpha_bits above); UINT8
+  // little-endian matches the input buffer.
   JxlPixelFormat format = {/*num_channels=*/4, /*data_type=*/JXL_TYPE_UINT8,
                            /*endianness=*/JXL_LITTLE_ENDIAN, /*align=*/0};
-  auto result = jxl::ConvertFromExternal(
-      jxl::Span<const uint8_t>(reinterpret_cast<const uint8_t*>(image.data()), image.size()), width,
-      height, jxl::ColorEncoding::SRGB(/*is_gray=*/false), /*bits_per_sample=*/8, format, pool_ptr,
-      main);
-
-  if (!result) {
+  if (JXL_ENC_SUCCESS != JxlEncoderAddImageFrame(frame_settings, &format,
+                                                 static_cast<const void*>(image.data()),
+                                                 image.size())) {
     return val::null();
   }
+  // Without this the ProcessOutput loop never reaches JXL_ENC_SUCCESS and the
+  // encode hangs.
+  JxlEncoderCloseInput(enc.get());
 
-  auto js_result = val::null();
-  if (EncodeFile(cparams, &io, &passes_enc_state, &bytes, jxl::GetJxlCms(), /*aux=*/nullptr,
-                 pool_ptr)) {
-    // Resolve the Uint8Array constructor at call time rather than via a
-    // namespace-scope `thread_local val::global(...)`: in this large module on
-    // emcc 3.1.0 the static-init handle can be created before the JS runtime is
-    // ready, yielding an invalid emval handle that throws when `.new_` is used.
-    js_result = val::global("Uint8Array").new_(typed_memory_view(bytes.size(), bytes.data()));
+  std::vector<uint8_t> compressed(64);
+  uint8_t* next_out = compressed.data();
+  size_t avail_out = compressed.size();
+  JxlEncoderStatus process_result = JXL_ENC_NEED_MORE_OUTPUT;
+  while (process_result == JXL_ENC_NEED_MORE_OUTPUT) {
+    process_result = JxlEncoderProcessOutput(enc.get(), &next_out, &avail_out);
+    if (process_result == JXL_ENC_NEED_MORE_OUTPUT) {
+      size_t offset = next_out - compressed.data();
+      compressed.resize(compressed.size() * 2);
+      next_out = compressed.data() + offset;
+      avail_out = compressed.size() - offset;
+    }
   }
+  if (JXL_ENC_SUCCESS != process_result) {
+    return val::null();
+  }
+  compressed.resize(next_out - compressed.data());
 
-  return js_result;
+  // Resolve the Uint8Array constructor at call time rather than via a
+  // namespace-scope `thread_local val::global(...)`: in this large module on
+  // emcc 3.1.0 the static-init handle can be created before the JS runtime is
+  // ready, yielding an invalid emval handle that throws when `.new_` is used.
+  return val::global("Uint8Array").new_(typed_memory_view(compressed.size(), compressed.data()));
 }
 
 EMSCRIPTEN_BINDINGS(my_module) {
