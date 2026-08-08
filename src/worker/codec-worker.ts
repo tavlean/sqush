@@ -23,6 +23,9 @@ import jxlEncoder from 'app-generated/codecs/jxl/enc/jxl_enc';
 import { createMozjpegEncoderRuntime } from 'features/encoders/mozJPEG/worker/runtime';
 import type { EncodeOptions as MozjpegEncodeOptions } from 'features/encoders/mozJPEG/shared/meta';
 import mozjpegEncoder from 'app-generated/codecs/mozjpeg/enc/mozjpeg_enc';
+import { createJpegliEncoderRuntime } from 'features/encoders/jpegli/worker/runtime';
+import type { EncodeOptions as JpegliEncodeOptions } from 'features/encoders/jpegli/shared/meta';
+import jpegliEncoder from 'app-generated/codecs/jpegli/enc/jpegli_enc';
 import { createOxiPngEncoderRuntime } from 'features/encoders/oxiPNG/worker/runtime';
 import type { EncodeOptions as OxipngEncodeOptions } from 'features/encoders/oxiPNG/shared/meta';
 import initOxipngWasm, {
@@ -80,6 +83,10 @@ export interface MozjpegWasmUrls {
   encoder: string;
 }
 
+export interface JpegliWasmUrls {
+  encoder: string;
+}
+
 export interface OxipngWasmUrls {
   singleThread: string;
   multiThread: string;
@@ -109,6 +116,7 @@ let jxlMtSimdScriptUrl: string | undefined;
 function locateCodecWasm({
   avif,
   imagequant,
+  jpegli,
   jxl,
   mozjpeg,
   qoi,
@@ -116,6 +124,7 @@ function locateCodecWasm({
 }: {
   avif?: AvifWasmUrls;
   imagequant?: ImagequantWasmUrls;
+  jpegli?: JpegliWasmUrls;
   jxl?: JxlWasmUrls;
   mozjpeg?: MozjpegWasmUrls;
   qoi?: QoiWasmUrls;
@@ -142,6 +151,7 @@ function locateCodecWasm({
     if (path === 'jxl_enc_mt_simd.worker.js')
       return jxl?.encoderMtSimdWorker ?? path;
     if (path === 'mozjpeg_enc.wasm') return mozjpeg?.encoder ?? path;
+    if (path === 'jpegli_enc.wasm') return jpegli?.encoder ?? path;
     if (path === 'imagequant.wasm') return imagequant?.processor ?? path;
     return path;
   };
@@ -210,6 +220,9 @@ const encodeJxl = createJxlEncoderRuntime({
 });
 const encodeMozjpeg = createMozjpegEncoderRuntime({
   loadEncoder: async () => mozjpegEncoder,
+});
+const encodeJpegli = createJpegliEncoderRuntime({
+  loadEncoder: async () => jpegliEncoder,
 });
 const encodeOxipng = createOxiPngEncoderRuntime({
   supportsThreads: checkThreadsSupport,
@@ -310,6 +323,14 @@ const workerApi = {
   ): Promise<ArrayBuffer> {
     locateCodecWasm({ mozjpeg: wasmUrls });
     return transferBuffer(encodeMozjpeg(imageData, options));
+  },
+  jpegliEncode(
+    imageData: ImageData,
+    options: JpegliEncodeOptions,
+    wasmUrls: JpegliWasmUrls,
+  ): Promise<ArrayBuffer> {
+    locateCodecWasm({ jpegli: wasmUrls });
+    return transferBuffer(encodeJpegli(imageData, options));
   },
   oxipngEncode(
     imageData: ImageData,

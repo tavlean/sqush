@@ -37,6 +37,11 @@ export interface ImagePipelineWorkerBridge
     imageData: ImageData,
     options: Extract<EncoderState, { type: 'avif' }>['options'],
   ): WorkerBridgeReturn<ArrayBuffer>;
+  jpegliEncode(
+    signal: AbortSignal,
+    imageData: ImageData,
+    options: Extract<EncoderState, { type: 'jpegli' }>['options'],
+  ): WorkerBridgeReturn<ArrayBuffer>;
   jxlEncode(
     signal: AbortSignal,
     imageData: ImageData,
@@ -80,6 +85,15 @@ export function compressImage(
         sourceFilename,
         workerBridge,
         encoderMap.avif,
+      );
+    case 'jpegli':
+      return compressImageWithEncoder(
+        signal,
+        image,
+        encodeData.options,
+        sourceFilename,
+        workerBridge,
+        encoderMap.jpegli,
       );
     case 'jxl':
       return compressImageWithEncoder(

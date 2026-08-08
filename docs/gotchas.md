@@ -1,6 +1,6 @@
 # Gotchas
 
-Last updated: 2026-08-08.
+Last updated: 2026-08-09.
 
 Traps that fail **silently**: the build stays green, the tests stay green, and
 the damage shows up later. Loud failures are deliberately absent because the
@@ -24,6 +24,11 @@ this doc holds the cross-cutting ones that no single file owns.
 - **`wasm-bindgen` bakes Rust crate names into the `.wasm` import strings.** The
   `squoosh_*` codec artifacts cannot be renamed without a rebuild, and a green
   build proves nothing here. Only the e2e suite catches it.
+- **Adding an output format breaks a hard-coded count in the e2e suite.**
+  `tests/e2e/left-panel.spec.ts` asserts how many `.compare-option` buttons the
+  left panel's "Compare as…" popover renders, and that is `OUTPUT_FORMATS.length`.
+  It is a loud failure once you run e2e, but it is nowhere near the codec you
+  changed, and `check` plus unit tests both stay green.
 - **Markdown is never auto-formatted.** The Prettier globs and the pre-commit
   hook glob both exclude `*.md` on purpose, and `proseWrap: always` is banned.
   Adding Markdown back reflows every hand-wrapped doc in one commit.

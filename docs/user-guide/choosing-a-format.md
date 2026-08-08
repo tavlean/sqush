@@ -17,7 +17,7 @@ First, two words you'll see everywhere:
 | -------------------------------------------------- | --------------------------------------------------- | --------------------------------------------------------------- |
 | Vector artwork already stored as SVG               | **SVG**                                             | Keeps shapes resolution-independent while optimizing the markup |
 | A photograph (lots of color, soft gradients)       | **AVIF**, or **WebP** for wider reach               | Modern lossy codecs beat JPEG noticeably at the same quality    |
-| A photo that must open _everywhere_ with zero risk | **JPEG**                                            | The universal lossy format; opens in everything                 |
+| A photo that must open _everywhere_ with zero risk | **JPEG (jpegli)**, or **JPEG** to hand-tune         | The universal lossy format; opens in everything. Two encoders, same `.jpg` |
 | A logo, icon, flat-color illustration, or chart    | **PNG** (or **WebP lossless**)                      | Lossless keeps edges and text crisp                             |
 | A screenshot                                       | **PNG**, or **WebP** if it has photographic content | Crisp UI text stays sharp losslessly; mixed content can go WebP |
 | Anything needing **transparency**                  | **WebP**, **AVIF**, **JPEG XL**, or **PNG**         | All support an alpha channel; JPEG does not                     |
@@ -71,6 +71,13 @@ The format chooser is the dropdown at the top of each side's **Compress** panel.
 - **Range & default:** id `mozJPEG`, extension `.jpg`, MIME `image/jpeg`. Lossy only.
 - **How to choose:** The universal-compatibility choice for photos. Pick it when the file must open on any device, browser, or old software with zero risk, and you don't need transparency. It can't match AVIF/WebP on size, but nothing beats it on reach.
 - **Recommended starting point:** **JPEG for photos that must be maximally compatible.** Deviate to WebP/AVIF when your audience's browsers are modern and you want smaller files.
+
+### JPEG (jpegli)
+
+- **What it does:** The same `.jpg` file as above, from a newer encoder. jpegli applies JPEG XL's techniques to the plain JPEG bitstream, which buys around 30% better quality-per-byte at high quality without changing the format. Lossy only; no transparency. Encoded with **jpegli**.
+- **Range & default:** id `jpegli`, extension `.jpg`, MIME `image/jpeg`. Lossy only. This is the one entry whose menu label names its encoder, because "JPEG" alone would not tell it apart from the MozJPEG entry.
+- **How to choose:** Same reach as JPEG, since the output is an ordinary JPEG. Pick jpegli when you want a JPEG and would rather not tune anything; pick MozJPEG when you want its deep advanced panel, or need grayscale or RGB output, which jpegli does not offer. Its quality slider runs on jpegli's own scale, so **do not read across from a MozJPEG quality number**; compare in the preview instead.
+- **Recommended starting point:** **jpegli when you want a well-compressed JPEG with no fiddling.** Deviate to MozJPEG when you need its extra controls, and to WebP/AVIF when your audience's browsers are modern.
 
 ### PNG
 

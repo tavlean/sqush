@@ -27,6 +27,10 @@ import {
   jxlEncoderWasmUrl,
 } from 'shared/codec-assets/jxl';
 import {
+  jpegliCodecAssetUrls,
+  jpegliEncoderWasmUrl,
+} from 'shared/codec-assets/jpegli';
+import {
   mozjpegCodecAssetUrls,
   mozjpegEncoderWasmUrl,
 } from 'shared/codec-assets/mozjpeg';
@@ -61,6 +65,8 @@ export {
   hqxWasmUrl,
   imagequantCodecAssetUrls,
   imagequantWasmUrl,
+  jpegliCodecAssetUrls,
+  jpegliEncoderWasmUrl,
   jxlCodecAssetUrls,
   jxlDecoderWasmUrl,
   jxlEncoderWasmUrl,

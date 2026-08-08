@@ -144,6 +144,14 @@
     "cache": "threaded-only"
   },
   {
+    "logicalKey": "jpegli:encoder:default",
+    "codec": "jpegli",
+    "role": "encoder",
+    "variant": "default",
+    "path": "codecs/jpegli/enc/jpegli_enc.wasm",
+    "cache": "precache"
+  },
+  {
     "logicalKey": "mozjpeg:encoder:default",
     "codec": "mozjpeg",
     "role": "encoder",

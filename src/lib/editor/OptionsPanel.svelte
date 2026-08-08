@@ -14,6 +14,7 @@
   import AvifOptions from './options/AvifOptions.svelte';
   import JxlOptions from './options/JxlOptions.svelte';
   import MozjpegOptions from './options/MozjpegOptions.svelte';
+  import JpegliOptions from './options/JpegliOptions.svelte';
   import OxipngOptions from './options/OxipngOptions.svelte';
   import SvgOptions from './options/SvgOptions.svelte';
   import ResizeOptions from './options/ResizeOptions.svelte';
@@ -35,6 +36,7 @@
   import type { EncodeOptions as AvifEncodeOptions } from 'features/encoders/avif/shared/meta';
   import type { EncodeOptions as JxlEncodeOptions } from 'features/encoders/jxl/shared/meta';
   import type { EncodeOptions as MozjpegEncodeOptions } from 'features/encoders/mozJPEG/shared/meta';
+  import type { EncodeOptions as JpegliEncodeOptions } from 'features/encoders/jpegli/shared/meta';
   import type { EncodeOptions as OxipngEncodeOptions } from 'features/encoders/oxiPNG/shared/meta';
   import type { SvgOptimizeOptions } from '$lib/svg/optimize-options';
 
@@ -237,6 +239,8 @@
           <MozjpegOptions
             options={options as unknown as MozjpegEncodeOptions}
           />
+        {:else if format === 'jpegli'}
+          <JpegliOptions options={options as unknown as JpegliEncodeOptions} />
         {:else if format === 'oxiPNG'}
           <OxipngOptions options={options as unknown as OxipngEncodeOptions} />
         {:else if typeof options.quality === 'number'}

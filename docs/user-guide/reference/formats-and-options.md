@@ -40,6 +40,7 @@ Notes that apply throughout:
 | AVIF               | `avif`        | `avif`     | `image/avif`  | both               | yes                                       |
 | JPEG XL            | `jxl`         | `jxl`      | `image/jxl`   | both               | yes                                       |
 | JPEG               | `mozJPEG`     | `jpg`      | `image/jpeg`  | lossy              | yes                                       |
+| JPEG (jpegli)      | `jpegli`      | `jpg`      | `image/jpeg`  | lossy              | yes                                       |
 | PNG                | `oxiPNG`      | `png`      | `image/png`   | lossless           | yes                                       |
 | SVG                | `svg`         | `svg`      | `image/svg+xml` | optimizer (gated) | yes (`SvgOptions.svelte`)                 |
 
@@ -49,6 +50,11 @@ Notes that apply throughout:
   names **JPEG** and **PNG** (rather than the encoder names MozJPEG/OxiPNG); the
   underlying encoder is surfaced as a hover tooltip (title attribute) on the
   picker — JPEG→MozJPEG, PNG→OxiPNG, JPEG XL→libjxl, WebP→libwebp, AVIF→libaom.
+- **`jpegli` is the one format whose label names its encoder**, because it is the
+  second encoder for a format that already has an entry: `mozJPEG` and `jpegli`
+  both emit `image/jpeg` `.jpg`, so "JPEG" alone would not distinguish them. Its
+  tooltip carries the reason to pick it rather than the engine name ("Same JPEG
+  format, around 30% better compression").
 - **Every raster output format is an always-available WASM codec** — there is no
   runtime feature detection. (QOI and the canvas/browser encoders were removed from
   the picker on 2026-06-27; QOI's decoder remains for import.)
@@ -241,6 +247,51 @@ uses the `MozJpegColorSpace` enum (GRAYSCALE 1 / RGB 2 / YCbCr 3).
 **Hidden MozJPEG option** — **`arithmetic`** (bool, default `false`) exists in both the
 codec `EncodeOptions` and `meta.defaultOptions` but is **never rendered in the panel**
 (arithmetic coding toggle is unreachable from the UI).
+
+---
+
+## JPEG (jpegli) (`jpegli`)
+
+Menu label is **JPEG (jpegli)**; encoded with **jpegli** (google/jpegli, pinned by
+commit; see `docs/codec-provenance.md`).
+
+Panel: `JpegliOptions.svelte`. Always lossy. Booleans bind directly. The chroma
+select uses the `JpegliChromaSubsample` enum (AUTO 0 / FULL 1 / HALF 2).
+
+**Always visible**
+
+| UI label | key       | control | range         | default |
+| -------- | --------- | ------- | ------------- | ------- |
+| Quality  | `quality` | range   | 0–100, step 1 | 75      |
+
+**Advanced settings** (Revealer)
+
+| UI label              | key               | control  | range / values                  | default  |
+| --------------------- | ----------------- | -------- | ------------------------------- | -------- |
+| Chroma subsampling    | `chromaSubsample` | select   | Auto(0) / 4:4:4(1) / 4:2:0(2)   | Auto (0) |
+| Progressive rendering | `progressive`     | checkbox | bool                            | true     |
+
+**No hidden options.** The codec `EncodeOptions` interface is exactly
+`{ quality, progressive, chromaSubsample }`, and all three are rendered. This is
+deliberate: jpegli's tuned quantization tables are the reason to use it, so the
+wrapper does not expose the libjpeg-style overrides that would bypass them.
+
+Behaviours that are not options, and are worth knowing when comparing against
+`mozJPEG`:
+
+- **`quality` is jpegli's own scale, not libjpeg's.** The wrapper converts it with
+  `jpegli_quality_to_distance()` and calls `jpegli_set_distance()`, the same path
+  `cjpegli -q` takes. `jpegli_set_quality()` exists but scales the standard Annex K
+  tables instead, which discards jpegli's tuning. **The same number means a
+  different picture in the two JPEG encoders.**
+- **`chromaSubsample: 0` writes no sampling factors at all**, leaving jpegli's
+  library default of 4:2:0. (The `cjpegli` tool overrides that default to 4:4:4;
+  Frisp does not.)
+- **Alpha is dropped, not composited**, byte for byte the way `mozJPEG` handles it
+  (`JCS_EXT_RGBA` input, fourth channel ignored). The two JPEG encoders are
+  deliberately identical here so their outputs are comparable.
+- **No `color_space` equivalent.** jpegli output is always YCbCr; there is no
+  grayscale or RGB mode. `mozJPEG` is the encoder to use for those.
 
 ---
 

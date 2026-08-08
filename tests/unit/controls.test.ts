@@ -9,6 +9,10 @@ import {
 } from '../../src/client/lazy-app/bulk/controls';
 import type { BulkControl } from '../../src/client/lazy-app/bulk/controls';
 import { defaultOptions as avifDefaults } from '../../src/features/encoders/avif/shared/meta';
+import {
+  defaultOptions as jpegliDefaults,
+  JpegliChromaSubsample,
+} from '../../src/features/encoders/jpegli/shared/meta';
 import { defaultOptions as jxlDefaults } from '../../src/features/encoders/jxl/shared/meta';
 import {
   defaultOptions as mozJPEGDefaults,
@@ -491,6 +495,33 @@ const registryCases = [
         base: mozJPEGDefaults,
         mutate: (source) => {
           source.trellis_loops = 3;
+        },
+      },
+    ],
+  },
+  {
+    name: 'jpegli',
+    controls: encoderControls.jpegli,
+    cases: [
+      {
+        id: 'jpegli.quality',
+        base: jpegliDefaults,
+        mutate: (source) => {
+          source.quality = 60;
+        },
+      },
+      {
+        id: 'jpegli.chroma-subsampling',
+        base: jpegliDefaults,
+        mutate: (source) => {
+          source.chromaSubsample = JpegliChromaSubsample.FULL;
+        },
+      },
+      {
+        id: 'jpegli.progressive-rendering',
+        base: jpegliDefaults,
+        mutate: (source) => {
+          source.progressive = false;
         },
       },
     ],

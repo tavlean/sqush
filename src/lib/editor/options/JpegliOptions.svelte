@@ -1,0 +1,38 @@
+<script lang="ts">
+  // jpegli exposes three knobs on purpose: its tuned quantization tables are
+  // the reason to pick it, so there is no advanced section full of overrides
+  // like MozJPEG's. Options bind directly, the same as MozjpegOptions.
+  import {
+    JpegliChromaSubsample,
+    type EncodeOptions,
+  } from 'features/encoders/jpegli/shared/meta';
+  import Range from './Range.svelte';
+  import Checkbox from './Checkbox.svelte';
+  import AdvancedSection from './AdvancedSection.svelte';
+  import Select from './Select.svelte';
+  import OptionRow from './OptionRow.svelte';
+  import ToggleRow from './ToggleRow.svelte';
+
+  let { options }: { options: EncodeOptions } = $props();
+</script>
+
+<form class="options-section" onsubmit={(e) => e.preventDefault()}>
+  <OptionRow>
+    <Range min={0} max={100} bind:value={options.quality}>Quality:</Range>
+  </OptionRow>
+
+  <AdvancedSection>
+    <label class="option-text-first">
+      Chroma subsampling:
+      <Select bind:value={options.chromaSubsample}>
+        <option value={JpegliChromaSubsample.AUTO}>Auto</option>
+        <option value={JpegliChromaSubsample.FULL}>4:4:4</option>
+        <option value={JpegliChromaSubsample.HALF}>4:2:0</option>
+      </Select>
+    </label>
+
+    <ToggleRow label="Progressive rendering">
+      <Checkbox bind:checked={options.progressive} />
+    </ToggleRow>
+  </AdvancedSection>
+</form>

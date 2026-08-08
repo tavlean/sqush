@@ -31,6 +31,11 @@ const FORMATS: Fmt[] = [
     magic: (h) => h[0] === 0xff && h[1] === 0xd8 && h[2] === 0xff,
   },
   {
+    id: 'jpegli',
+    label: 'jpegli',
+    magic: (h) => h[0] === 0xff && h[1] === 0xd8 && h[2] === 0xff,
+  },
+  {
     id: 'oxiPNG',
     label: 'OxiPNG',
     magic: (h) => h[0] === 0x89 && ascii(h, 1, 4) === 'PNG',

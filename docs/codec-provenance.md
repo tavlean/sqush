@@ -4,7 +4,7 @@ This document records what the current repository contains. It is not a guarante
 
 The original Squoosh project committed generated JavaScript and WebAssembly outputs under `codecs/`. Frisp still relies on those committed outputs during the SvelteKit/Vite build.
 
-Current inventory note: `codecs/` contains 63 committed JavaScript/WebAssembly codec artifacts, including browser builds, Node-targeted builds, threaded builds, SIMD builds, and worker companions. That means codec cleanup can reduce repository weight, but it also has a high breakage risk.
+Current inventory note: `codecs/` contains 67 committed JavaScript/WebAssembly codec artifacts, including browser builds, Node-targeted builds, threaded builds, SIMD builds, and worker companions. That means codec cleanup can reduce repository weight, but it also has a high breakage risk.
 
 ## Important rule
 
@@ -40,6 +40,7 @@ The top-level codec package files currently advertise these build entry points:
 | `codecs/jxl`        | `jxl`        | `../build-cpp.sh`                                                                                                            |
 | `codecs/qoi`        | `qoi`        | `../build-cpp.sh`                                                                                                            |
 | `codecs/mozjpeg`    | not declared | `../build-cpp.sh`                                                                                                            |
+| `codecs/jpegli`     | `jpegli`     | `../build-cpp.sh`                                                                                                            |
 | `codecs/oxipng`     | `oxipng`     | `RUST_IMG=rustlang/rust@sha256:5fd16a5576c22c8fdd5d659247755999e426c04de8dcf18a41ea446c5f253309 ../build-rust.sh ./build.sh` |
 | `codecs/imagequant` | `imagequant` | `../build-cpp.sh`                                                                                                            |
 | `codecs/resize`     | `resize`     | `../build-rust.sh`                                                                                                           |
@@ -71,6 +72,7 @@ generated from exactly these inputs.
 | `codecs/jxl`        | libjxl/libjxl                                         | `v0.12.0` (was `v0.8.5`, before that commit `9f544641ec83f6abd9da598bdd08178ee8a003e0`) | Fetches submodules recursively and builds single-thread, multithread, SIMD, and Node-targeted outputs. Encoder wrapper rewritten onto the public `JxlEncoder*` C API (2026-08-08). Adds the 0.11.1 / 0.11.2 CVE fixes on top of CVE-2023-0645, CVE-2023-35790, CVE-2025-12474. **Output at a given quality slider position is larger than at v0.8.5**; see the note below. |
 | `codecs/qoi`        | phoboslab/qoi                                         | commit `8d35d93cdca85d2868246c2a8a80a1e2c16ba2a8` tarball           | Builds encoder and decoder outputs. (Not upgraded — spec is frozen.)                                  |
 | `codecs/mozjpeg`    | mozilla/mozjpeg                                       | `v4.1.5` tarball (was `v3.3.1`)                                     | Build moved autotools → CMake. 9 CVEs from the libjpeg-turbo 2.x base; compression intentionally unchanged = byte-identical. |
+| `codecs/jpegli`     | google/jpegli                                         | commit `031a0077f5799a6041004267fc12b956c1f52a20` (2026-08-09 `main` HEAD) | **New 2026-08-09.** BSD-3-Clause. No release tags exist upstream, so the pin is a commit. Encode only, single variant, built with emsdk 3.1.0. |
 | `codecs/imagequant` | ImageOptim/libimagequant                              | `2.18.0` tarball (was `2.12.1`)                                     | Configures with `--disable-sse`. Byte-identical; security/quality.                                    |
 | `codecs/hqx`        | CryZe/wasmboy-rs `hqx` crate                          | git tag `v0.1.3`                                                    | Rust wrapper package is `squooshhqx` `0.1.0`; lockfile should be preserved when rebuilding. (Not upgraded — upstream abandoned, already on latest tag.) |
 | `codecs/resize`     | crates.io `resize` crate                              | `0.8.9` (was `0.5.5`)                                               | Rust wrapper package is `squoosh-resize` `0.1.0`; lockfile should be preserved when rebuilding. Ahead of both Squoosh and jSquash (which pin 0.5.5). |
@@ -123,6 +125,7 @@ generated from exactly these inputs.
 | QOI decoder         | `src/features/decoders/qoi`         | `codecs/qoi/dec/qoi_dec.*`                                      | Used by app today; likely removable later if the codec surface is narrowed |
 | QOI encoder         | `src/features/encoders/qoi`         | `codecs/qoi/enc/qoi_enc.*`                                      | Dropped from the output picker 2026-06-27; no longer a user-selectable output. Still wired as an internal diagnostics probe (`src/lib/webp-pipeline-probe.ts`), so the encoder is not dead. |
 | MozJPEG encoder     | `src/features/encoders/mozJPEG`     | `codecs/mozjpeg/enc/mozjpeg_enc.*`                              | Used by app today; not in the proposed focused codec list                  |
+| jpegli encoder      | `src/features/encoders/jpegli`      | `codecs/jpegli/enc/jpegli_enc.*`                                | Used by app; added 2026-08-09 as a second JPEG encoder beside MozJPEG. Whether it replaces MozJPEG as the default JPEG is a later product decision. |
 | OxiPNG encoder      | `src/features/encoders/oxiPNG`      | `codecs/oxipng/pkg*`                                            | Used by app today; not in the proposed focused codec list                  |
 | Quantize processor  | `src/features/processors/quantize`  | `codecs/imagequant/imagequant.*`                                | Used by app today; keep until processing strategy is decided               |
 | Resize processor    | `src/features/processors/resize`    | `codecs/resize/pkg`, `codecs/hqx/pkg`                           | Used by app today                                                          |

@@ -137,7 +137,7 @@ never applies to this lane.
 
 ## Codecs / libraries
 
-WASM/JS artifacts live under `codecs/` (inherited from Squoosh; ~63 committed
+WASM/JS artifacts live under `codecs/` (inherited from Squoosh; ~67 committed
 JS/WASM artifacts). Each codec is wired through `src/features/{encoders,decoders}`.
 
 | Codec / role           | Library (upstream)               | Version / commit (recorded locally)                             | Threads               | SIMD                    | App wiring                                                                                    |
@@ -146,6 +146,7 @@ JS/WASM artifacts). Each codec is wired through `src/features/{encoders,decoders
 | AVIF enc/dec           | libavif + libaom (+ libsharpyuv) | libavif `v1.4.2`, libaom `v3.12.1`, libwebp `v1.6.0` (sharpyuv) | yes (`avif_enc_mt`)   | no                      | enc+dec, `image/avif`; engages multi-core, single-thread fallback                             |
 | JPEG XL enc/dec        | libjxl                           | `v0.8.5`                                                        | yes (`jxl_enc_mt`)    | yes (`jxl_enc_mt_simd`) | enc+dec, menu "JPEG XL", `image/jxl`; engages multi-core, single-thread fallback              |
 | MozJPEG enc            | mozilla/mozjpeg                  | `v4.1.5` (built `--with-build-date=squoosh`)                    | no                    | no                      | enc, menu "JPEG" (encoder in tooltip), `image/jpeg`                                           |
+| jpegli enc             | google/jpegli                    | commit `031a0077f5799a6041004267fc12b956c1f52a20` (no upstream tags) | no                | no                      | enc, menu "JPEG (jpegli)", `image/jpeg`; second encoder for the same format as MozJPEG        |
 | OxiPNG enc             | oxipng (crates.io)               | `10.1.1` (normal + parallel wasm-pack)                          | parallel build exists | no                      | enc, menu "PNG" (encoder in tooltip), `image/png`; engages multi-core, single-thread fallback |
 | imagequant (quantize)  | libimagequant (ImageOptim)       | `2.18.0` (`--disable-sse`)                                      | no                    | no                      | quantize processor                                                                            |
 | resize (worker resize) | `resize` crate (crates.io)       | `0.8.9` (wrapper `squoosh-resize` 0.1.0)                        | no                    | no                      | resize processor                                                                              |

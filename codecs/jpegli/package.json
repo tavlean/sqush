@@ -1,0 +1,6 @@
+{
+  "name": "jpegli",
+  "scripts": {
+    "build": "../build-cpp.sh"
+  }
+}

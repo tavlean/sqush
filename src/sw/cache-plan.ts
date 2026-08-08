@@ -30,8 +30,8 @@ export function dedupeUrls(urls: readonly string[]): string[] {
  * - WebP encodes through the SIMD build when supported, else baseline;
  * - the AVIF/WebP WASM decoders are fallbacks for browsers without native
  *   decode support — natively-supported browsers never fetch them;
- * - the JXL/QOI decoders, the MozJPEG encoder, and the processors each have a
- *   single variant used everywhere.
+ * - the JXL/QOI decoders, the MozJPEG and jpegli encoders, and the processors
+ *   each have a single variant used everywhere.
  *
  * The QOI ENCODER is deliberately NOT precached: QOI is no longer a
  * user-selectable output, so the encoder is only ever exercised by the
@@ -51,6 +51,7 @@ export function selectCodecPrecacheUrls(
     'qoi:decoder:default',
     'jxl:decoder:default',
     'mozjpeg:encoder:default',
+    'jpegli:encoder:default',
     'imagequant:processor:default',
     'resize:processor:default',
     'hqx:processor:hqx',

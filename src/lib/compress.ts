@@ -79,6 +79,12 @@ export const OUTPUT_FORMATS: {
     ext: encoderMap.mozJPEG.meta.extension,
   },
   {
+    id: 'jpegli',
+    label: 'JPEG (jpegli)',
+    tooltip: 'Same JPEG format, around 30% better compression',
+    ext: encoderMap.jpegli.meta.extension,
+  },
+  {
     id: 'oxiPNG',
     label: 'PNG',
     tooltip: 'OxiPNG',

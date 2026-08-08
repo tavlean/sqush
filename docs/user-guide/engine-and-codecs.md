@@ -39,9 +39,10 @@ The versions below come straight from the project's build recipes, recorded in `
 | **AVIF**                     | libavif + libaom (+ libsharpyuv) | libavif `v1.4.2`, libaom `v3.12.1` | Threads       | Excellent compression for photos; slower to encode.                      |
 | **JPEG XL**                  | libjxl                           | `v0.8.5`                           | Threads, SIMD | Newer high-efficiency format.                                            |
 | **JPEG**                     | `mozilla/mozjpeg`                | `v4.1.5`                           | —             | Highly optimized classic JPEG encoder (MozJPEG; encoder in the tooltip). |
+| **JPEG (jpegli)**            | `google/jpegli`                  | pinned commit (no upstream tags)   | none          | The same `.jpg` from a newer encoder with better quality-per-byte.       |
 | **PNG**                      | `oxipng` (crates.io)             | `10.1.1`                           | Threads       | Lossless PNG optimizer (OxiPNG; encoder in the tooltip).                 |
 
-All five output codecs are bundled WebAssembly and **always available** — there is nothing to feature-detect.
+All six output codecs are bundled WebAssembly and **always available**; there is nothing to feature-detect. **JPEG** and **JPEG (jpegli)** both write ordinary `.jpg` files: two encoders for one format, not two formats.
 
 ### Input formats (what you can open)
 

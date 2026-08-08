@@ -4,6 +4,84 @@ Short session-by-session build log: what changed, why, and the gotchas a future
 session must know. Newest first. (Live project state stays in
 [the project brief](brief.md); this is the narrative trail.)
 
+## 2026-08-09 (Opus, executor) - jpegli lands as a second JPEG encoder
+
+Executed [specs/2026-07-11-jpegli-codec.md](specs/2026-07-11-jpegli-codec.md).
+`codecs/jpegli/` is a new encode-only single-variant WASM codec built from
+`google/jpegli` commit `031a0077f5799a6041004267fc12b956c1f52a20` (BSD-3-Clause;
+upstream has no release tags, so the pin is a commit). It ships as
+**JPEG (jpegli)** beside the existing MozJPEG-backed **JPEG** entry, with three
+options: quality, progressive, chroma subsampling. MozJPEG is untouched, still
+the default JPEG, and byte-identical on every bench fixture.
+
+**The build was one clean pass**, which is worth saying out loud after the libjxl
+week. The nine things that would otherwise have cost time are gotchas 1 to 9 in
+[../codec-build-notes.md](../codec-build-notes.md) §jpegli. The two that matter
+most: the libjpeg62 ABI shim that would give you `jpeg_*` names is explicitly
+skipped on Emscripten, so the wrapper calls `jpegli_*` directly; and
+`JPEGLI_ENABLE_WASM_THREADS` defaults ON and would have put `-pthread` on every
+translation unit of a codec that ships no threaded artifact.
+
+**Quality goes through `jpegli_set_distance`, not `jpegli_set_quality`.** The
+latter exists and compiles, and it silently scales the standard Annex K
+quantization tables instead of jpegli's tuned ones, which throws away the entire
+reason to use this codec. The wrapper takes the `cjpegli -q` path:
+`jpegli_set_distance(jpegli_quality_to_distance(q))`. Slider 75 lands at
+butteraugli distance 2.35 and slider 0 at exactly 25.0, the API's documented
+ceiling, so the whole range is reachable without a clamp. Both endpoints were
+verified encoding real JPEGs (quality 0 → 14633 bytes, quality 100 → 165068).
+
+**One deliberate divergence from the mozjpeg template**: jpegli's default error
+handler calls `exit()`, which under Emscripten kills the codec worker for the
+rest of the session rather than failing one encode. The wrapper installs a
+`setjmp`/`longjmp` handler (the pattern in jpegli's own
+`lib/extras/enc/jpegli.cc`) and returns `val::null()`, which the worker runtime
+turns back into a rejection. Costs 4622 bytes of artifact; the encode path is
+unaffected, confirmed by every bench fixture producing identical bytes before and
+after the change.
+
+### The datapoint the default-JPEG decision needs, and how to read it
+
+Both encoders at their shipped defaults, which are both labelled quality 75:
+
+| Fixture | MozJPEG | jpegli | Δ bytes | MozJPEG ms | jpegli ms |
+|---|---|---|---|---|---|
+| photo | 74780 | 69804 | **−6.7%** | 219 | **153** |
+| photo-large | 583978 | 540531 | **−7.4%** | 2218 | **1337** |
+| illustration | 6778 | 7974 | +17.6% | 130 | 121 |
+| transparent | 6569 | 7842 | +19.4% | 136 | 129 |
+| gradient | 5978 | 6477 | +8.3% | 131 | 129 |
+| gradient-dithered | 5969 | 6486 | +8.7% | 137 | 121 |
+| hard-edges | 61927 | 91673 | +48.0% | 185 | 128 |
+| noise-synthetic | 123822 | 139900 | +13.0% | 275 | 138 |
+| screenshot | 32782 | 37496 | +14.4% | 209 | 169 |
+
+**This is not an equal-quality comparison and must not be read as one.** The two
+encoders run different quality scales that happen to share the number 75:
+MozJPEG's is libjpeg's, jpegli's maps to a butteraugli distance. All the table
+establishes is that the two default sliders are not calibrated against each
+other, plus one thing that is scale-independent: **jpegli is faster on every
+fixture**, by 30% on photographs and 40 to 50% on the large and noisy ones.
+
+Deciding whether jpegli should own the `JPEG` menu entry needs the same treatment
+the libjxl retune got: a distance ladder per fixture scored with SSIMULACRA2, and
+bytes compared at equal delivered quality rather than at equal slider position.
+Until that exists, the honest read of the shape above is that jpegli's default is
+simply a *higher* quality target than MozJPEG's on synthetic content, not that it
+compresses worse. Photographs, where it is both smaller and faster at a nominally
+equal setting, are the encouraging signal.
+
+Gates: `npm run check` 0 errors / 57 known `corner-shape` warnings, unit 155/155,
+full e2e green in Chromium and WebKit (90 passed, the 2 usual WebKit offline
+skips), `bench:compare` clean with every pre-existing codec at exactly +0.0% and
+jpegli reported as a new row.
+
+**Gotcha found, now in [../gotchas.md](../gotchas.md):** adding an output format
+breaks `tests/e2e/left-panel.spec.ts`, which hard-codes `OUTPUT_FORMATS.length`
+as the expected `.compare-option` count. `check` and the unit tests both stay
+green, so it surfaces only in a full e2e run, in a spec that has nothing to do
+with codecs.
+
 ## 2026-08-08 (Opus, executor) - libjxl v0.8.5 to v0.12.0, and the question it raises
 
 Executed [specs/2026-07-11-libjxl-0-12-upgrade.md](specs/2026-07-11-libjxl-0-12-upgrade.md).
