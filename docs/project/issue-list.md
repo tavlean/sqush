@@ -1,6 +1,6 @@
 # Issue List
 
-Last updated: 2026-07-21.
+Last updated: 2026-08-08.
 
 Small backlog seed. The big tracks live in their own plans — see
 [README.md](../README.md) for the map. Product work belongs in
@@ -18,6 +18,14 @@ Small backlog seed. The big tracks live in their own plans — see
 
 ## Open
 
+1. **WebP default method 6 is a bad trade on alpha content.** Measured
+   2026-08-08 on `transparent.png`: method 6 is 50x slower than method 4 (2880ms
+   vs 57ms) and produces a slightly larger file (2896 vs 2846 bytes). On photos
+   the trade is fair (+25 percent time for -3 percent size). WebP is the default
+   right-side encoder, so a transparent PNG drop pays ~3s for a worse result.
+   Options: revert the default to method 4, or make method content-dependent.
+   The default moved in `e184882f`, whose "stays sub-second" claim holds for
+   photos only.
 1. **Release browser coverage.** Chromium is primary; confirm Safari and Firefox
    before public support claims. Safari's nested-worker behavior specifically
    matters once threading is enabled — fold into

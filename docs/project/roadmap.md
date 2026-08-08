@@ -163,9 +163,6 @@ access to the deciding conversation.
 - **Branch `claude/clever-swartz-2b34ed` is kept, not merged.** Its experiments
   (compare-size chips with a best badge, fit-under-target binary search, shared
   Adjust state) are idea material for a later phase. Do not delete it.
-- **The codec benchmark baseline is deliberately stale.** Fix the warm-run
-  methodology before re-baselining, or cache-hit artifacts get baked into the
-  reference. [../gotchas.md](../gotchas.md)
 
 ## For future executors
 
@@ -185,6 +182,13 @@ access to the deciding conversation.
 ## Done
 
 Newest first. The narrative, with the gotchas, is in [worklog.md](worklog.md).
+
+- [x] **Benchmark methodology fixed and re-baselined** (2026-08-08): measured
+      runs are cache-cold and module-warm instead of timing a `ResultCache` hit,
+      timing no longer gates the exit code (size and reliability do), the suite
+      runs 5x faster, and `baseline.json` is a fresh capture at `aeb169fa`. The
+      old baseline predated the WebP default change and AVIF threading, which is
+      why it read as a WebP regression. [../gotchas.md](../gotchas.md)
 
 - [x] **Search and link-preview metadata** (2026-07-25): title, description,
       Open Graph, social card, robots.txt, sitemap. The served HTML previously had

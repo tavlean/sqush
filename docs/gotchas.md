@@ -1,6 +1,6 @@
 # Gotchas
 
-Last updated: 2026-07-25.
+Last updated: 2026-08-08.
 
 Traps that fail **silently**: the build stays green, the tests stay green, and
 the damage shows up later. Loud failures are deliberately absent because the
@@ -55,11 +55,24 @@ this doc holds the cross-cutting ones that no single file owns.
 
 ## Measurement
 
-- **The codec benchmark's warm runs hit the in-session `ResultCache`**, so they
-  measure a 9ms poll tick rather than an encode, and cannot see the
-  persistent-bridge win. Fix the methodology (bust the cache per run, or reload
-  between runs) BEFORE re-baselining; the committed baseline was deliberately
-  not refreshed because that would bake cache-hit artifacts into the reference.
+- **Any repeat encode of the same recipe in one page session is a `ResultCache`
+  hit**, not an encode: it returns in ~9ms. The codec benchmark used to time
+  exactly that. It now takes a fresh page session per measured run and warms the
+  WASM module on the left side first (`benchmarks/README.md` has the shape);
+  anything else that times an encode has to do the same or it is timing the
+  cache.
+- **AVIF output size depends on the core count.** `avif_enc.cpp` sets
+  `maxThreads` from `emscripten_num_logical_cores()`, and libaom partitions the
+  frame differently per thread count, so the bytes differ across machines and
+  moved the day threading actually engaged (`e9b1be6c`). Every other codec
+  reproduced to the byte across that change. Compare AVIF sizes only against a
+  same-machine baseline.
+- **A stale benchmark baseline reads as a codec regression.** The 2026-06-02
+  baseline survived a WebP default change (`e184882f`, quality 75 to 80 and
+  method 4 to 6) and AVIF threading engaging (`e9b1be6c`) without being
+  re-captured, so the next run looked like WebP had regressed 6 to 22 percent
+  when nothing had regressed at all. Re-capture the baseline in the same commit
+  that changes a default, a codec build, or the harness.
 - **The `photo-large` bench fixture is a single cold run.** Treat it as a
   regression signal, never as a timing measurement.
 - **The SVG auto gate deliberately upscales small sources.** Precision loss that
