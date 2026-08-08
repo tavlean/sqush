@@ -75,6 +75,7 @@ const codecAssetUrlImportPaths = (
     [
       'avif.ts',
       'imagequant.ts',
+      'jpegli.ts',
       'jxl.ts',
       'mozjpeg.ts',
       'oxipng.ts',
@@ -153,6 +154,9 @@ const jxlThreadedWorkerAssets = files
 const mozjpegEncoderWasmAssets = files
   .filter((file) => file.includes('mozjpeg_enc') && file.endsWith('.wasm'))
   .sort();
+const jpegliEncoderWasmAssets = files
+  .filter((file) => file.includes('jpegli_enc') && file.endsWith('.wasm'))
+  .sort();
 const oxipngWasmAssets = files
   .filter(
     (file) => file.includes('squoosh_oxipng_bg') && file.endsWith('.wasm'),
@@ -207,6 +211,9 @@ const jxlDecoderWasmAsset = files.find(
 );
 const mozjpegEncoderWasmAsset = files.find(
   (file) => file.includes('/mozjpeg_enc.') && file.endsWith('.wasm'),
+);
+const jpegliEncoderWasmAsset = files.find(
+  (file) => file.includes('/jpegli_enc.') && file.endsWith('.wasm'),
 );
 const oxipngWasmAsset = files.find(
   (file) => file.includes('/squoosh_oxipng_bg.') && file.endsWith('.wasm'),
@@ -289,6 +296,7 @@ const physicalWasmGroups = [
   ['jxl:encoder:multi-thread-simd', jxlEncoderWasmAssets],
   ['jxl:decoder:default', jxlDecoderWasmAssets],
   ['mozjpeg:encoder:default', mozjpegEncoderWasmAssets],
+  ['jpegli:encoder:default', jpegliEncoderWasmAssets],
   ['oxipng:encoder:single-thread', oxipngWasmAssets],
   ['oxipng:encoder:multi-thread', oxipngWasmAssets],
   ['imagequant:processor:default', imagequantWasmAssets],
@@ -320,6 +328,7 @@ assert(qoiDecoderWasmAsset, 'Missing emitted QOI decoder WASM asset.');
 assert(jxlEncoderWasmAsset, 'Missing emitted JPEG XL encoder WASM asset.');
 assert(jxlDecoderWasmAsset, 'Missing emitted JPEG XL decoder WASM asset.');
 assert(mozjpegEncoderWasmAsset, 'Missing emitted MozJPEG encoder WASM asset.');
+assert(jpegliEncoderWasmAsset, 'Missing emitted jpegli encoder WASM asset.');
 assert(oxipngWasmAsset, 'Missing emitted OxiPNG WASM asset.');
 assert(imagequantWasmAsset, 'Missing emitted ImageQuant WASM asset.');
 assert(resizeWasmAsset, 'Missing emitted resize WASM asset.');
@@ -375,6 +384,10 @@ assert(
 assert(
   mozjpegEncoderWasmAssets.length === 1,
   `Expected exactly one MozJPEG encoder WASM asset after the generated wrapper patch, found ${mozjpegEncoderWasmAssets.length}.`,
+);
+assert(
+  jpegliEncoderWasmAssets.length === 1,
+  `Expected exactly one jpegli encoder WASM asset after the generated wrapper patch, found ${jpegliEncoderWasmAssets.length}.`,
 );
 assert(
   oxipngWasmAssets.length === 2,
@@ -531,6 +544,10 @@ assert(
   `Service-worker build manifest does not include ${mozjpegEncoderWasmAsset}.`,
 );
 assert(
+  serviceWorker.includes(jpegliEncoderWasmAsset),
+  `Service-worker build manifest does not include ${jpegliEncoderWasmAsset}.`,
+);
+assert(
   serviceWorker.includes(oxipngWasmAsset),
   `Service-worker build manifest does not include ${oxipngWasmAsset}.`,
 );
@@ -667,6 +684,7 @@ console.log(
     `JPEG XL encoder WASM asset: ${jxlEncoderWasmAsset}`,
     `JPEG XL decoder WASM asset: ${jxlDecoderWasmAsset}`,
     `MozJPEG encoder WASM asset: ${mozjpegEncoderWasmAsset}`,
+    `jpegli encoder WASM asset: ${jpegliEncoderWasmAsset}`,
     `OxiPNG WASM asset: ${oxipngWasmAsset}`,
     `ImageQuant WASM asset: ${imagequantWasmAsset}`,
     `Resize WASM asset: ${resizeWasmAsset}`,
@@ -701,6 +719,8 @@ console.log(
     ...jxlThreadedWorkerAssets.map((asset) => `  - ${asset}`),
     `MozJPEG encoder WASM copies: ${mozjpegEncoderWasmAssets.length}`,
     ...mozjpegEncoderWasmAssets.map((asset) => `  - ${asset}`),
+    `jpegli encoder WASM copies: ${jpegliEncoderWasmAssets.length}`,
+    ...jpegliEncoderWasmAssets.map((asset) => `  - ${asset}`),
     `OxiPNG WASM copies: ${oxipngWasmAssets.length}`,
     ...oxipngWasmAssets.map((asset) => `  - ${asset}`),
     `ImageQuant WASM copies: ${imagequantWasmAssets.length}`,

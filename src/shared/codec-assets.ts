@@ -7,6 +7,7 @@ export type CodecAssetCodec =
   | 'avif'
   | 'hqx'
   | 'imagequant'
+  | 'jpegli'
   | 'jxl'
   | 'mozjpeg'
   | 'oxipng'

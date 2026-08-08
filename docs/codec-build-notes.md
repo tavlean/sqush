@@ -1,6 +1,6 @@
 # Codec build notes — engineering log
 
-Last updated: 2026-08-08.
+Last updated: 2026-08-09.
 
 > **STATUS: all codecs rebuilt natively (no Docker) and committed on branch
 > `codec-rebuilds`.** imagequant 2.18.0, libwebp v1.6.0, libavif v1.4.2 +
@@ -392,6 +392,61 @@ the wrapper (which uses the stable public libjpeg API). Three gotchas:
    v4's CMake only compiles it into the `cjpeg` exe, so compile `rdswitch.c`
    ourselves (`emcc -c rdswitch.c -o rdswitch.o`) and link it **before**
    `libjpeg.a`. Its unused file-I/O helpers resolve against emscripten libc stubs.
+
+### jpegli (✅ DONE, emcc 3.1.0, google/jpegli `031a0077`, new codec 2026-08-09)
+
+A new encode-only single-variant codec, `codecs/jpegli/`. It built first try, so
+this section is short by comparison; what follows is the knowledge that would
+have cost time to rediscover, not a war story.
+
+1. **Do not build jpegli out of libjxl.** It lived in the libjxl tree until
+   v0.12.0 deleted it. `github.com/google/jpegli` is the only source, it has no
+   release tags, and the pin is therefore a commit SHA (in the Makefile header
+   and `codec-provenance.md`), fetched the way `codecs/jxl` fetches libjxl.
+2. **The API is `jpegli_*`, not `jpeg_*`.** jpegli ships a libjpeg62 ABI shim
+   (`jpegli-libjpeg-obj` in `lib/jpegli.cmake`) that would restore the classic
+   names, but that target is explicitly skipped on Emscripten, Apple and Windows.
+   So the wrapper includes `lib/jpegli/encode.h` and calls `jpegli_set_defaults`,
+   `jpegli_start_compress` and friends. The compress *sequence* is byte for byte
+   libjpeg's, which is why `mozjpeg_enc.cpp` remains the template.
+3. **Two include dirs, and the second is in the build tree.** `encode.h` includes
+   its siblings by in-tree path (`"lib/jpegli/common.h"`), so the source root is
+   an include dir; `jpeglib.h` / `jconfig.h` / `jmorecfg.h` are configured out of
+   `third_party/libjpeg-turbo` into `<build>/lib/include/jpegli` at configure
+   time, so that directory is the other one.
+4. **`jpegli-static` is `EXCLUDE_FROM_ALL`.** A bare `make` builds the tools
+   instead; name the target. Highway is a separate archive (`make hwy` →
+   `<build>/third_party/highway/libhwy.a`) and both go on the link line.
+5. **`JPEGLI_ENABLE_WASM_THREADS` defaults ON and puts `-pthread` on every
+   translation unit** under Emscripten. This codec has one single-threaded
+   variant, so it is off. Turning it on would need the pre-spawned
+   `PTHREAD_POOL_SIZE` pool from the AVIF/JXL section or it would deadlock the
+   same way.
+6. **Quality is a distance, not a libjpeg quality.** `jpegli_set_quality` exists
+   and works, but it scales the *standard* Annex K tables and throws away the
+   tuned tables that are the entire reason to use jpegli. The wrapper goes
+   through `jpegli_set_distance(jpegli_quality_to_distance(q))`, which is what
+   `cjpegli -q` does.
+7. **jpegli's library default is 4:2:0, but `cjpegli`'s default is 4:4:4.**
+   `jpegli_set_colorspace` sets the luma sampling factors to 2×2 for YCbCr, and
+   `lib/extras/enc/jpegli.cc` then overrides them to 1×1 when no subsampling was
+   requested. Reading the tool and assuming it shows the library default gets
+   this backwards. The wrapper's `chromaSubsample: 0` means "touch nothing",
+   which is 4:2:0.
+8. **`jpegli_set_defaults` leaves progression at level 0** (sequential), where
+   `cjpegli`'s own default is level 2. `jpegli_simple_progression` is level 2, so
+   the mozjpeg wrapper's progressive branch ports across unchanged and its
+   `num_scans = 0` else-branch has nothing to undo.
+9. **The `-flto` `check_type_size` pre-seed is not needed here.** jpegli
+   configures `jconfig.h` from a `.in` with the sizes set in cmake rather than
+   probing for them, so the mozjpeg `-DSIZE_T=4` workaround has no equivalent.
+
+The artifact is 155151 bytes, smaller than mozjpeg's 276382 despite jpegli
+carrying highway, because the build is encode-plus-decode-minus-tools and
+wasm-ld strips everything the wrapper never reaches. That is expected here, not
+the "a whole library got dropped" symptom from the AVIF saga: the jpegli error
+strings (`Unsupported color transform`, `Invalid sampling factor`) are present in
+the `.wasm`, which is the cheap way to prove the library actually linked.
 
 ### Rust codecs (oxipng ✅, resize ✅, hqx) — emsdk clang for the C deps
 Need `rustup` + nightly (`-Z build-std` for the parallel/threaded variant) +

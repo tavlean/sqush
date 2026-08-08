@@ -1,4 +1,5 @@
 import * as avifEncoderMeta from 'features/encoders/avif/shared/meta';
+import * as jpegliEncoderMeta from 'features/encoders/jpegli/shared/meta';
 import * as jxlEncoderMeta from 'features/encoders/jxl/shared/meta';
 import * as mozJPEGEncoderMeta from 'features/encoders/mozJPEG/shared/meta';
 import * as oxiPNGEncoderMeta from 'features/encoders/oxiPNG/shared/meta';
@@ -11,6 +12,7 @@ import * as rotatePreprocessorMeta from 'features/preprocessors/rotate/shared/me
 
 export type EncoderState =
   | { type: 'avif'; options: avifEncoderMeta.EncodeOptions }
+  | { type: 'jpegli'; options: jpegliEncoderMeta.EncodeOptions }
   | { type: 'jxl'; options: jxlEncoderMeta.EncodeOptions }
   | { type: 'mozJPEG'; options: mozJPEGEncoderMeta.EncodeOptions }
   | { type: 'oxiPNG'; options: oxiPNGEncoderMeta.EncodeOptions }
@@ -19,6 +21,7 @@ export type EncoderState =
 
 export type EncoderOptions =
   | avifEncoderMeta.EncodeOptions
+  | jpegliEncoderMeta.EncodeOptions
   | jxlEncoderMeta.EncodeOptions
   | mozJPEGEncoderMeta.EncodeOptions
   | oxiPNGEncoderMeta.EncodeOptions
@@ -27,6 +30,7 @@ export type EncoderOptions =
 
 export const encoderMap = {
   avif: { meta: avifEncoderMeta },
+  jpegli: { meta: jpegliEncoderMeta },
   jxl: { meta: jxlEncoderMeta },
   mozJPEG: { meta: mozJPEGEncoderMeta },
   oxiPNG: { meta: oxiPNGEncoderMeta },

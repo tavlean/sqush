@@ -5,6 +5,7 @@ import type { EncodeOptions } from 'features/encoders/webP/shared/meta';
 import type { EncodeOptions as QoiEncodeOptions } from 'features/encoders/qoi/shared/meta';
 import type { EncodeOptions as JxlEncodeOptions } from 'features/encoders/jxl/shared/meta';
 import type { EncodeOptions as MozjpegEncodeOptions } from 'features/encoders/mozJPEG/shared/meta';
+import type { EncodeOptions as JpegliEncodeOptions } from 'features/encoders/jpegli/shared/meta';
 import type { EncodeOptions as OxipngEncodeOptions } from 'features/encoders/oxiPNG/shared/meta';
 import type { Options as GrainOptions } from 'features/processors/grain/shared/meta';
 import type { Options as QuantizeOptions } from 'features/processors/quantize/shared/meta';
@@ -13,6 +14,7 @@ import type { Options as RotateOptions } from 'features/preprocessors/rotate/sha
 import type {
   AvifWasmUrls,
   ImagequantWasmUrls,
+  JpegliWasmUrls,
   JxlWasmUrls,
   MozjpegWasmUrls,
   OxipngWasmUrls,
@@ -37,6 +39,7 @@ const methodNames = [
   'qoiEncode',
   'jxlEncode',
   'mozjpegEncode',
+  'jpegliEncode',
   'grain',
   'quantize',
   'resize',
@@ -77,6 +80,11 @@ export interface SvelteKitWorkerBridgeApi {
     signal: AbortSignal,
     imageData: ImageData,
     options: MozjpegEncodeOptions,
+  ): Promise<ArrayBuffer>;
+  jpegliEncode(
+    signal: AbortSignal,
+    imageData: ImageData,
+    options: JpegliEncodeOptions,
   ): Promise<ArrayBuffer>;
   oxipngEncode(
     signal: AbortSignal,
@@ -151,6 +159,12 @@ interface SvelteKitWorkerBridgeWorkerApi {
     imageData: ImageData,
     options: MozjpegEncodeOptions,
     wasmUrls: MozjpegWasmUrls,
+  ): Promise<ArrayBuffer>;
+  jpegliEncode(
+    signal: AbortSignal,
+    imageData: ImageData,
+    options: JpegliEncodeOptions,
+    wasmUrls: JpegliWasmUrls,
   ): Promise<ArrayBuffer>;
   oxipngEncode(
     signal: AbortSignal,
@@ -228,6 +242,10 @@ const mozjpegWasmUrls = {
   encoder: codecAssetUrl('mozjpeg:encoder:default'),
 } satisfies MozjpegWasmUrls;
 
+const jpegliWasmUrls = {
+  encoder: codecAssetUrl('jpegli:encoder:default'),
+} satisfies JpegliWasmUrls;
+
 const oxipngWasmUrls = {
   singleThread: codecAssetUrl('oxipng:encoder:single-thread'),
   multiThread: codecAssetUrl('oxipng:encoder:multi-thread'),
@@ -304,6 +322,14 @@ export default class SvelteKitWorkerBridge
     options: MozjpegEncodeOptions,
   ): Promise<ArrayBuffer> {
     return super.mozjpegEncode(signal, imageData, options, mozjpegWasmUrls);
+  }
+
+  jpegliEncode(
+    signal: AbortSignal,
+    imageData: ImageData,
+    options: JpegliEncodeOptions,
+  ): Promise<ArrayBuffer> {
+    return super.jpegliEncode(signal, imageData, options, jpegliWasmUrls);
   }
 
   oxipngEncode(

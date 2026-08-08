@@ -1,19 +1,16 @@
-# New-Codec Investigation — Researched, NOT Added
+# New-Codec Investigation
 
-Last updated: 2026-07-15. Status: **investigation record — SVGO SHIPPED (the
-vector lane is live, stages S1–S6; only the S8 benchmark remains open); jpegli
-and JPEG→JXL transcode superseded → build; HEIC still open.**
+Last updated: 2026-08-09. Status: **investigation record. SVGO and jpegli have
+SHIPPED; JPEG→JXL transcode superseded → build; HEIC still open.**
 
 This doc records a research pass on four candidate new codecs/processors that
 came out of the codec audit ([the codec upgrade audit](project/reports/2026-06-02-codec-upgrade-audit.md)
-§4–5). **SVGO has since shipped — the vector lane is live in the editor (stages
-S1–S6); only its S8 benchmark remains open.** The other three are not wired in.
-This is decision material, not a plan to execute — each entry says what it would
-add, whether a usable
-browser/WASM build exists, the effort, and a recommendation. Re-decide when you
-have appetite; the WASM build toolchain (emcc/cmake/wasm-pack/docker) is not
-installed here, so anything needing a codec recompile cannot be done in this repo
-as-is.
+§4–5). Two of the four are now in the app: **SVGO** (the vector lane, stages
+S1–S6, with only its S8 benchmark open) and **jpegli** (a second JPEG encoder).
+The remaining entries are decision material, not a plan to execute: each says
+what it would add, whether a usable browser/WASM build exists, the effort, and a
+recommendation. The WASM build toolchain is installed and proven, so a codec
+recompile is no longer a blocker on any of them.
 
 ## TL;DR
 
@@ -21,7 +18,7 @@ as-is.
 |-----------|--------------|----------------|
 | **SVGO v4** (SVG/vector optimizer) | Optimizes SVG/vector files the raster pipeline can't touch | **SHIPPED.** The vector lane is live (stages S1–S6); only the S8 benchmark remains. Pure JS, official browser bundle, no WASM/toolchain. |
 | **libheif decode-only HEIC input** | Opens iPhone `.heic` (browsers can't decode it), convert out | **LATER.** Strong, but defer for LGPL + WASM weight; do SVGO first. |
-| **jpegli WASM encoder** | Better quality-per-byte standard `.jpg` than MozJPEG | **SUPERSEDED 2026-07-11 → BUILD**: [specs/2026-07-11-jpegli-codec.md](project/specs/2026-07-11-jpegli-codec.md) |
+| **jpegli WASM encoder** | Better quality-per-byte standard `.jpg` than MozJPEG | **SHIPPED 2026-08-09.** Live as "JPEG (jpegli)" beside MozJPEG; `codecs/jpegli/`. |
 | **Lossless JPEG→JXL transcode** | Recompress `.jpg` to `.jxl` ~20% smaller, reversible | **SUPERSEDED 2026-07-11 → BUILD** (after the jxl 0.12 upgrade): [specs/2026-07-11-jpeg-to-jxl-transcode.md](project/specs/2026-07-11-jpeg-to-jxl-transcode.md) |
 
 **SVGO shipped first.** It was the only candidate that added a format the app
@@ -86,30 +83,27 @@ now live (stages S1–S6); the S8 benchmark is the only open piece.
 
 ---
 
-## 3. jpegli WASM encoder — **SKIP now**
+## 3. jpegli WASM encoder: **SHIPPED 2026-08-09**
 
-> **SUPERSEDED 2026-07-11.** Both blockers below are gone: the emsdk toolchain
-> was installed and proven by the 2026-06 codec sweep, and jpegli is now a
-> standalone project (google/jpegli, extracted from libjxl in v0.12.0). Decided
-> → build:
-> [specs/2026-07-11-jpegli-codec.md](project/specs/2026-07-11-jpegli-codec.md). The
-> analysis below is kept as the historical record.
+jpegli is in the app as **JPEG (jpegli)**, a second JPEG encoder beside MozJPEG.
+It is a single-variant encode-only WASM codec at `codecs/jpegli/`, built from a
+pinned `google/jpegli` commit with emsdk 3.1.0, exposing three options (quality,
+progressive, chroma subsampling) because its tuned defaults are the point of the
+codec. Build knowledge is in
+[codec-build-notes.md](codec-build-notes.md) §jpegli; the pin and licence are in
+[codec-provenance.md](codec-provenance.md).
 
-- **What it adds:** Better quality-per-byte JPEG than MozJPEG, producing normal
-  `.jpg` output — a universal win that would benefit every JPEG export.
-- **WASM feasibility:** No off-the-shelf browser/npm build exists. The libjxl
-  WASM-encoder issue (#3454) is still **open**; the only fork is the stale
-  `apenchev/jpegli` (RGBA-only, missing XYB, reads raw files); and `gen2brain`'s
-  port is Go/wazero, not a drop-in C/WASM module.
-- **Effort:** High. Needs emcc (**not installed here**) plus a wrapper and the
-  full feature wiring.
-- **Maturity:** Upstream jpegli is mature (BSD-3), but the **browser packaging is
-  immature**.
-- **Recommendation:** SKIP now; revisit if an official WASM encoder ships.
-- **Sources:**
-  - <https://github.com/libjxl/libjxl/issues/3454>
-  - <https://github.com/apenchev/jpegli>
-  - <https://github.com/gen2brain/jpegli>
+The 2026-07-11 research verdict was SKIP, and both of its reasons expired rather
+than being wrong at the time. It said no browser build existed, which was true of
+third-party packaging and irrelevant once we built our own; and it said emcc was
+not installed, which the 2026-06 codec sweep settled. The one thing worth
+carrying forward is that the third-party ports it surveyed
+(`apenchev/jpegli`, `gen2brain/jpegli`) are still not what you want: building
+from upstream took one clean pass.
+
+**MozJPEG stays the default JPEG.** Which of the two encoders should own the
+`JPEG` menu entry is a product decision waiting on benchmark evidence, and the
+first datapoint is in the worklog entry for this change.
 
 ---
 

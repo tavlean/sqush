@@ -80,6 +80,7 @@ const CODECS = [
   { id: 'avif', label: 'AVIF' },
   { id: 'jxl', label: 'JPEG XL' },
   { id: 'mozJPEG', label: 'MozJPEG' },
+  { id: 'jpegli', label: 'jpegli' },
   { id: 'oxiPNG', label: 'OxiPNG' },
 ];
 

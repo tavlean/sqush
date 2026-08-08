@@ -4,6 +4,7 @@ import type {
 } from 'client/lazy-app/feature-meta/shared';
 import { avifControls } from './avif';
 import { grainControls } from './grain';
+import { jpegliControls } from './jpegli';
 import { jxlControls } from './jxl';
 import { mozJPEGControls } from './mozJPEG';
 import { oxiPNGControls } from './oxiPNG';
@@ -16,6 +17,7 @@ export type { BulkControl } from './types';
 
 export const encoderControls = {
   avif: avifControls,
+  jpegli: jpegliControls,
   jxl: jxlControls,
   mozJPEG: mozJPEGControls,
   oxiPNG: oxiPNGControls,

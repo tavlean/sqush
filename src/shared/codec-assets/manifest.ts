@@ -24,6 +24,7 @@ import {
   jxlEncoderMtWorkerUrl,
   jxlEncoderWasmUrl,
 } from './jxl';
+import { jpegliEncoderWasmUrl } from './jpegli';
 import { mozjpegEncoderWasmUrl } from './mozjpeg';
 import { oxipngMtWasmUrl, oxipngWasmUrl } from './oxipng';
 import { qoiDecoderWasmUrl, qoiEncoderWasmUrl } from './qoi';
@@ -44,6 +45,7 @@ const assetUrlEntries = [
   ['codecs/avif/enc/avif_enc_mt.js', avifEncoderMtScriptUrl],
   ['codecs/hqx/pkg/squooshhqx_bg.wasm', hqxWasmUrl],
   ['codecs/imagequant/imagequant.wasm', imagequantWasmUrl],
+  ['codecs/jpegli/enc/jpegli_enc.wasm', jpegliEncoderWasmUrl],
   ['codecs/jxl/dec/jxl_dec.wasm', jxlDecoderWasmUrl],
   ['codecs/jxl/enc/jxl_enc.wasm', jxlEncoderWasmUrl],
   ['codecs/jxl/enc/jxl_enc_mt.wasm', jxlEncoderMtWasmUrl],
