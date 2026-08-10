@@ -57,9 +57,6 @@ batch landed on 2026-08-08, so every item below is unblocked; run them in this
 order. Each spec is executable by an agent with no access to the deciding
 conversation.
 
-- [ ] **Lossless JPEG to JXL transcode.** Blocked on the fast-tracked libjxl
-      upgrade in Now.
-      [specs/2026-07-11-jpeg-to-jxl-transcode.md](specs/2026-07-11-jpeg-to-jxl-transcode.md)
 - [ ] **Auto-quality mode.** A one-shot Auto action on every lossy panel that
       bisects quality until the output meets an SSIMULACRA2 target, powered by a
       new `codecs/ssimulacra2` module. This is the app-level intelligence layer on
@@ -170,6 +167,13 @@ conversation.
 
 Newest first. The narrative, with the gotchas, is in [worklog.md](worklog.md).
 
+- [x] **Lossless JPEG to JXL transcode** (2026-08-11): a "Lossless transcode"
+      toggle on the JXL panel for JPEG sources repacks the source's DCT
+      coefficients into a JXL container, bit-for-bit reversible (proven by a
+      byte-identical djxl reconstruction), 12 to 20 percent smaller depending
+      on source size, with a snackbar fallback to pixel encoding for
+      untranscodable JPEGs.
+      [specs/2026-07-11-jpeg-to-jxl-transcode.md](specs/2026-07-11-jpeg-to-jxl-transcode.md)
 - [x] **jpegli** (2026-08-09): new encode-only codec from google/jpegli,
       shipped as "JPEG (jpegli)" beside MozJPEG with no default change. Faster
       than MozJPEG on every bench fixture and about 7 percent smaller on photos

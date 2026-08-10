@@ -95,6 +95,12 @@ the multi-threaded runtime is verified in Chromium and WebKit. Gates are green:
 
 Shipped since then, newest first:
 
+- **Lossless JPEG to JXL transcode (2026-08-11).** A toggle on the JXL panel
+  for JPEG sources repacks the existing DCT coefficients into a JXL container
+  via `JxlEncoderAddJPEGFrame`: no re-encode, bit-for-bit reversible (proven
+  by a byte-identical djxl reconstruction), 12 to 20 percent smaller. Gated on
+  pixel-neutral preprocessing; falls back to a normal encode with a snackbar
+  when a JPEG cannot be transcoded.
 - **jpegli (2026-08-09).** A new encode-only codec from google/jpegli, shipped
   as "JPEG (jpegli)" beside MozJPEG with no default change: standard JPEG
   every decoder reads, from the tuned encoder extracted out of libjxl. Faster
@@ -157,9 +163,10 @@ later phase. Do not delete it.
 3. **Pick an editor re-style direction** from the three lab skins, then promote.
 4. **Keyboard control**: a Figma-style single-key proposal is ready at
    [../keyboard-control.md](../keyboard-control.md) with five open decisions.
-5. **The 2026-07 codec batch**: JPEG to JXL transcode and auto-quality mode
-   remain, both specced and unblocked (libjxl 0.12 landed 2026-08-08, jpegli
-   2026-08-09).
+5. **The 2026-07 codec batch**: only auto-quality mode remains, specced and
+   unblocked (libjxl 0.12 landed 2026-08-08, jpegli 2026-08-09, the transcode
+   2026-08-11). It is also the shared brain of the agent surface, so it closes
+   the batch and opens the headless-core track.
 
 Sequencing (decided 2026-08-08): the UI and UX tracks lead. The libjxl 0.12
 upgrade was fast-tracked out of the codec batch because it blocked jpegli, the

@@ -1,10 +1,14 @@
 # Spec: Lossless JPEG → JXL transcode
 
-Last updated: 2026-08-09. Status: **in execution since 2026-08-09** (build
-agent in an isolated worktree). The blocking prerequisite, the libjxl v0.12.0
-upgrade in
-[2026-07-11-libjxl-0-12-upgrade.md](2026-07-11-libjxl-0-12-upgrade.md), landed
-on 2026-08-08.
+Last updated: 2026-08-11. Status: **landed on `main`** (commit 70c306a0,
+2026-08-11). All 6 acceptance criteria met; reversibility proven by a djxl
+reconstruction byte-identical to the source (matching sha256). Measured:
+photo.jpg 84947 to 74604 bytes (12.2 percent; the advertised ~20 percent
+appears at camera size, 19.9 percent on the 12 MP fixture). Notable accepted
+deviations: the encoder runtime factory returns both entrypoints rather than
+instantiating a second module, `preprocessingIsNeutral` also excludes film
+grain, and the registry id follows the file's kebab-case convention
+(`jxl.jpeg-transcode`).
 Origin: maintainer decision 2026-07-11. Supersedes the "SKIP" verdict in
 [new-codec-investigation.md](../../new-codec-investigation.md) §4 — its blockers
 are gone: the recompile toolchain exists (2026-06 sweep), the public-API
