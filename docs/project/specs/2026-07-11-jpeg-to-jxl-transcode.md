@@ -1,7 +1,10 @@
 # Spec: Lossless JPEG → JXL transcode
 
-Last updated: 2026-07-11. Status: **not started — BLOCKED on
-[2026-07-11-libjxl-0-12-upgrade.md](2026-07-11-libjxl-0-12-upgrade.md).**
+Last updated: 2026-08-09. Status: **in execution since 2026-08-09** (build
+agent in an isolated worktree). The blocking prerequisite, the libjxl v0.12.0
+upgrade in
+[2026-07-11-libjxl-0-12-upgrade.md](2026-07-11-libjxl-0-12-upgrade.md), landed
+on 2026-08-08.
 Origin: maintainer decision 2026-07-11. Supersedes the "SKIP" verdict in
 [new-codec-investigation.md](../../new-codec-investigation.md) §4 — its blockers
 are gone: the recompile toolchain exists (2026-06 sweep), the public-API
