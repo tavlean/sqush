@@ -41,6 +41,11 @@ async function dispatchDrag(
   types: string[],
   files: TransferFile[],
 ): Promise<void> {
+  // page.evaluate does no waiting of its own, so on a slow load it can run
+  // before the Intro mounts and the querySelector below misses (the flake
+  // measured at 3-in-30 on webkit). Let Playwright's auto-wait gate it; the
+  // in-page throw stays as the backstop for mid-test teardown.
+  await page.locator('main.intro-frame').waitFor();
   await page.evaluate(
     ([types, files]) => {
       const dataTransfer = new DataTransfer();
