@@ -10,9 +10,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { EncodeOptions } from 'codecs/jxl/enc/jxl_enc';
+import type { EncodeOptions as WasmEncodeOptions } from 'codecs/jxl/enc/jxl_enc';
 
-export type { EncodeOptions };
+/**
+ * The wasm encoder's options plus one app-level field. `jpegTranscode` picks a
+ * different pipeline rather than a different encoder setting (see
+ * `transcodeJpegToJxl`), but it belongs in the options object all the same: it
+ * changes the output bytes, so it has to reach the encode signature that keys
+ * the result cache and the undo history. The wasm encoder never sees it:
+ * embind reads only the fields it has registered.
+ */
+export interface EncodeOptions extends WasmEncodeOptions {
+  jpegTranscode: boolean;
+}
 
 export const label = 'JPEG XL';
 export const mimeType = 'image/jxl';
@@ -26,4 +36,5 @@ export const defaultOptions: EncodeOptions = {
   decodingSpeedTier: 0,
   photonNoiseIso: 0,
   lossyModular: false,
+  jpegTranscode: false,
 };

@@ -1,6 +1,6 @@
 # Frisp docs
 
-Last updated: 2026-08-09.
+Last updated: 2026-08-11.
 
 The index of every doc, and the discipline that keeps them worth reading. Start
 with [project/brief.md](project/brief.md): what Frisp is, where it stands, and
@@ -61,7 +61,7 @@ invalidated. A task is not complete while a doc it touched is stale.
 | [codec-provenance.md](codec-provenance.md) | The exact vendored version and source pin of every codec. Must never show a stale version. (`codec-source-references.md` is a pointer here, kept for older handoffs.) |
 | [codec-upgrade-runbooks.md](codec-upgrade-runbooks.md) | The per-codec upgrade how-to: the build, verify, and commit loop with exact edits. |
 | [codec-options-model.md](codec-options-model.md) | The proposed unified codec-options model, plus the sequencing analysis that puts a minimal slice before bulk Phase 3. |
-| [new-codec-investigation.md](new-codec-investigation.md) | The four researched codec candidates and what became of each. SVGO and jpegli shipped; HEIC is the one still undecided. |
+| [new-codec-investigation.md](new-codec-investigation.md) | The four researched codec candidates and what became of each. SVGO, jpegli and the JPEG to JXL transcode shipped; HEIC is the one still undecided. |
 | [svg-optimization-analysis.md](svg-optimization-analysis.md) | The SVG vector-lane analysis and the competitive findings against nano and ImageOptim. |
 | [frisp-cli-analysis.md](frisp-cli-analysis.md) | Strategic analysis and design for the headless core and CLI. Direction ratified 2026-08-08; two design questions open. |
 

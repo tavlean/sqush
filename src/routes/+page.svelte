@@ -306,6 +306,8 @@
             naturalWidth={session.naturalWidth}
             naturalHeight={session.naturalHeight}
             isVector={session.isVectorSource}
+            sourceType={session.sourceType}
+            transcodeBlocked={session.transcodeBlocked(0)}
             result={session.runtime[0].result}
             working={session.runtime[0].showSpinner}
             canImport={session.canImport[0]}
@@ -330,6 +332,8 @@
           naturalWidth={session.naturalWidth}
           naturalHeight={session.naturalHeight}
           isVector={session.isVectorSource}
+          sourceType={session.sourceType}
+          transcodeBlocked={session.transcodeBlocked(1)}
           result={session.runtime[1].result}
           working={session.runtime[1].showSpinner}
           canImport={session.canImport[1]}

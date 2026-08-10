@@ -52,6 +52,11 @@
     naturalHeight: number;
     /** True when the source is a vector (SVG) — enables the Vector resize method. */
     isVector?: boolean;
+    /** The loaded file's MIME type, for the JPEG-only JXL transcode toggle.
+     *  Left empty by the bulk and lab hosts, which have no transcode lane. */
+    sourceType?: string;
+    /** True when a pixel-changing step on this side rules the transcode out. */
+    transcodeBlocked?: boolean;
     result: CompressOutcome | null;
     working: boolean;
     canImport: boolean;
@@ -72,6 +77,8 @@
     naturalWidth,
     naturalHeight,
     isVector = false,
+    sourceType = '',
+    transcodeBlocked = false,
     result,
     working,
     canImport,
@@ -234,7 +241,11 @@
         {:else if format === 'avif'}
           <AvifOptions options={options as unknown as AvifEncodeOptions} />
         {:else if format === 'jxl'}
-          <JxlOptions options={options as unknown as JxlEncodeOptions} />
+          <JxlOptions
+            options={options as unknown as JxlEncodeOptions}
+            {sourceType}
+            {transcodeBlocked}
+          />
         {:else if format === 'mozJPEG'}
           <MozjpegOptions
             options={options as unknown as MozjpegEncodeOptions}

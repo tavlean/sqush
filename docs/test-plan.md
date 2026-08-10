@@ -1,6 +1,6 @@
 # Test strategy & plan
 
-**Status: in progress. Last updated: 2026-07-07.**
+**Status: in progress. Last updated: 2026-08-11.**
 
 Frisp's test strategy protects the browser-local image pipeline: import, decode,
 process, encode, preview, export, and offline reload. The current suite has three
@@ -28,7 +28,10 @@ by hand.
 - Playwright e2e specs in `tests/e2e/`, run against the production static build
   on Chromium and WebKit. Coverage includes app shell isolation, codec encode
   magic bytes, alpha, quantize, resize, large images, threading, offline reload,
-  editor interactions, and bulk import/export flows.
+  editor interactions, the JPEG-to-JXL transcode, and bulk import/export flows.
+  `jxl-transcode.spec.ts` is the guard for the one encode path that bypasses the
+  pixel pipeline: the codec-encode suite would stay green with the whole branch
+  broken, because it only ever exercises the pixel encoder.
 - Vitest unit tests in `tests/unit/`, focused on pure bulk-engine/helper logic
   plus shared utility contracts.
 - A benchmark harness (`benchmarks/`) with a fixture corpus and before/after

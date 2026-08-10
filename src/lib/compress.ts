@@ -15,6 +15,7 @@ import {
   type ImagePipelineWorkerBridge,
   type SourceImage,
 } from 'client/lazy-app/image-pipeline';
+import { getOutputFileName } from 'client/lazy-app/output-filename';
 import { getPercentChange } from 'client/lazy-app/bulk/size';
 import {
   encoderMap,
@@ -233,6 +234,72 @@ export async function compressPreprocessed(
     percentChange:
       Math.round(getPercentChange(file.size, outputFile.size) * 10) / 10,
     sourceImageData: processed,
+    outputImageData,
+    isOriginal: false,
+    preprocessedWidth: preprocessed.width,
+    preprocessedHeight: preprocessed.height,
+  };
+}
+
+/**
+ * Thrown when libjxl refuses to transcode a JPEG (CMYK, arithmetic coding, or
+ * reconstruction data it cannot build). Distinctive so the caller can tell it
+ * apart from a genuine failure and fall back to a pixel encode.
+ */
+export class TranscodeUnsupportedError extends Error {
+  constructor() {
+    super("This JPEG can't be transcoded losslessly.");
+    this.name = 'TranscodeUnsupportedError';
+  }
+}
+
+/**
+ * Repack a JPEG source into JXL without re-encoding it: libjxl copies the
+ * JPEG's own DCT coefficients across and stores the metadata that reconstructs
+ * the original file exactly. Sidesteps the pipeline entirely, because the input
+ * is the FILE, not the decoded pixels, and nothing may have touched them. That
+ * is the caller's precondition to check.
+ *
+ * Produces the same `CompressOutcome` shape `compressPreprocessed` does, so
+ * everything downstream (cache, preview, download, size readout) is unaware
+ * this path exists. Caller owns `outputUrl` and must revoke it when done.
+ */
+export async function transcodeJpegToJxl(
+  source: SourceImage,
+  signal: AbortSignal,
+  bridge: SvelteKitWorkerBridge,
+): Promise<CompressOutcome> {
+  const pipelineBridge = bridge as unknown as ImagePipelineWorkerBridge;
+  const { file, preprocessed } = source;
+  const { extension, mimeType } = encoderMap.jxl.meta;
+
+  // Read from the File on each attempt, and pass the buffer without claiming a
+  // transfer: the unsupported-JPEG path re-runs the normal encode from this
+  // same source, so nothing here may leave a detached buffer behind it.
+  const transcoded = await bridge.jxlTranscode(
+    signal,
+    await file.arrayBuffer(),
+  );
+  if (!transcoded) throw new TranscodeUnsupportedError();
+
+  const outputFile = new File(
+    [transcoded],
+    getOutputFileName(file.name, extension),
+    { type: mimeType },
+  );
+  // The compare view needs pixels for both panes, and the transcode produced
+  // only bytes, so decode them back exactly as the encode path does.
+  const outputImageData = await decodeImage(signal, outputFile, pipelineBridge);
+  const outputUrl = URL.createObjectURL(outputFile);
+
+  return {
+    outputFile,
+    outputUrl,
+    outputSize: outputFile.size,
+    originalSize: file.size,
+    percentChange:
+      Math.round(getPercentChange(file.size, outputFile.size) * 10) / 10,
+    sourceImageData: preprocessed,
     outputImageData,
     isOriginal: false,
     preprocessedWidth: preprocessed.width,

@@ -1,6 +1,6 @@
 # Codec build notes — engineering log
 
-Last updated: 2026-08-09.
+Last updated: 2026-08-11.
 
 > **STATUS: all codecs rebuilt natively (no Docker) and committed on branch
 > `codec-rebuilds`.** imagequant 2.18.0, libwebp v1.6.0, libavif v1.4.2 +
@@ -193,6 +193,11 @@ v0.9.0 forced when it deleted `enc_file.h` / `enc_color_management.h`. Both the
 build and the wrapper needed real work; the gotchas below are on top of the six
 0.8.5-era ones that follow, which all still apply.
 
+**A second entrypoint landed on 2026-08-11**: `transcodeJPEG`, the lossless
+JPEG-to-JXL repack via `JxlEncoderAddJPEGFrame`. Same libjxl version, no build
+changes, `+38868` bytes on the encoder wasm (2485851 → 2524719) for libjxl's
+JPEG parser and reconstruction encoder. Its gotchas are 20–26 below.
+
 **Artifact size is the accepted cost of v0.12.** The encoder grew from 1402981 to
 2485851 bytes (+77%), the decoder from 858216 to 1030281 (+20%). Split: CODE
 +665 KB, DATA +418 KB, the latter entirely libjxl's own static tables. Every
@@ -307,6 +312,55 @@ and accept the size. Do not re-litigate this without new measurements.
     read it in slices. (c) Chromium is the right decoder for fixture pixels
     anyway, because it handles the JPEG fixtures and matches what `npm run bench`
     actually measures.
+
+20. **The libjxl checkout is gitignored, so a fresh worktree has no build tree
+    and the one in the main checkout may be any version.** `codecs/jxl/node_modules`
+    holds both the source and the two build dirs, and neither is tracked. The
+    v0.12.0 upgrade ran in a worktree that was later removed, which left the
+    main checkout still on v0.8.5 while the Makefile said `v0.12.0`. The
+    Makefile only re-fetches when `CMakeLists.txt` is absent, so a stale tree is
+    silently reused. **Check `lib/CMakeLists.txt`'s `JPEGXL_*_VERSION` before
+    trusting a checkout**, and `rm -rf node_modules` to force a clean fetch.
+    Budget ~15 minutes for the fetch plus both library builds, then ~4 minutes
+    to link all six wrappers.
+21. **`JxlEncoderStoreJPEGMetadata` must be called before
+    `JxlEncoderAddJPEGFrame`, not after.** `AddJPEGFrame` is where libjxl reads
+    the flag and builds the reconstruction record (`encode.cc`, the
+    `store_jpeg_metadata` branch). Set it afterwards and it is silently ignored:
+    the output still decodes to the right pixels, so nothing errors and no test
+    notices, but `djxl` can no longer rebuild the original `.jpg`. The only
+    thing that catches it is an actual round-trip.
+22. **The transcode needs container output, and it gets it for free.** The
+    reconstruction record lives in a `jbrd` box, which exists only in the
+    container format, but `MustUseContainer` (`encode_internal.h`) already
+    returns true whenever `store_jpeg_metadata` is set. The wrapper calls
+    `JxlEncoderUseContainer` anyway, as cjxl's JPEG-input path does, so the
+    requirement is stated rather than inherited.
+23. **Do NOT copy the pixel path's `BUFFERING` and `RESAMPLING` pins onto the
+    transcode settings.** Both are dead there and one is misleading:
+    `CanDoStreamingEncoding` (`enc_frame.cc`) returns false outright for
+    `frame_data.IsJPEG()`, so gotcha 11's streaming default cannot fire on a
+    JPEG frame whatever `BUFFERING` says, and resampling belongs to a pixel
+    encode the path never runs. The transcode sets **no** frame options at all;
+    the JPEG supplies the basic info, the colour encoding and the coefficients.
+24. **Two cheap fidelity checks, both worth running on a transcode change.**
+    (a) Homebrew's `cjxl` transcodes the same fixture natively:
+    `tests/fixtures/photo.jpg` gives 74576 bytes on v0.11.2 against our wasm
+    v0.12.0's 74604, a 0.04% gap that says the wrapper is faithful. Same
+    technique as gotcha 13, and it costs seconds. (b) Relinking the *decoder*
+    from a clean checkout reproduced the committed artifacts byte for byte,
+    which is the fastest confirmation that a re-fetched tree really is the
+    pinned version.
+25. **The ~20% headline is a full-size-photo number.** On the 4000×3000
+    `photo-large.jpg` the transcode saves 19.9% (661605 → 529848); on the
+    1024×683 `photo.jpg` it saves 12.2% (84947 → 74604). Smaller images have
+    proportionally more header and less entropy-coded data to win on, so a
+    benchmark built only on the small fixture will look like a regression
+    against the advertised figure when nothing is wrong.
+26. **`djxl` dropped `--reconstruct_jpeg`.** Homebrew ships v0.11.2, where
+    reconstruction is implied by a `.jpg` output extension: `djxl out.jxl
+    back.jpg` prints "Reconstructed to JPEG." The old flag now fails with
+    "Unknown argument".
 
 **The 0.8.5-era record (still current for gotchas 1–6 and the embind bug).**
 pre-0.7 commit → **v0.8.5** (CVE-2023-0645, CVE-2023-35790, CVE-2025-12474;

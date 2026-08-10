@@ -10,7 +10,20 @@ A note on how this panel behaves: there is no separate "lossless flag" stored in
 
 ## Controls / Settings
 
-The panel leads with just **Lossless**, **Quality**, and **Effort**; the rest of the lossy tuning (Alternative lossy mode, Auto/Edge-preserving filter, Optimise-for-decoding-speed, Noise-equivalent-to-ISO, and Progressive rendering) folds away under an **Advanced settings** expander. They're all documented in feature order below regardless of where they sit in the panel.
+When your source file is a JPEG, the panel opens with **Lossless transcode**. Below that it leads with **Lossless**, **Quality**, and **Effort**; the rest of the lossy tuning (Alternative lossy mode, Auto/Edge-preserving filter, Optimise-for-decoding-speed, Noise-equivalent-to-ISO, and Progressive rendering) folds away under an **Advanced settings** expander. They're all documented in feature order below regardless of where they sit in the panel.
+
+### Lossless transcode
+
+_(Only shown when the image you loaded is a JPEG.)_
+
+- **What it does:** Repacks your existing JPEG into a `.jxl` file without re-compressing it. JPEG XL can store a JPEG's own compressed data directly, so nothing is decoded, re-encoded, or degraded: the picture is bit-for-bit the same picture, in a container that stores it more efficiently. Expect around **20% smaller** for zero quality change. It is also **exactly reversible**: the `.jxl` keeps enough information to rebuild your original `.jpg` byte for byte, so you can archive the small version and get the original back later.
+- **Range & default:** On / Off checkbox (option key `jpegTranscode`). **Default Off.** Not shown at all for PNG, WebP, AVIF, or any other source, because there is no JPEG data to repack.
+- **What it hides:** While it is on, the rest of the JPEG XL panel disappears. Quality, Effort and the advanced tuning all describe how to _compress pixels_, and a transcode compresses no pixels, so there is nothing left to decide.
+- **When it turns itself off:** The toggle greys out if **Resize**, **Rotate**, **Film grain**, or **Reduce palette** is active. Those all change pixels, which destroys the original JPEG data the transcode reuses. Turn them off and the toggle comes back.
+- **How to choose:** Turn it **on** whenever you have a JPEG and just want it smaller with no trade-off at all. Leave it **off** when you want a genuinely smaller file and are willing to lose some quality for it, or when you need to resize or edit the image first.
+- **Recommended starting point:** **On** for archiving or shrinking JPEGs you want to keep unchanged. **Off** when you are compressing for the web and want a much bigger saving than 20%.
+
+> **A rare failure, handled for you.** A few unusual JPEGs (CMYK ones, or arithmetic-coded ones) cannot be transcoded. If you hit one, Frisp says so and quietly falls back to a normal JPEG XL encode instead, so you still get a result.
 
 ### Lossless
 
@@ -107,11 +120,12 @@ _(Only shown when Lossless is off.)_
 | **Graphics / screenshots / line art** | **Lossless** on, Effort **7** (Effort 5 is also fine if speed matters) | JXL auto-selects its modular mode for flat/synthetic content; lossless on screenshots and line art is both small and artifact-free.        |
 | **Transparency / alpha cutouts**      | **Lossless** on, or Quality **~90**, Effort **7**                      | JXL handles alpha natively in both modes; high quality keeps mask edges clean. No special flags needed.                                    |
 | **Archival / master files**           | **Lossless** on, Effort **7–9**                                        | The strongest archival pick here: lossless is ~35% smaller than optimized PNG and supports up to 32-bit and wide gamut.                    |
+| **Shrinking an existing JPEG**        | **Lossless transcode** on                                              | ~20% off with no quality change and no decision to make, and the original `.jpg` can be rebuilt from the `.jxl` exactly.                   |
 
 **Community tips**
 
 - **Effort 7 ("squirrel") is the sweet spot.** It sits on the Pareto front; Effort 8–9 give tiny extra savings for a large time cost. Don't waste minutes at 9 for a marginal gain.
-- **JXL's killer feature is lossless JPEG transcoding.** On the command line, feeding `cjxl` a `.jpg` losslessly re-packs it ~20% smaller, reversibly, with zero quality change. Frisp re-encodes from decoded pixels rather than doing this bit-exact transcode, so to mimic it, keep an existing JPEG at high quality and compare.
+- **JXL's killer feature is lossless JPEG transcoding, and Frisp does it.** Load a `.jpg`, pick JPEG XL, tick **Lossless transcode**: ~20% smaller, reversibly, with zero quality change. This is the same operation `cjxl` performs on the command line.
 - **Browser support is the catch.** Native only in Safari 17+; Chrome/Firefox keep it behind a flag or removed it. Great for archiving, Safari-targeted, or controlled pipelines; not general web delivery yet.
 - **Quality numbers aren't comparable across formats.** A JXL "75" is not a WebP "75". Judge by the preview.
 - **JXL shines at high quality, not extreme size reduction.** For the very smallest flat-graphic files at the lowest bitrates, AVIF can edge it out; JXL's strength is photographic and high-fidelity/archival work.
@@ -120,6 +134,8 @@ _Sources: [cjxl man page](https://manpages.debian.org/unstable/libjxl-tools/cjxl
 
 ## Tips & pitfalls
 
+- **"Lossless transcode" and "Lossless" are different things.** Lossless transcode keeps your existing JPEG exactly as it is, just packed smaller. Lossless re-compresses the decoded pixels perfectly, which is a bigger file than the JPEG you started from, because a JPEG has already thrown detail away and lossless has to preserve every last artifact of it.
+- **The transcode toggle only appears for JPEG sources**, and only while nothing is editing the pixels. If you cannot find it, check what you loaded, then check Resize, Rotate, Film grain and Reduce palette.
 - **Lossless is just Quality = 100.** There's no separate lossless flag in the file. Ticking Lossless maxes out quality; the Quality slider only goes to 99 precisely so the two states stay distinct.
 - **Most lossy tuning lives under Advanced — and all of it vanishes in lossless mode.** If you can't find Alternative lossy mode, Edge filter, decoding speed, ISO noise, or Progressive, open **Advanced settings** (only Quality and Effort sit up front). If even those are gone, Lossless is on — it hides the lossy controls and shows only "Slight loss".
 - **Very low quality locks Alternative lossy mode on.** Below Quality 7 the "Alternative lossy mode" checkbox is forced on and greyed out; that's expected.
@@ -142,4 +158,4 @@ In practice, if you put a `.jxl` on a public website, most visitors won't see it
 
 ## Under the hood
 
-Frisp's JPEG XL support is built on the libjxl reference encoder compiled to WebAssembly, so all compression happens on your device — no image is uploaded. The "Effort" levels map onto libjxl's named speed tiers (7 = "squirrel", the default; higher = "kitten"/"tortoise", slower but smaller), and the alternative lossy engine is libjxl's _modular_ mode, which suits non-photographic images. Several of these controls (decoding-speed tier, photon-noise synthesis, edge-preserving filter) are advanced libjxl features that most users can safely leave at their defaults.
+Frisp's JPEG XL support is built on the libjxl reference encoder compiled to WebAssembly, so all compression happens on your device — no image is uploaded. Lossless transcode is a second entrypoint into the same encoder: it is handed the JPEG file itself rather than decoded pixels, and libjxl copies the JPEG's DCT coefficients across and writes a small reconstruction record alongside them, which is what makes the original recoverable. The "Effort" levels map onto libjxl's named speed tiers (7 = "squirrel", the default; higher = "kitten"/"tortoise", slower but smaller), and the alternative lossy engine is libjxl's _modular_ mode, which suits non-photographic images. Several of these controls (decoding-speed tier, photon-noise synthesis, edge-preserving filter) are advanced libjxl features that most users can safely leave at their defaults.

@@ -192,7 +192,9 @@ const encodeQoi = createQoiEncoderRuntime({
 const decodeJxl = createJxlDecoderRuntime({
   loadDecoder: async () => jxlDecoder,
 });
-const encodeJxl = createJxlEncoderRuntime({
+// The only runtime exposing two operations (encode + transcodeJpeg) instead of
+// one function, so that both reach the same loaded module.
+const jxl = createJxlEncoderRuntime({
   supportsThreads: checkThreadsSupport,
   supportsSimd: simd,
   async loadSingleThread() {
@@ -314,7 +316,17 @@ const workerApi = {
     wasmUrls: JxlWasmUrls,
   ): Promise<ArrayBuffer> {
     locateCodecWasm({ jxl: wasmUrls });
-    return transferBuffer(encodeJxl(imageData, options));
+    return transferBuffer(jxl.encode(imageData, options));
+  },
+  // Not transferBuffer: the result is nullable, and a null has nothing to
+  // transfer.
+  async jxlTranscode(
+    jpeg: ArrayBuffer,
+    wasmUrls: JxlWasmUrls,
+  ): Promise<ArrayBuffer | null> {
+    locateCodecWasm({ jxl: wasmUrls });
+    const output = await jxl.transcodeJpeg(jpeg);
+    return output ? transfer(output, [output]) : null;
   },
   mozjpegEncode(
     imageData: ImageData,

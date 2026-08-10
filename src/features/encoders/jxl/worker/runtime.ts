@@ -65,20 +65,45 @@ export function createJxlEncoderRuntime({
     return initEmscriptenModule(moduleFactory);
   }
 
-  return async function encode(
-    data: ImageData,
-    options: EncodeOptions,
-    runtimeOptions?: JxlEncodeRuntimeOptions,
-  ): Promise<ArrayBuffer> {
+  function load(runtimeOptions?: JxlEncodeRuntimeOptions): Promise<JXLModule> {
     if (!emscriptenModule) emscriptenModule = init(runtimeOptions);
+    return emscriptenModule;
+  }
 
-    const module = await emscriptenModule;
-    const result = module.encode(data.data, data.width, data.height, options);
-
-    if (!result) throw new Error('Encoding error.');
-
+  // Copied out of the wasm heap: the returned view aliases module memory, which
+  // the next call is free to reuse or grow out from under it.
+  function detach(result: Uint8Array): ArrayBuffer {
     const output = new Uint8Array(result.byteLength);
     output.set(result);
     return output.buffer as ArrayBuffer;
+  }
+
+  // Two operations rather than one, because they share the module: instantiating
+  // this encoder twice in the same worker would cost a second 2.5 MB of wasm for
+  // an entrypoint that lives in the same binary.
+  return {
+    async encode(
+      data: ImageData,
+      options: EncodeOptions,
+      runtimeOptions?: JxlEncodeRuntimeOptions,
+    ): Promise<ArrayBuffer> {
+      const module = await load(runtimeOptions);
+      const result = module.encode(data.data, data.width, data.height, options);
+
+      if (!result) throw new Error('Encoding error.');
+
+      return detach(result);
+    },
+
+    /** null when libjxl cannot losslessly transcode this JPEG (see the wrapper). */
+    async transcodeJpeg(
+      jpeg: ArrayBuffer,
+      runtimeOptions?: JxlEncodeRuntimeOptions,
+    ): Promise<ArrayBuffer | null> {
+      const module = await load(runtimeOptions);
+      const result = module.transcodeJPEG(new Uint8Array(jpeg));
+
+      return result ? detach(result) : null;
+    },
   };
 }

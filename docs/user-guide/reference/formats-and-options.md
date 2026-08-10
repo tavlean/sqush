@@ -181,6 +181,22 @@ no effective difference. `qualityAlpha = -1` sentinel is never shown as a number
 Panel: `JxlOptions.svelte`. `lossless` derived from `quality===100`. `epf === -1`
 means "auto edge filter".
 
+**JPEG sources only** (the panel receives the loaded file's MIME type; the row is
+absent for every other source)
+
+| UI label           | key             | control  | range / values | default |
+| ------------------ | --------------- | -------- | -------------- | ------- |
+| Lossless transcode | `jpegTranscode` | checkbox | bool           | false   |
+
+The only option that picks a different pipeline rather than an encoder setting:
+`transcodeJpegToJxl` hands the JPEG's file bytes to libjxl's `transcodeJPEG`
+entrypoint, which repacks the existing DCT coefficients and stores JPEG
+reconstruction data. Disabled (with a reason) whenever rotate, a real resize,
+film grain, or reduce-palette is active, because coefficient reuse cannot
+survive a pixel change. While it is on and not blocked, every other JXL control
+is hidden, because none of them applies. Single-image editor only; bulk mode has no
+transcode lane.
+
 **Always visible**
 
 | UI label              | key                       | control  | range / values   | default          |
@@ -209,6 +225,10 @@ means "auto edge filter".
 **Hidden / quirks** — all `EncodeOptions` fields are exposed. `lossyModular` is
 coerced to `true` whenever `quality < 7` (apply() override, checkbox also disabled).
 `lossyPalette` only takes effect in lossless mode (`apply()` sets it false otherwise).
+`jpegTranscode` is the one field the wasm encoder never reads: it lives in the
+options object so it reaches the encode signature that keys the result cache and
+the undo history, and it survives on a non-JPEG source (harmlessly, since the
+engine re-checks the preconditions before routing).
 
 ---
 

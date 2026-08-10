@@ -4,6 +4,78 @@ Short session-by-session build log: what changed, why, and the gotchas a future
 session must know. Newest first. (Live project state stays in
 [the project brief](brief.md); this is the narrative trail.)
 
+## 2026-08-11 (Opus, executor) - lossless JPEG to JXL transcode
+
+Executed
+[specs/2026-07-11-jpeg-to-jxl-transcode.md](specs/2026-07-11-jpeg-to-jxl-transcode.md).
+Load a JPEG, pick JPEG XL, tick **Lossless transcode**, and libjxl repacks the
+source's existing DCT coefficients instead of re-encoding pixels. No quality
+decision, no generation loss, and the output carries the record that rebuilds the
+original `.jpg` byte for byte. Same libjxl v0.12.0, no build-system change: the
+wrapper gained a second entrypoint, `transcodeJPEG` beside `encode`, worth
+`+38868` bytes on the encoder wasm.
+
+**The reversibility check, which is the whole point of the feature.** The app's
+own output, transcoded in Chromium and saved to disk, reconstructed and compared:
+
+```
+djxl photo-transcoded.jxl back.jpg     → "Reconstructed to JPEG."
+cmp tests/fixtures/photo.jpg back.jpg  → identical
+sha256                                 → 784b5dfc… on both
+```
+
+`tests/fixtures/photo.jpg` 84947 bytes → 74604 bytes, **12.2% smaller**. Homebrew
+`cjxl` (v0.11.2) transcodes the same file to 74576, a 0.04% gap that says the
+wasm wrapper is faithful to upstream. The advertised ~20% shows up at camera
+size: `photo-large.jpg` goes 661605 → 529848, **19.9%**. Quote the headline for
+photos, not for thumbnails.
+
+**This is the first feature that changes the pipeline's shape rather than its
+settings.** Every other encode runs decode → preprocess → resize → encode on
+pixels; this one needs the file bytes, so it gets its own wasm entrypoint, its
+own worker op (`jxlTranscode`), and a branch in `encodeSide`. Three consequences
+worth knowing:
+
+- **The flag lives in the JXL options object** (`jpegTranscode`, default false),
+  not in UI state, so it flows into the encode signature for free. That is what
+  stops a transcode result and a pixel result colliding in the result cache. It
+  also means the signature changed, so the first run after this lands recomputes
+  every JXL entry once. `app:settings:v3` is unaffected: an additive field on a
+  `Record<string, unknown>` is exactly what `sanitizeSavedOptions` already
+  handles, and `settings.test.ts` passes untouched.
+- **The engine re-checks the preconditions itself** rather than trusting the UI.
+  Rotate, a real resize, film grain or reduce-palette all make coefficient reuse
+  dishonest, so `preprocessingIsNeutral` folds them the same way the encode
+  signature does (resize enabled at 100% stays neutral in both).
+- **`createJxlEncoderRuntime` now returns two operations instead of one
+  function**, the only runtime in `codec-worker.ts` shaped that way. It shares
+  the loaded module: instantiating the encoder twice in one worker would cost a
+  second 2.5 MB of wasm for an entrypoint already inside the first copy.
+
+**Four gotchas that would each have cost a session**, written up as 20 to 26 in
+[../codec-build-notes.md](../codec-build-notes.md) §libjxl. The dangerous one:
+`JxlEncoderStoreJPEGMetadata` must be called *before* `JxlEncoderAddJPEGFrame`,
+because that is where libjxl reads it. Call it after and nothing errors, the
+output decodes to the right pixels, every test stays green, and the file is
+quietly no longer reversible. Only a round-trip catches it. The other three: the
+pixel path's `BUFFERING` and `RESAMPLING` pins must NOT be copied onto the
+transcode settings (`CanDoStreamingEncoding` returns false for JPEG frames
+outright, so the streaming default cannot fire); the libjxl checkout is
+gitignored, so the copy in the main worktree was still v0.8.5 while the Makefile
+said v0.12.0, and the Makefile silently reuses a stale tree; and Homebrew's
+`djxl` dropped `--reconstruct_jpeg` in favour of inferring it from a `.jpg`
+output extension.
+
+**Gates.** check 0 errors / 57 known corner-shape warnings; unit 156 (155 + one
+new for the unsupported-JPEG branch); e2e 94 passed + the 2 known WebKit offline
+skips (90 + two new specs across both browsers); `bench:compare` +0.0% on every
+codec and every fixture, JXL included, which is the point: this is a new path,
+not a changed encode.
+
+**Deliberately not done**, all per the spec: no bulk-mode transcode, no
+JXL-to-JPEG reconstruction UI in the app, no auto-enable for JPEG sources, and no
+keep-the-smaller-one guard.
+
 ## 2026-08-09 (Opus, executor) - jpegli lands as a second JPEG encoder
 
 Executed [specs/2026-07-11-jpegli-codec.md](specs/2026-07-11-jpegli-codec.md).

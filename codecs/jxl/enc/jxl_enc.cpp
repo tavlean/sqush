@@ -68,6 +68,35 @@ static float QualityToDistance(float quality) {
   return 7.1f + (30.0f - quality) * ((15.0f - 7.1f) / 30.0f);
 }
 
+// Drain the encoder into a JS Uint8Array, or null if it failed. Shared by both
+// entrypoints and modelled on ReadCompressedOutput in libjxl's own
+// lib/extras/enc/jxl.cc, which grows the buffer the same way.
+static val ReadCompressedOutput(JxlEncoder* enc) {
+  std::vector<uint8_t> compressed(64);
+  uint8_t* next_out = compressed.data();
+  size_t avail_out = compressed.size();
+  JxlEncoderStatus process_result = JXL_ENC_NEED_MORE_OUTPUT;
+  while (process_result == JXL_ENC_NEED_MORE_OUTPUT) {
+    process_result = JxlEncoderProcessOutput(enc, &next_out, &avail_out);
+    if (process_result == JXL_ENC_NEED_MORE_OUTPUT) {
+      size_t offset = next_out - compressed.data();
+      compressed.resize(compressed.size() * 2);
+      next_out = compressed.data() + offset;
+      avail_out = compressed.size() - offset;
+    }
+  }
+  if (JXL_ENC_SUCCESS != process_result) {
+    return val::null();
+  }
+  compressed.resize(next_out - compressed.data());
+
+  // Resolve the Uint8Array constructor at call time rather than via a
+  // namespace-scope `thread_local val::global(...)`: in this large module on
+  // emcc 3.1.0 the static-init handle can be created before the JS runtime is
+  // ready, yielding an invalid emval handle that throws when `.new_` is used.
+  return val::global("Uint8Array").new_(typed_memory_view(compressed.size(), compressed.data()));
+}
+
 val encode(std::string image, int width, int height, JXLOptions options) {
   const float distance = QualityToDistance(options.quality);
   const bool lossless = (distance == 0.0f);
@@ -242,29 +271,71 @@ val encode(std::string image, int width, int height, JXLOptions options) {
   // encode hangs.
   JxlEncoderCloseInput(enc.get());
 
-  std::vector<uint8_t> compressed(64);
-  uint8_t* next_out = compressed.data();
-  size_t avail_out = compressed.size();
-  JxlEncoderStatus process_result = JXL_ENC_NEED_MORE_OUTPUT;
-  while (process_result == JXL_ENC_NEED_MORE_OUTPUT) {
-    process_result = JxlEncoderProcessOutput(enc.get(), &next_out, &avail_out);
-    if (process_result == JXL_ENC_NEED_MORE_OUTPUT) {
-      size_t offset = next_out - compressed.data();
-      compressed.resize(compressed.size() * 2);
-      next_out = compressed.data() + offset;
-      avail_out = compressed.size() - offset;
-    }
-  }
-  if (JXL_ENC_SUCCESS != process_result) {
+  return ReadCompressedOutput(enc.get());
+}
+
+// Repacks a complete JPEG FILE's existing DCT coefficients into a JXL container
+// and stores the metadata that makes `djxl out.jxl back.jpg` give back the
+// original file byte for byte. This is not an encode: there is no pixel data,
+// no quality decision, and no generation loss, which is why it takes the file
+// bytes rather than an ImageData and shares none of encode()'s option mapping.
+// Returns null when libjxl cannot parse the JPEG or cannot build reconstruction
+// data (CMYK, arithmetic coding, excess tail data); the caller falls back to a
+// normal pixel encode.
+val transcodeJPEG(std::string jpeg_bytes) {
+#ifdef __EMSCRIPTEN_PTHREADS__
+  JxlThreadParallelRunnerPtr runner = JxlThreadParallelRunnerMake(
+      nullptr, JxlThreadParallelRunnerDefaultNumWorkerThreads());
+  if (!runner) {
     return val::null();
   }
-  compressed.resize(next_out - compressed.data());
+#endif
 
-  // Resolve the Uint8Array constructor at call time rather than via a
-  // namespace-scope `thread_local val::global(...)`: in this large module on
-  // emcc 3.1.0 the static-init handle can be created before the JS runtime is
-  // ready, yielding an invalid emval handle that throws when `.new_` is used.
-  return val::global("Uint8Array").new_(typed_memory_view(compressed.size(), compressed.data()));
+  JxlEncoderPtr enc = JxlEncoderMake(nullptr);
+  if (!enc) {
+    return val::null();
+  }
+
+#ifdef __EMSCRIPTEN_PTHREADS__
+  if (JXL_ENC_SUCCESS != JxlEncoderSetParallelRunner(enc.get(), JxlThreadParallelRunner,
+                                                     runner.get())) {
+    return val::null();
+  }
+#endif
+
+  // The reconstruction data rides in a `jbrd` box, which only exists in the
+  // container format, so the output has to be a container rather than a bare
+  // codestream. cjxl's JPEG-input path asks for this explicitly too.
+  if (JXL_ENC_SUCCESS != JxlEncoderUseContainer(enc.get(), JXL_TRUE)) {
+    return val::null();
+  }
+  // Must precede AddJPEGFrame: that is where libjxl reads the flag and builds
+  // the reconstruction data. Set afterwards it is silently ignored, and the
+  // output would decode correctly while no longer being reversible.
+  if (JXL_ENC_SUCCESS != JxlEncoderStoreJPEGMetadata(enc.get(), JXL_TRUE)) {
+    return val::null();
+  }
+
+  JxlEncoderFrameSettings* frame_settings = JxlEncoderFrameSettingsCreate(enc.get(), nullptr);
+  if (!frame_settings) {
+    return val::null();
+  }
+
+  // No frame options at all, deliberately. The JPEG supplies the basic info,
+  // the colour encoding and the coefficients, so distance, effort and modular
+  // mode have nothing to act on. The two pins encode() needs are no-ops here as
+  // well: libjxl refuses to stream a JPEG frame whatever BUFFERING says
+  // (CanDoStreamingEncoding bails on IsJPEG), and resampling belongs to the
+  // pixel path it never enters.
+  if (JXL_ENC_SUCCESS !=
+      JxlEncoderAddJPEGFrame(frame_settings,
+                             reinterpret_cast<const uint8_t*>(jpeg_bytes.data()),
+                             jpeg_bytes.size())) {
+    return val::null();
+  }
+  JxlEncoderCloseInput(enc.get());
+
+  return ReadCompressedOutput(enc.get());
 }
 
 EMSCRIPTEN_BINDINGS(my_module) {
@@ -279,4 +350,5 @@ EMSCRIPTEN_BINDINGS(my_module) {
       .field("epf", &JXLOptions::epf);
 
   function("encode", &encode);
+  function("transcodeJPEG", &transcodeJPEG);
 }

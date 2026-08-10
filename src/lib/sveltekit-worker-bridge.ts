@@ -38,6 +38,7 @@ const methodNames = [
   'webpDecode',
   'qoiEncode',
   'jxlEncode',
+  'jxlTranscode',
   'mozjpegEncode',
   'jpegliEncode',
   'grain',
@@ -76,6 +77,14 @@ export interface SvelteKitWorkerBridgeApi {
     options: JxlEncodeOptions,
   ): Promise<ArrayBuffer>;
   jxlDecode(signal: AbortSignal, blob: Blob): Promise<ImageData>;
+  /**
+   * Repack a JPEG file's own coefficients into a reversible JXL. Takes the file
+   * bytes, not pixels; resolves null when libjxl cannot transcode this JPEG.
+   */
+  jxlTranscode(
+    signal: AbortSignal,
+    jpeg: ArrayBuffer,
+  ): Promise<ArrayBuffer | null>;
   mozjpegEncode(
     signal: AbortSignal,
     imageData: ImageData,
@@ -154,6 +163,11 @@ interface SvelteKitWorkerBridgeWorkerApi {
     blob: Blob,
     wasmUrls: JxlWasmUrls,
   ): Promise<ImageData>;
+  jxlTranscode(
+    signal: AbortSignal,
+    jpeg: ArrayBuffer,
+    wasmUrls: JxlWasmUrls,
+  ): Promise<ArrayBuffer | null>;
   mozjpegEncode(
     signal: AbortSignal,
     imageData: ImageData,
@@ -314,6 +328,13 @@ export default class SvelteKitWorkerBridge
 
   jxlDecode(signal: AbortSignal, blob: Blob): Promise<ImageData> {
     return super.jxlDecode(signal, blob, jxlWasmUrls);
+  }
+
+  jxlTranscode(
+    signal: AbortSignal,
+    jpeg: ArrayBuffer,
+  ): Promise<ArrayBuffer | null> {
+    return super.jxlTranscode(signal, jpeg, jxlWasmUrls);
   }
 
   mozjpegEncode(

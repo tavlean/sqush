@@ -1,6 +1,6 @@
 # Issue List
 
-Last updated: 2026-08-08.
+Last updated: 2026-08-11.
 
 Small backlog seed. The big tracks live in their own plans — see
 [README.md](../README.md) for the map. Product work belongs in
@@ -18,11 +18,16 @@ Small backlog seed. The big tracks live in their own plans — see
 
 ## Open
 
-1. **`landing.spec.ts` drag-and-drop tests flake under machine load.** Seen
-   three times on 2026-08-08 (different tests, both browsers) while codec
-   builds or benches ran in parallel; always pass in isolation and on quiet
-   full runs. If it recurs on a quiet machine, treat it as real; otherwise a
-   candidate for a retry annotation or a less load-sensitive drop simulation.
+1. **`landing.spec.ts` drop and paste tests flake, and it is a real race in the
+   test helper.** The failure is always `page.evaluate: Error: Intro is not on
+   screen.` from `dispatchDrag`: the helper dispatches before the Intro
+   component has mounted. First seen 2026-08-08 under parallel codec builds.
+   **Measured 2026-08-11: it is not load-only.** On a quiet machine it fired in
+   two of four full runs, and `--repeat-each=3` on webkit failed 3 of 30, each
+   time a different test (both drop tests plus the keyboard-paste one). The
+   earlier "always passes in isolation" reading was luck. The fix is to wait for
+   the Intro to be on screen inside the helper rather than to add a retry
+   annotation, which would only hide it.
 1. **WebP default method 6 is a bad trade on alpha content.** Measured
    2026-08-08 on `transparent.png`: method 6 is 50x slower than method 4 (2880ms
    vs 57ms) and produces a slightly larger file (2896 vs 2846 bytes). On photos

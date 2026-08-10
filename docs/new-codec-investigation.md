@@ -1,16 +1,17 @@
 # New-Codec Investigation
 
-Last updated: 2026-08-09. Status: **investigation record. SVGO and jpegli have
-SHIPPED; JPEG→JXL transcode superseded → build; HEIC still open.**
+Last updated: 2026-08-11. Status: **investigation record. SVGO, jpegli and the
+JPEG→JXL transcode have SHIPPED; HEIC is the one still open.**
 
 This doc records a research pass on four candidate new codecs/processors that
 came out of the codec audit ([the codec upgrade audit](project/reports/2026-06-02-codec-upgrade-audit.md)
-§4–5). Two of the four are now in the app: **SVGO** (the vector lane, stages
-S1–S6, with only its S8 benchmark open) and **jpegli** (a second JPEG encoder).
-The remaining entries are decision material, not a plan to execute: each says
-what it would add, whether a usable browser/WASM build exists, the effort, and a
-recommendation. The WASM build toolchain is installed and proven, so a codec
-recompile is no longer a blocker on any of them.
+§4–5). Three of the four are now in the app: **SVGO** (the vector lane, stages
+S1–S6, with only its S8 benchmark open), **jpegli** (a second JPEG encoder), and
+the **lossless JPEG→JXL transcode**. HEIC is the remaining entry, and it is
+decision material rather than a plan to execute: it says what it would add,
+whether a usable browser/WASM build exists, the effort, and a recommendation.
+The WASM build toolchain is installed and proven, so a codec recompile is no
+longer a blocker on it.
 
 ## TL;DR
 
@@ -19,7 +20,7 @@ recompile is no longer a blocker on any of them.
 | **SVGO v4** (SVG/vector optimizer) | Optimizes SVG/vector files the raster pipeline can't touch | **SHIPPED.** The vector lane is live (stages S1–S6); only the S8 benchmark remains. Pure JS, official browser bundle, no WASM/toolchain. |
 | **libheif decode-only HEIC input** | Opens iPhone `.heic` (browsers can't decode it), convert out | **LATER.** Strong, but defer for LGPL + WASM weight; do SVGO first. |
 | **jpegli WASM encoder** | Better quality-per-byte standard `.jpg` than MozJPEG | **SHIPPED 2026-08-09.** Live as "JPEG (jpegli)" beside MozJPEG; `codecs/jpegli/`. |
-| **Lossless JPEG→JXL transcode** | Recompress `.jpg` to `.jxl` ~20% smaller, reversible | **SUPERSEDED 2026-07-11 → BUILD** (after the jxl 0.12 upgrade): [specs/2026-07-11-jpeg-to-jxl-transcode.md](project/specs/2026-07-11-jpeg-to-jxl-transcode.md) |
+| **Lossless JPEG→JXL transcode** | Repack `.jpg` as `.jxl`, smaller and exactly reversible | **SHIPPED 2026-08-11.** The "Lossless transcode" toggle in the JXL panel, for JPEG sources with no pixel edits. |
 
 **SVGO shipped first.** It was the only candidate that added a format the app
 could not handle before, and it needed no codec toolchain. The vector lane is
@@ -107,31 +108,38 @@ first datapoint is in the worklog entry for this change.
 
 ---
 
-## 4. Lossless JPEG→JXL transcoding — **SKIP**
+## 4. Lossless JPEG→JXL transcoding: **SHIPPED 2026-08-11**
 
-> **SUPERSEDED 2026-07-11.** The recompile blocker is gone (toolchain installed;
-> the encoder rewrite is specced anyway) and JXL browser reach flipped (Safari
-> ships it; Chrome 145 ships the decoder behind a flag, default-on expected H2
-> 2026). Decided → build after the jxl upgrade:
-> [specs/2026-07-11-jpeg-to-jxl-transcode.md](project/specs/2026-07-11-jpeg-to-jxl-transcode.md).
-> The analysis below is kept as the historical record.
+Load a JPEG, pick JPEG XL, and the panel offers **Lossless transcode**: libjxl
+repacks the source's existing DCT coefficients instead of re-encoding pixels, and
+stores the record that rebuilds the original `.jpg` byte for byte. Verified end
+to end: `djxl` reconstruction of the app's own output `cmp`s identical to
+`tests/fixtures/photo.jpg`. It is single-image only; bulk has no transcode lane
+yet.
 
-- **What it adds:** Recompresses a `.jpg` into a `.jxl` ~20% smaller,
-  **bit-for-bit reversible** (the `cjxl` default behavior for JPEG input).
-- **WASM feasibility:** Not possible with the current code. True transcoding
-  needs the JPEG DCT bitstream path (`JxlEncoderAddJPEGFrame`), but Frisp's
-  `jxl_enc.cpp` takes **pixels** and `jxl_dec.cpp` outputs **pixels**. jSquash's
-  `lossless: true` is a pixel re-encode, not a transcode, so it does not give the
-  reversible ~20% either.
-- **Effort:** High. New C++ plus a libjxl recompile — impossible here (no emcc).
-- **Maturity:** The libjxl transcode path is mature upstream, but it is **not
-  surfaced** in Frisp or in jSquash.
-- **Recommendation:** SKIP; it is recompile-gated and JXL browser reach is weak
-  (~12% of browsers).
-- **Sources:**
-  - <https://github.com/jamsinclair/jSquash/issues/93>
-  - <https://github.com/jamsinclair/jSquash/pull/94>
-  - <https://en.wikipedia.org/wiki/JPEG_XL>
+This is the one candidate in this doc that changed the pipeline's *shape* rather
+than its settings. Everything else routes decoded pixels through
+decode → preprocess → resize → encode; the transcode needs the file bytes, so it
+gets its own wasm entrypoint (`transcodeJPEG` beside `encode`), its own worker
+op, and a branch in `encodeSide` guarded on the source being a JPEG with nothing
+touching its pixels. The `jpegTranscode` flag lives in the JXL options object so
+it reaches the encode signature, which is what keeps transcode and pixel results
+from colliding in the result cache.
+
+The 2026-07-11 verdict was SKIP, and it was right about the mechanism and wrong
+about the constraints. It correctly identified that a real transcode needs
+`JxlEncoderAddJPEGFrame` and that jSquash's `lossless: true` is a pixel
+re-encode giving none of the benefit. What it treated as permanent were two
+things that expired: "impossible here (no emcc)", settled by the 2026-06 codec
+sweep, and weak browser reach, which flipped when Safari shipped JXL and Chrome
+145 shipped the decoder behind a flag. Worth carrying forward: reach was never
+the deciding argument anyway. A reversible archive format does not need the
+open web to display it, because the point is getting the original back.
+
+**Measured saving is size-dependent.** 19.9% on the 4000×3000 fixture, 12.2% on
+the 1024×683 one. The ~20% headline describes camera-sized photos; quoting it
+for thumbnails will read as a regression. Build knowledge is in
+[codec-build-notes.md](codec-build-notes.md) §libjxl gotchas 20–26.
 
 ---
 

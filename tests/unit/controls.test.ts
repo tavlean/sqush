@@ -321,6 +321,13 @@ const registryCases = [
     controls: encoderControls.jxl,
     cases: [
       {
+        id: 'jxl.jpeg-transcode',
+        base: jxlDefaults,
+        mutate: (source) => {
+          source.jpegTranscode = true;
+        },
+      },
+      {
         id: 'jxl.lossless',
         base: jxlDefaults,
         mutate: (source) => {

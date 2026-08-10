@@ -4,6 +4,8 @@ import {
   getDefaultOptions,
   IDENTITY,
   OUTPUT_FORMATS,
+  transcodeJpegToJxl,
+  TranscodeUnsupportedError,
   type CompressOutcome,
   type SideFormat,
 } from '$lib/compress';
@@ -140,6 +142,28 @@ function snapshotProcessorStateForEncode(
   };
 }
 
+/**
+ * True when nothing between the source file and the encoder would change a
+ * pixel. The JPEG-to-JXL transcode reuses the source's own DCT coefficients, so
+ * it is only honest while rotate, resize, grain and palette reduction are all
+ * inert; the UI blocks the combination, but the engine must decide for itself
+ * rather than trust it. Folded from the same "is it real" predicates the encode
+ * signature uses, so "resize enabled at 100%" stays neutral here too.
+ */
+function preprocessingIsNeutral(
+  preprocessorState: PreprocessorState,
+  processorState: ProcessorState,
+  sourceWidth: number,
+  sourceHeight: number,
+): boolean {
+  return (
+    preprocessorState.rotate.rotate === 0 &&
+    !processorState.quantize.enabled &&
+    !grainIsReal(processorState.grain) &&
+    !resizeIsReal(processorState, sourceWidth, sourceHeight)
+  );
+}
+
 function buildInitialSides(): [SideState, SideState] {
   // Read persisted settings once (not per side) and hydrate both sides.
   const saved = readSaved();
@@ -274,6 +298,9 @@ export class EditorSession {
 
   isVectorSource = $derived(this.file !== null && isSvgSource(this.file));
 
+  // Drives the JXL panel's transcode toggle: which sources can offer it at all.
+  sourceType = $derived(this.file?.type ?? '');
+
   availableFormats = $derived(
     this.isVectorSource
       ? [
@@ -403,6 +430,23 @@ export class EditorSession {
     runtime.status = 'working';
     runtime.error = '';
 
+    // The one recipe that skips the pixel pipeline (see transcodeJpegToJxl).
+    // The flag lives in the options object, so it is already inside `encodeSig`
+    // above: a transcode result and a pixel result can never collide in the
+    // cache. `file.type` is the only "is this a JPEG" test here on purpose:
+    // a renamed or pasted file that lies about its type just fails in the
+    // wrapper and falls back, and two sniffers would be two answers.
+    const wantsTranscode =
+      request.format === 'jxl' &&
+      (request.options as { jpegTranscode?: boolean }).jpegTranscode === true &&
+      current.type === 'image/jpeg' &&
+      preprocessingIsNeutral(
+        request.preprocessorState,
+        request.processorState,
+        srcW,
+        srcH,
+      );
+
     const controller = new AbortController();
     const bridge = this.bridgeFor(index);
 
@@ -432,6 +476,24 @@ export class EditorSession {
             prepared.preprocessed.height,
             controller.signal,
           );
+        }
+        if (wantsTranscode) {
+          try {
+            return await transcodeJpegToJxl(
+              prepared,
+              controller.signal,
+              bridge,
+            );
+          } catch (error) {
+            // Only the "libjxl won't take this JPEG" case falls through; a real
+            // failure (or an abort) still propagates. Falling through keeps the
+            // flag true in the signature, so this input deterministically lands
+            // on the same pixel-encoded result every time, cache hit included.
+            if (!(error instanceof TranscodeUnsupportedError)) throw error;
+            void snackbar.show(
+              "Couldn't transcode this JPEG losslessly, so it was encoded normally.",
+            );
+          }
         }
         return compressPreprocessed(
           prepared,
@@ -1131,6 +1193,21 @@ export class EditorSession {
       snapshot.optionsByFormat,
     );
     this.sides[index].processorState = structuredClone(snapshot.processorState);
+  }
+
+  /**
+   * Whether a pixel-changing step rules this side's JPEG-to-JXL transcode out,
+   * so the panel can disable the toggle with a reason instead of letting it
+   * claim a losslessness the encode would not deliver. The engine repeats this
+   * check for itself (see `encodeSide`) rather than trusting the UI.
+   */
+  transcodeBlocked(index: SideIndex): boolean {
+    return !preprocessingIsNeutral(
+      this.preprocessorState,
+      this.sides[index].processorState,
+      this.naturalWidth,
+      this.naturalHeight,
+    );
   }
 
   private sideContains(index: SideIndex): boolean {

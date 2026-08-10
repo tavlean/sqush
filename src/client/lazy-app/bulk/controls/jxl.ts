@@ -31,6 +31,15 @@ function modeSharedEqual(fields: JxlControl['fields']): JxlControl['equal'] {
 }
 
 export const jxlControls: readonly JxlControl[] = [
+  // Listed first because it is first in the panel. Bulk mode does not route on
+  // it yet (the transcode is single-image only), but the field is part of the
+  // jxl options, so the registry has to be able to compare and copy it or a
+  // "copy settings across" would silently drop it.
+  defineControl({
+    id: 'jxl.jpeg-transcode',
+    label: 'Lossless transcode',
+    fields: ['jpegTranscode'],
+  }),
   defineControl({
     id: 'jxl.lossless',
     label: 'Lossless',
